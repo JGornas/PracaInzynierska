@@ -1,0 +1,6 @@
+@PhishApp.WebApi_HostAddress = http://localhost:5084
+
+GET {{PhishApp.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
