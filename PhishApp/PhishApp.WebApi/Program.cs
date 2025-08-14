@@ -1,3 +1,6 @@
+using PhishApp.WebApi.Infrastructure;
+using PhishApp.WebApi.Middleware;
+
 namespace PhishApp.WebApi
 {
     public class Program
@@ -7,6 +10,8 @@ namespace PhishApp.WebApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            InjectionModule.ConfigureServices(builder.Services);
+
             builder.Services.AddControllers();
             builder.Services.AddAuthorization();
 
@@ -22,6 +27,8 @@ namespace PhishApp.WebApi
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 
