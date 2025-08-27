@@ -10,7 +10,7 @@ namespace PhishApp.WebApi.Services
         }
         public string GetMessageError()
         {
-            throw new UnauthorizedAccessException("Pąng");
+            throw new ArgumentNullException("Pąng");
         }
     }
 }

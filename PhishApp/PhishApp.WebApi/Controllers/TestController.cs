@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PhishApp.WebApi.Helpers;
 using PhishApp.WebApi.Models;
 using PhishApp.WebApi.Services.Interfaces;
@@ -17,6 +18,7 @@ namespace PhishApp.WebApi.Controllers
 
         [HttpGet]
         [Route(Routes.PingError)]
+        [AllowAnonymous]
         public RestResponse<string> PingError()
         {
             var response = _testService.GetMessageError();
