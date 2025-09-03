@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using PhishApp.WebApi.Exceptions;
+using System.Text;
 
 namespace PhishApp.WebApi.Helpers
 {
@@ -29,7 +30,9 @@ namespace PhishApp.WebApi.Helpers
             {
                 ArgumentNullException => StatusCodes.Status400BadRequest,
                 UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+                InvalidOperationException => StatusCodes.Status403Forbidden,
                 KeyNotFoundException => StatusCodes.Status404NotFound,
+                InvalidCredentialsException => StatusCodes.Status422UnprocessableEntity,
                 _ => StatusCodes.Status500InternalServerError
             };
         }

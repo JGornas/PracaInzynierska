@@ -9,5 +9,6 @@
         public const string Login = "api/auth/login";
         public const string SetPassword = "api/auth/setPassword";
         public const string Register = "api/auth/register";
+        public const string RefreshAccessToken = "api/auth/refresh";
     }
 }

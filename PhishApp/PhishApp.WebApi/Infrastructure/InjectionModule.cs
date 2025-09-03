@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Repositories;
+using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services;
 using PhishApp.WebApi.Services.Interfaces;
 using System.Text;
@@ -18,6 +20,7 @@ namespace PhishApp.WebApi.Infrastructure
 
             services.AddTransient<ITestService, TestService>();
             services.AddTransient<IAuthService, AuthService>();
+            services.AddTransient<ITokenRepository, TokenRepository>();
 
 
             services.AddDbContext<DataContext>(options =>
@@ -25,7 +28,7 @@ namespace PhishApp.WebApi.Infrastructure
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireUppercase = false;

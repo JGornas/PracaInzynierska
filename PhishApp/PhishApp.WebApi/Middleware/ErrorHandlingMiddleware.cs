@@ -1,5 +1,6 @@
 ﻿using PhishApp.WebApi.Helpers;
-using PhishApp.WebApi.Models;
+using PhishApp.WebApi.Models.RestApi;
+using System;
 
 namespace PhishApp.WebApi.Middleware
 {
@@ -30,7 +31,9 @@ namespace PhishApp.WebApi.Middleware
             int statusCode = ExceptionHelper.GetErrorStatusCode(ex);
 
             // budujemy odpowiedź w Twoim formacie
-            var response = RestResponse<string>.CreateErrorResponse(ex);
+            var response = RestResponse<string>.CreateResponse(ExceptionHelper.BuildMessage(ex));
+
+            //var response = ExceptionHelper.BuildMessage(ex);
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
