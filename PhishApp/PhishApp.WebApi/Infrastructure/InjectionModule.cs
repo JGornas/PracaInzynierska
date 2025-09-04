@@ -17,8 +17,6 @@ namespace PhishApp.WebApi.Infrastructure
         {
             services.AddHttpContextAccessor();
 
-
-            services.AddTransient<ITestService, TestService>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<ITokenRepository, TokenRepository>();
 

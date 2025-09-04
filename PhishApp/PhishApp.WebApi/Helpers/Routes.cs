@@ -3,8 +3,7 @@
     public class Routes
     {
         public const string Ping = "api/ping";
-        public const string PingError = "api/ping/error";
-        public const string PingAuthorized = "api/ping/authorized";
+        public const string PingError = "api/pingError";
 
         public const string Login = "api/auth/login";
         public const string SetPassword = "api/auth/setPassword";

@@ -24,6 +24,15 @@ namespace PhishApp.WebApi.Controllers
             return RestResponse<string>.CreateResponse("pong");
         }
 
+        [HttpGet]
+        [Route(Routes.PingError)]
+        [AllowAnonymous]
+        public RestResponse<string> PingError()
+        {
+            
+            throw new Exception("This is a test exception for error handling.");
+        }
+
         [HttpPost]
         [Route(Routes.Login)]
         [AllowAnonymous]
