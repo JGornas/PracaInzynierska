@@ -38,11 +38,32 @@ export class RestService {
     const backendMessage = error?.error?.data || 'Wystąpił nieznany błąd.';
 
     if (error.status === 401) {
-      // Dla 401 zostawiamy obecną logikę z refresh token
+      // Dla 401 próbujemy odświeżyć token
       return this.refreshAccessToken().pipe(
-        switchMap(() => retryFn()),
-        catchError(() => {
-          return throwError(() => new Error(backendMessage));
+        switchMap(() => {
+          // Po odświeżeniu tokena, ponawiamy oryginalne zapytanie
+          return retryFn().pipe(
+            catchError((retryError) => {
+              // Jeśli ponowne zapytanie też zwróci 401 - sesja wygasła
+              if (retryError.status === 401) {
+                this.showSessionExpiredError(
+                  retryError?.error?.data || 'Sesja wygasła. Zaloguj się ponownie.'
+                );
+                return EMPTY;
+              }
+              // Dla innych błędów przy ponownej próbie - rzucamy dalej
+              return throwError(() => new Error(
+                retryError?.error?.data || 'Wystąpił nieznany błąd.'
+              ));
+            })
+          );
+        }),
+        catchError((refreshError) => {
+          // Jeśli refresh token się nie udał - również pokazujemy błąd
+          this.showSessionExpiredError(
+            refreshError.message || 'Sesja wygasła. Zaloguj się ponownie.'
+          );
+          return EMPTY;
         })
       );
     } else {
@@ -52,70 +73,53 @@ export class RestService {
   }
 
 
+
+
   private refreshAccessToken(): Observable<any> {
-  return this.http.post('/api/auth/refresh', {}, { withCredentials: true }).pipe(
-    catchError(error => {
-      // Obsługa błędów HTTP (400, 500, etc.)
-      console.error('Błąd HTTP podczas refresh token:', error);
-      
-      // Poprawny odczyt wiadomości - sprawdź różne formaty
-      let errorMessage = 'Sesja wygasła. Zaloguj się ponownie.';
-      
-      if (error?.error?.data) {
-        errorMessage = error.error.data; // Twój format: { data: "message" }
-      } else if (error?.error?.message) {
-        errorMessage = error.error.message; // Alternatywny format: { message: "message" }
-      } else if (error?.message) {
-        errorMessage = error.message; // Bezpośrednio w error
-      }
-      
-      console.log('Extracted error message:', errorMessage);
-      
-      // Pokaż Swal z komunikatem i NATYCHMIASTOWYM przekierowaniem
-      Swal.fire({
-        icon: 'error',
-        title: 'Sesja wygasła',
-        text: errorMessage,
-        confirmButtonText: 'Zaloguj się',
-        confirmButtonColor: '#3085d6',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-      }).then((result) => {
-        // Przekieruj niezależnie od kliknięcia - po 3 sekundach automatycznie
-        setTimeout(() => {
-          this.router.navigate(['/auth/login']);
-        }, 3000);
+    return this.http.post('/api/auth/refresh', {}, { 
+      withCredentials: true
+    }).pipe(
+      catchError(error => {
+        console.error('Błąd refresh token:', error);
         
-        if (result.isConfirmed) {
-          // Natychmiastowe przekierowanie jeśli kliknięto
-          this.router.navigate(['/auth/login']);
+        let errorMessage = 'Sesja wygasła. Zaloguj się ponownie.';
+        
+        if (error?.error?.data) {
+          errorMessage = error.error.data;
+        } else if (error?.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error?.message) {
+          errorMessage = error.message;
         }
-      });
-      
-      return EMPTY; // Kończymy stream
-    }),
-    switchMap((response: any) => {
-      if (response?.accessToken) {
-        localStorage.setItem('accessToken', response.accessToken);
-        return of(response); // Używamy of zamiast new Observable
-      } else {
-        console.error('Brak accessToken w odpowiedzi refresh token:', response);
         
-        Swal.fire({
-          icon: 'error',
-          title: 'Błąd autoryzacji',
-          text: 'Nie udało się odświeżyć sesji. Zaloguj się ponownie.',
-          confirmButtonText: 'Zaloguj się',
-          confirmButtonColor: '#3085d6',
-          allowOutsideClick: false,
-          allowEscapeKey: false
-        }).then((result) => {
-          this.router.navigate(['/auth/login']);
-        });
-        
-        return EMPTY; // Kończymy stream
-      }
-    })
-  );
-}
+        // TYLKO rzucamy error, bez pokazywania Swal
+        return throwError(() => new Error(errorMessage));
+      }),
+      switchMap((response: any) => {
+        if (response?.accessToken) {
+          localStorage.setItem('accessToken', response.accessToken);
+          return of(response);
+        } else {
+          console.error('Brak accessToken w odpowiedzi:', response);
+          // Rzucamy error zamiast pokazywać Swal
+          return throwError(() => new Error('Brak accessToken w odpowiedzi'));
+        }
+      })
+    );
+  }
+
+  private showSessionExpiredError(message: string): void {
+    Swal.fire({
+      icon: 'error',
+      title: 'Sesja wygasła',
+      text: message,
+      confirmButtonText: 'Zaloguj się',
+      confirmButtonColor: '#3085d6',
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    }).then((result) => {
+      this.router.navigate(['/auth/login']);
+    });
+
+  }
 }
