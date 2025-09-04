@@ -50,14 +50,6 @@ namespace PhishApp.WebApi.Repositories
             return refreshToken;
         }
 
-        public async Task<ApplicationUserToken?> GetRefreshTokenAsync(ApplicationUser user)
-        {
-            var token = await _context.UserTokens
-                .Where(t => t.UserId == user.Id && t.LoginProvider == Constants.TokenProvider && t.Name == Constants.RefreshTokenName)
-                .FirstOrDefaultAsync();
-
-            return token;
-        }
 
         public async Task<ApplicationUserToken?> GetRefreshTokenByValueAsync(string value)
         {

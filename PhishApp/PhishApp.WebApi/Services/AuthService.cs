@@ -38,7 +38,7 @@ namespace PhishApp.WebApi.Services
 
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user is null)
-                throw new InvalidCredentialsException();
+                throw new InvalidCredentialsException("Nieprawidłowy email lub hasło");
 
             bool mustSetPassword = !user.IsPasswordSet;
 
@@ -46,7 +46,7 @@ namespace PhishApp.WebApi.Services
             {
                 var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
                 if (!passwordValid)
-                    throw new InvalidCredentialsException();
+                    throw new InvalidCredentialsException("Nieprawidłowy email lub hasło");
 
                 var refreshTokenEntity = await GenerateRefreshToken(user);
                 refreshToken = refreshTokenEntity.Value!;
@@ -56,7 +56,7 @@ namespace PhishApp.WebApi.Services
             {
                 if (request.Password != user.ActivationKey)
                 {
-                    throw new InvalidCredentialsException();
+                    throw new InvalidCredentialsException("Nieprawidłowy klucz aktywacyjny");
                 }
             }
 
@@ -71,23 +71,24 @@ namespace PhishApp.WebApi.Services
             return response;
         }
 
-
         public async Task<AuthTokens> SetPasswordAsync(LoginRequestInfo requestInfo)
         {
             var user = await _userManager.FindByEmailAsync(requestInfo.Email);
             if (user is null)
-                throw new InvalidCredentialsException("Invalid user");
+                throw new InvalidCredentialsException("Nieprawidłowy użytkownik");
 
             var mustSetPasswordClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(_mustSetPasswordClaim)?.Value;
             if (mustSetPasswordClaim is null || mustSetPasswordClaim != "True")
-                throw new InvalidCredentialsException("Password can only be set after login with activation key.");
-            if (user.IsPasswordSet == true) throw new Exception("User password is already set");
+                throw new InvalidCredentialsException("Hasło może być ustawione tylko po zalogowaniu kluczem aktywacyjnym");
+
+            if (user.IsPasswordSet == true)
+                throw new Exception("Hasło użytkownika zostało już ustawione");
 
             var result = await _userManager.RemovePasswordAsync(user);
 
             result = await _userManager.AddPasswordAsync(user, requestInfo.Password);
             if (!result.Succeeded)
-                throw new Exception($"Setting new password failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                throw new Exception($"Ustawienie nowego hasła nie powiodło się: {string.Join(", ", result.Errors.Select(e => e.Description))}");
 
             user.IsPasswordSet = true;
             user.ActivationKey = string.Empty;
@@ -107,16 +108,16 @@ namespace PhishApp.WebApi.Services
         public async Task<AuthTokens> RefreshTokenAsync(string? refreshToken)
         {
             if (string.IsNullOrEmpty(refreshToken))
-                throw new SecurityTokenException("Refresh token is required.");
+                throw new SecurityTokenException("Token odświeżający jest wymagany");
 
             var tokenEntity = await _tokenRepository.GetRefreshTokenByValueAsync(refreshToken);
 
             if (tokenEntity == null || tokenEntity.ExpirationTime < DateTime.UtcNow)
-                throw new SecurityTokenException("Invalid or expired refresh token.");
+                throw new SecurityTokenException("Nieprawidłowy lub wygasły token odświeżający");
 
             var user = await _userManager.FindByIdAsync(tokenEntity.UserId.ToString());
             if (user == null)
-                throw new InvalidOperationException("Invalid user.");
+                throw new InvalidOperationException("Nieprawidłowy użytkownik");
 
             var accessToken = GenerateJwtToken(user, mustSetPassword: false);
 
@@ -128,7 +129,6 @@ namespace PhishApp.WebApi.Services
                 RefreshToken = newRefreshToken.Value!
             };
         }
-
 
         public async Task<string> RegisterAsync(LoginRequestInfo request)
         {
@@ -147,13 +147,11 @@ namespace PhishApp.WebApi.Services
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new Exception($"User creation failed: {errors}");
+                throw new Exception($"Tworzenie użytkownika nie powiodło się: {errors}");
             }
 
             return activationKey;
         }
-
-
 
         private string GenerateJwtToken(ApplicationUser user, bool mustSetPassword)
         {
@@ -182,24 +180,12 @@ namespace PhishApp.WebApi.Services
         }
 
 
-        private async Task<string> SetRefreshToken(ApplicationUser user)
-        {
-            var existingRefreshToken = await _tokenRepository.GetRefreshTokenAsync(user);
-            if (existingRefreshToken is null || existingRefreshToken.ExpirationTime <= DateTime.UtcNow)
-            {
-                var refreshToken = await GenerateRefreshToken(user);
-                return refreshToken.Value!;
-            }
-            return existingRefreshToken.Value!;
-        }
-
         private async Task<ApplicationUserToken> GenerateRefreshToken(ApplicationUser user)
         {
             var refreshTokenNewValue = Guid.NewGuid().ToString("N");
             var refreshTokenExpiration = DateTime.UtcNow.AddDays(Constants.RefreshTokenValidityPeriod);
             var refreshToken = await _tokenRepository.SetRefreshTokenAsync(user, refreshTokenNewValue, refreshTokenExpiration);
             return refreshToken;
-
         }
     }
 }
