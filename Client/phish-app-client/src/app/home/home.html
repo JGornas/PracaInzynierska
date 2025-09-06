@@ -1,79 +1,82 @@
-<nav class="sidebar">
-    <header>
+<div class="home-container">
+    <nav class="sidebar">
+    <header (click)="toggleSidebar()" [ngClass]="isSidebarExpanded ? 'padding-expanded' : 'padding-hidden'">
         <div class="image-text">
-            <span class="image">
-                <img src="/phish_app_logo.png" alt="Logo">
-            </span>
-
-            <div class="text header-text">
-                <span class="name">PhishApp</span>
-                <span class="profession">Phishing Detection</span>
-            </div>
-
+        <span class="image">
+            <img src="/phish_app_logo.png" alt="Logo">
+        </span>
+        <div *ngIf="isSidebarExpanded" class="text header-text">
+            <span class="name">PhishApp</span>
+            <span class="profession">Phishing Detection</span>
+        </div>
         </div>
     </header>
 
-    <div class="menu-bar">
+    <div class="menu-bar" [ngClass]="isSidebarExpanded ? 'padding-expanded' : 'padding-hidden'">
         <div class="menu">
-            <ul class="menu-links">
-                <li class="item-link">
-                    <a href="#">
-                        <i class='bx  bx-home-alt'  ></i> 
-                        <span class="text nav-text">Panel</span>
-                    </a>
-                </li>
-                <li class="item-link">
-                    <a href="#">                   
-                        <i class='bx bx-envelope'></i>
-                        <span class="text nav-text">Kampanie</span>
-                    </a>
-                </li>
-                <li class="item-link">
-                    <a href="#">
-                        <i class='bx bx-group'></i>
-                        <span class="text nav-text">Odbiorcy</span>
-                    </a>
-                </li>
-                <li class="item-link">
-                    <a href="#">
-                        <i class='bx  bx-iframe'  ></i> 
-                        <span class="text nav-text">Szablony</span>
-                    </a>
-                </li>
-                <li class="item-link">
-                    <a href="#">
-                        <i class='bx bx-globe'></i>
-                        <span class="text nav-text">Strony docelowe</span>
-                    </a>
-                </li>
-                
-                <li class="item-link">
-                    <a href="#">
-                        <i class='bx  bx-file-detail'  ></i> 
-                        <span class="text nav-text">Raporty</span>
-                    </a>
-                </li>
-                <li class="item-link">
-                    <a href="#">
-                        <i class='bx bx-send'></i>
-                        <span class="text nav-text">Profile wysyłki</span>
-                    </a>
-                </li>
-                <li class="item-link">
-                    <a href="#">
-                        <i class='bx bx-user-circle'></i>
-                        <span class="text nav-text">Administracja</span>
-                    </a>
-                </li>
-            </ul>
-        </div>        
+        <ul class="menu-links">
+            <li class="item-link" (click)="navigateToDashboard()">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx bx-home-alt'></i>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Panel</span>
+            </div>
+            </li>
+            <li class="item-link" (click)="navigateToCampaigns()">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx bx-envelope'></i>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Kampanie</span>
+            </div>
+            </li>
+            <li class="item-link">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx bx-group'></i>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Odbiorcy</span>
+            </div>
+            </li>
+            <li class="item-link">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx bx-iframe'></i>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Szablony</span>
+            </div>
+            </li>
+            <li class="item-link">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx bx-globe'></i>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Strony docelowe</span>
+            </div>
+            </li>
+            <li class="item-link">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx bx-file-detail'></i>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Raporty</span>
+            </div>
+            </li>
+            <li class="item-link">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx bx-send'></i>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Profile wysyłki</span>
+            </div>
+            </li>
+            <li class="item-link">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx bx-user-circle'></i>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Administracja</span>
+            </div>
+            </li>
+        </ul>
+        </div>
     </div>
-    <div class="bar-bottom">
-        <li class="item-link">
-            <a href="#">
-                <i class='bx  bx-arrow-out-left-square-half'  ></i> 
-                <span class="text nav-text">Wyloguj</span>
-            </a>
+
+    <div class="bar-bottom" [ngClass]="isSidebarExpanded ? 'padding-expanded' : 'padding-hidden'">
+        <li class="item-link logout">
+        <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+            <i class='bx bx-arrow-out-left-square-half'></i>
+            <span *ngIf="isSidebarExpanded" class="text nav-text">Wyloguj</span>
+        </div>
         </li>
     </div>
-</nav>
+    </nav>
+    <div class="content">
+        <router-outlet></router-outlet>
+    </div>
+</div>

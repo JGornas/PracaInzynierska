@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -11,4 +11,18 @@ import { RouterModule } from '@angular/router';
 })
 export class Home {
   isSidebarExpanded = true;
+
+  constructor(private router: Router) {}
+
+  toggleSidebar() {
+    this.isSidebarExpanded = !this.isSidebarExpanded;
+  }
+
+  navigateToDashboard() {
+    this.router.navigate(['home/dashboard']);
+  }
+
+  navigateToCampaigns() {
+    this.router.navigate(['home/campaigns']);
+  }
 }
