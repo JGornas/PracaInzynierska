@@ -15,7 +15,8 @@ import Swal from 'sweetalert2';
   imports: [FormsModule, ButtonComponent]
 })
 export class Login {
-  @ViewChild('passwordInput', { static: true }) passwordInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('passwordInput') passwordInput!: ElementRef<HTMLInputElement>;
+
 
   loading = false;
   passwordVisible = false;
@@ -52,7 +53,6 @@ export class Login {
           title: 'Błąd logowania',
           text: error.message || 'Wystąpił błąd podczas logowania. Spróbuj ponownie.',
           confirmButtonText: 'OK',
-          confirmButtonColor: '#3085d6',
           background: '#fff',
           allowOutsideClick: false
         });

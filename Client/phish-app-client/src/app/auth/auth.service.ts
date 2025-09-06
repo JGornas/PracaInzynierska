@@ -9,6 +9,7 @@ export class AuthService {
   constructor(private rest: RestService) {}
 
   public login(data: LoginModel): Observable<boolean> {
+        console.log(data);
     return this.rest.post<string>('/api/auth/login', data).pipe(
       map(token => {
         // Po otrzymaniu odpowiedzi przypisz token do localStorage

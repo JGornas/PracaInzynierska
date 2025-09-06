@@ -114,7 +114,6 @@ export class RestService {
       title: 'Sesja wygasła',
       text: message,
       confirmButtonText: 'Zaloguj się',
-      confirmButtonColor: '#3085d6',
       allowOutsideClick: false,
       allowEscapeKey: false
     }).then((result) => {
