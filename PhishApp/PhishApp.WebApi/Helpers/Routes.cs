@@ -9,5 +9,7 @@
         public const string SetPassword = "api/auth/setPassword";
         public const string Register = "api/auth/register";
         public const string RefreshAccessToken = "api/auth/refresh";
+
+        public const string TemplatesGrid = "api/templates/grid";
     }
 }

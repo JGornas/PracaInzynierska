@@ -21,6 +21,15 @@ namespace PhishApp.WebApi.Infrastructure
             services.AddTransient<ITokenRepository, TokenRepository>();
 
 
+            services.AddTransient<IGridRepository, GridRepository>();
+            services.AddTransient<IGridService, GridService>();
+
+            services.AddTransient<ITemplateRepository, TemplateRepository>();
+            services.AddTransient<ITemplateService, TemplateService>();
+
+
+
+
             services.AddDbContext<DataContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));

@@ -5,22 +5,20 @@ import {
   SimpleChanges,
   AfterViewInit,
   ViewChild,
-  inject,
+  ChangeDetectorRef
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DatePipe, NgFor, NgIf } from '@angular/common';
-import { merge, of as observableOf } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-
-export interface GridElement {
-  [key: string]: any;
-}
+import { NgFor, NgIf } from '@angular/common';
+import { merge, of as observableOf, Subject } from 'rxjs';
+import { catchError, startWith, switchMap, debounceTime } from 'rxjs/operators';
+import { GridData, GridElement, GridRequest } from './grid-component.models';
+import { GridService } from './grid-component.service';
 
 @Component({
   selector: 'app-grid',
@@ -38,16 +36,23 @@ export interface GridElement {
   styleUrl: './grid-component.scss',
 })
 export class GridComponent implements OnChanges, AfterViewInit {
-  constructor(private http: HttpClient) {}
+  constructor(private gridService: GridService, private cdr: ChangeDetectorRef) {}
 
   @Input() localData: GridElement[] | null = null;
   @Input() apiUrl: string | null = null;
   @Input() columnsToDisplay: string[] = [];
+  @Input() filterable: boolean = true;
 
   tableDataSource = new MatTableDataSource<GridElement>([]);
   resultsLength = 0;
   isLoadingResults = false;
   isError = false;
+
+  currentSortColumn: string = '';
+  currentSortDirection: 'asc' | 'desc' | '' = '';
+  currentFilter: string = '';
+
+  private filterChange = new Subject<string>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -56,50 +61,141 @@ export class GridComponent implements OnChanges, AfterViewInit {
     if (changes['localData'] && this.localData && !this.apiUrl) {
       this.tableDataSource = new MatTableDataSource(this.localData);
       this.resultsLength = this.localData.length;
+      this.tableDataSource.paginator = this.paginator;
+      this.tableDataSource.sort = this.sort;
     }
   }
 
   ngAfterViewInit() {
-    if (this.localData && !this.apiUrl) {
-      this.tableDataSource.paginator = this.paginator;
-      this.tableDataSource.sort = this.sort;
+    // 1. Podłącz paginator i sort do datasource raz
+    this.tableDataSource.paginator = this.paginator;
+    this.tableDataSource.sort = this.sort;
+
+    // 2. Debounce dla filtra
+    this.filterChange.pipe(debounceTime(500)).subscribe(() => {
+      if (this.apiUrl) {
+        // filter triggeruje fetch danych z API
+        this.loadRemoteData();
+      } else if (this.localData) {
+        // filter dla localData
+        this.tableDataSource.filter = this.currentFilter;
+        this.paginator.firstPage();
+      }
+    });
+
+    // 3. Jeśli jest API, merge obserwabli: sortChange, paginator.page, filterChange
+    if (this.apiUrl) {
+      merge(
+        this.sort.sortChange,
+        this.paginator.page,
+        this.filterChange
+      )
+      .pipe(
+        startWith({}), // od razu fetch przy inicjalizacji
+        switchMap(() => this.fetchData())
+      )
+      .subscribe(data => this.updateTable(data));
     }
 
-    if (this.apiUrl) {
-      this.loadRemoteData();
-    }
+    // 4. Aktualizacja aktualnego sortu przy zmianie kolumny
+    this.sort.sortChange.subscribe(() => {
+      this.currentSortColumn = this.sort.active;
+      this.currentSortDirection = this.sort.direction;
+    });
   }
 
-  /** Obsługa filtra (tylko localData) */
+
+
+  /** Obsługa filtra */
   applyFilter(event: Event) {
-    if (!this.localData) return;
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.tableDataSource.filter = filterValue.trim().toLowerCase();
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.currentFilter = filterValue;
+    this.filterChange.next(filterValue);
+
+    if (!this.apiUrl && this.localData) {
+      this.tableDataSource.filter = filterValue;
+      this.paginator.firstPage();
+    }
   }
 
   /** Pobieranie danych z API */
-  loadRemoteData() {
-    merge(this.sort.sortChange, this.paginator.page)
+  private fetchData() {
+    if (!this.apiUrl) {
+      return observableOf({
+        items: this.localData || [],
+        pageInfo: {
+          totalCount: this.localData?.length ?? 0,
+          pageIndex: 0,
+          pageSize: 10
+        }
+      } as GridData);
+    }
+
+    // Odłóż zmianę isLoadingResults do następnego cyklu
+    setTimeout(() => {
+      this.isLoadingResults = true;
+      this.isError = false;
+      this.cdr.detectChanges();
+    });
+
+    const request: GridRequest = {
+      sort: this.sort.active || '',
+      order: this.sort.direction || 'asc',
+      pageInfo: {
+        pageIndex: this.paginator?.pageIndex ?? 0,
+        pageSize: this.paginator?.pageSize ?? 10,
+        totalCount: 0
+      },
+      filter: this.currentFilter,
+      selectedItemId: null
+    };
+
+    return this.gridService.loadData<GridData>(this.apiUrl, request)
       .pipe(
-        startWith({}),
-        switchMap(() => {
-          this.isLoadingResults = true;
-          this.isError = false;
-          return this.http.get<GridElement[]>(this.apiUrl!).pipe(
-            catchError(() => {
-              this.isError = true;
-              return observableOf([]);
-            })
-          );
-        }),
-        map((data: any) => {
+        catchError(() => {
           this.isLoadingResults = false;
-          this.resultsLength = Array.isArray(data) ? data.length : 0;
-          return Array.isArray(data) ? data : [];
+          this.isError = true;
+          return observableOf({
+            items: [],
+            pageInfo: { totalCount: 0, pageIndex: 0, pageSize: 10 }
+          } as GridData);
         })
-      )
-      .subscribe((data) => {
-        this.tableDataSource = new MatTableDataSource(data);
-      });
+      );
+  }
+
+
+  /** Aktualizacja tabeli po otrzymaniu danych z API */
+  private updateTable(data: GridData) {
+    if (!this.tableDataSource) return;
+
+    // 1. Ustaw paginację przed aktualizacją danych
+    if (this.paginator) {
+      this.paginator.pageIndex = data.pageInfo.pageIndex ?? 0;
+      this.paginator.length = data.pageInfo.totalCount ?? 0;
+      this.paginator.pageSize = data.pageInfo.pageSize ?? 10;
+    }
+
+    // 2. Zaktualizuj dane w istniejącym datasource
+    this.tableDataSource.data = data.items;
+
+    // 3. Powiadom MatTable o zmianie danych
+    this.tableDataSource._updateChangeSubscription();
+
+    // 4. Odśwież widok i loader
+    this.isLoadingResults = false;
+    this.isError = false;
+    this.resultsLength = this.paginator?.length ?? 0;
+    this.cdr.detectChanges();
+  }
+
+
+
+
+
+  /** Publiczna metoda do wywołania ręcznego reloadu */
+  public loadRemoteData(initialLoad = false) {
+    if (initialLoad) {
+      this.fetchData().subscribe(data => this.updateTable(data));
+    }
   }
 }
