@@ -2,6 +2,7 @@
 
 .toolbar { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
 .toolbar .left h2 { margin: 0 0 8px; font-weight: 600; }
+.toolbar .left .hint { color: #6b7280; font-size: 12px; margin-top: 2px; }
 .group-name { display: flex; align-items: center; gap: 8px; }
 .group-name label { font-size: 12px; color: #6b7280; }
 
@@ -33,9 +34,32 @@
 .members-list .empty { padding: 16px; color: #6b7280; }
 
 .import-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.import-controls .field { display: flex; flex-direction: column; gap: 6px; }
+.import-controls .file-field .file-input { display: inline-flex; align-items: center; gap: 8px; }
+.import-controls .file-field input[type="file"] { display: none; }
+.filename-chip { display: inline-block; padding: 4px 8px; border: 1px solid #e5e7eb; border-radius: 9999px; font-size: 12px; color: #374151; background: #f9fafb; }
+.filename-chip.empty { color: #6b7280; border-style: dashed; }
+
+.switch-field { display: flex; align-items: center; gap: 8px; }
+.switch-label { font-size: 13px; color: #374151; }
+.switch { position: relative; display: inline-block; width: 38px; height: 22px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: #d1d5db; border-radius: 9999px; transition: background .2s; }
+.slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 2px; top: 2px; background: white; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.switch input:checked + .slider { background: #2563eb; }
+.switch input:checked + .slider:before { transform: translateX(16px); }
+
+.import-card h3 { margin-top: 0; }
+.import-hint { color: #6b7280; font-size: 12px; margin: -4px 0 8px; }
+
+.mapping-table th { text-transform: none; font-weight: 600; }
+.mapping-table td { vertical-align: top; }
 .import-actions { display: flex; gap: 8px; margin-top: 10px; }
-.mapping { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
-.preview-table { max-width: 100%; overflow: auto; display: block; }
+.preview-wrap { max-height: 320px; overflow: auto; border: 1px solid #e5e7eb; border-radius: 6px; }
+.preview-table { width: 100%; }
+.preview-table thead th { position: sticky; top: 0; z-index: 1; }
+.preview-table .col-index { width: 48px; text-align: right; color: #6b7280; }
+.cell-ellipsis { max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.35); }
 .modal-dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; width: 520px; max-width: calc(100% - 32px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
