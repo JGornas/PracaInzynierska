@@ -19,10 +19,14 @@ export class Home {
   }
 
   navigateToDashboard() {
-    this.router.navigate(['home/dashboard']);
+    this.router.navigate(['/home', 'dashboard']);
   }
 
   navigateToCampaigns() {
-    this.router.navigate(['home/campaigns']);
+    this.router.navigate(['/home', 'campaigns']);
+  }
+
+  navigateToRecipients() {
+    this.router.navigate(['/home', 'recipients']);
   }
 }
