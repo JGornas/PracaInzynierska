@@ -40,18 +40,21 @@ interface ImportReport {
   selector: 'app-recipients',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './recipients.html',
-  styleUrls: ['./recipients.scss']
+  templateUrl: 'recipients.html',
+  styleUrls: ['recipients.scss']
 })
 export class Recipients {
   // data
   members: Member[] = [];
-  selectedGroupName = 'Domyślna grupa';
+  hasGroup = false;
+  selectedGroupName = '';
 
   // UI state
   showAddMember = false;
   showCsvImport = false;
   search = '';
+  showCreateGroup = false;
+  newGroupName = '';
 
   // form
   memberForm: FormGroup;
@@ -74,6 +77,8 @@ export class Recipients {
       email: ['', [Validators.required, Validators.email]],
       position: ['']
     });
+    this.selectedGroupName = '';
+    this.hasGroup = false;
   }
 
   // ---- Add member ----
@@ -83,6 +88,7 @@ export class Recipients {
   }
 
   addMemberFromForm() {
+    if (!this.hasGroup) return;
     if (this.memberForm.invalid) {
       this.memberForm.markAllAsTouched();
       return;
@@ -304,5 +310,39 @@ export class Recipients {
       (m.position || '').toLowerCase().includes(q) ||
       (m.email || '').toLowerCase().includes(q)
     );
+  }
+
+  // ---- Group flow ----
+  openCreateGroup() {
+    this.newGroupName = '';
+    this.showCreateGroup = true;
+  }
+
+  closeCreateGroup() {
+    this.showCreateGroup = false;
+  }
+
+  createGroup() {
+    const name = (this.newGroupName || '').trim();
+    this.selectedGroupName = name || 'Nowa grupa';
+    this.hasGroup = true;
+    this.showCreateGroup = false;
+    this.members = [];
+    this.importReport = null;
+    this.csvPreview = null;
+  }
+
+  saveGroup() {
+    if (!this.hasGroup) return;
+    const name = (this.selectedGroupName || '').trim();
+    if (!name) {
+      alert('Podaj nazwę grupy');
+      return;
+    }
+    if (this.members.length < 1) {
+      alert('Dodaj co najmniej jednego odbiorcę do grupy');
+      return;
+    }
+    alert('Grupa zapisana (UI only)');
   }
 }

@@ -1,29 +1,68 @@
 <div class="recipients-container">
   <header class="toolbar">
     <div class="left">
-      <h2>Grupa odbiorców</h2>
-      <div class="group-name">
-        <label>Nazwa grupy</label>
-        <input [(ngModel)]="selectedGroupName" class="form-control" placeholder="Wprowadź nazwę" />
-      </div>
+      @if (hasGroup) {
+        <div class="group-name">
+          <label>Nazwa grupy</label>
+          <input [(ngModel)]="selectedGroupName" class="form-control" placeholder="Wprowadź nazwę" />
+        </div>
+      } @else {
+        <h2>Odbiorcy</h2>
+        <div class="hint">Brak utworzonej grupy</div>
+      }
     </div>
     <div class="right">
-      <button class="btn btn-secondary" (click)="showCsvImport = !showCsvImport">
-        {{ showCsvImport ? 'Zamknij import' : 'Import CSV' }}
-      </button>
-      <button class="btn btn-primary" (click)="toggleAddMember()">Dodaj odbiorcę</button>
+      @if (hasGroup) {
+        <button class="btn btn-primary" (click)="saveGroup()" [disabled]="!selectedGroupName?.trim() || members.length === 0">Zapisz grupę</button>
+        <button class="btn btn-secondary" (click)="showCsvImport = !showCsvImport">
+          {{ showCsvImport ? 'Zamknij import' : 'Import CSV' }}
+        </button>
+        <button class="btn" (click)="toggleAddMember()">Dodaj odbiorcę</button>
+      } @else {
+        <button class="btn btn-primary" (click)="openCreateGroup()">Utwórz grupę</button>
+      }
     </div>
   </header>
 
-  <div class="subtoolbar">
-    <div class="search">
-      <input class="form-control" [(ngModel)]="search" placeholder="Szukaj po imieniu, nazwisku, emailu..." />
+  @if (hasGroup && (!selectedGroupName?.trim() || members.length === 0)) {
+    <div class="card" style="border-color:#fde68a;background:#fffbeb;color:#92400e;">
+      <div><strong>Wymagania zapisu:</strong> podaj nazwę grupy i dodaj co najmniej jednego odbiorcę.</div>
     </div>
-    <div class="spacer"></div>
-    <button class="btn btn-outline" (click)="assignGroupToCampaign()">Przypisz grupę do kampanii</button>
-  </div>
+  }
 
-  @if (showAddMember) {
+  @if (hasGroup) {
+    <div class="subtoolbar">
+      <div class="search">
+        <input class="form-control" [(ngModel)]="search" placeholder="Szukaj po imieniu, nazwisku, emailu..." />
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-outline" (click)="assignGroupToCampaign()">Przypisz grupę do kampanii</button>
+    </div>
+  }
+
+  @if (showCreateGroup) {
+    <div class="modal-backdrop" (click)="closeCreateGroup()"></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3>Utwórz grupę</h3>
+        <button class="close" (click)="closeCreateGroup()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="member-form">
+          <label>
+            Nazwa grupy
+            <input class="form-control" [(ngModel)]="newGroupName" />
+          </label>
+          <div class="modal-actions">
+            <button class="btn btn-primary" (click)="createGroup()" [disabled]="!newGroupName?.trim()">Utwórz</button>
+            <button class="btn" (click)="closeCreateGroup()">Anuluj</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (hasGroup && showAddMember) {
     <div class="modal-backdrop" (click)="toggleAddMember()"></div>
     <div class="modal-dialog" role="dialog" aria-modal="true">
       <div class="modal-header">
@@ -60,70 +99,84 @@
     </div>
   }
 
-  @if (showCsvImport) {
-    <section class="card">
+  @if (hasGroup && showCsvImport) {
+    <section class="card import-card">
       <h3>Import CSV</h3>
 
       <div class="import-controls">
-        <label>
-          Delimiter:
-          <select (change)="onDelimiterChange($event)">
+        <div class="field">
+          <label>Delimiter</label>
+          <select class="form-control" (change)="onDelimiterChange($event)">
             <option value=",">Przecinek (,)</option>
             <option value=";">Średnik (;)</option>
           </select>
-        </label>
+        </div>
 
-        <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
-        @if (csvFileName) {
-          <span class="filename">{{ csvFileName }}</span>
-        }
+        <div class="field file-field">
+          <label>Plik</label>
+          <div class="file-input">
+            <input id="csvFile" type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
+            <label for="csvFile" class="btn">Wybierz plik</label>
+            <span class="filename-chip" [class.empty]="!csvFileName">{{ csvFileName || 'Brak pliku' }}</span>
+          </div>
+        </div>
 
-        <label class="checkbox">
-          <input type="checkbox" [(ngModel)]="dryRun" name="dryRun" />
-          Tylko dry-run (nie zapisuj)
-        </label>
+        <div class="field switch-field">
+          <label>Tryb</label>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="dryRun" name="dryRun" />
+            <span class="slider"></span>
+          </label>
+          <span class="switch-label">Tylko dry-run (nie zapisuj)</span>
+        </div>
       </div>
+
+      <div class="import-hint">Załaduj plik CSV i przypisz kolumny do pól.</div>
 
       @if (csvPreview) {
         <div class="csv-preview">
           <h4>Podgląd i mapowanie</h4>
 
-          <div class="mapping">
-            @for (field of mappingFields; track field) {
-              <label>
-                {{ field }}
-                <select (change)="onMappingChange(field, $event)">
-                  <option value="">-- nie mapuj --</option>
-                  @for (h of csvPreview.headers; track h) {
-                    <option [value]="csvPreview.headers.indexOf(h)">
-                      {{ csvPreview.headers.indexOf(h) }}: {{ h }}
-                    </option>
-                  }
-                </select>
-              </label>
-            }
-          </div>
-
-          <table class="table table-sm preview-table">
+          <table class="table table-sm mapping-table">
             <thead>
               <tr>
-                <th>#</th>
-                @for (h of csvPreview.headers; track h) {
-                  <th>{{ h }}</th>
-                }
+                @for (field of mappingFields; track field) { <th>{{ field }}</th> }
               </tr>
             </thead>
             <tbody>
-              @for (r of csvPreview.rows; track r) {
-                <tr>
-                  <td>{{ csvPreview.rows.indexOf(r) + 1 }}</td>
-                  @for (c of r; track c) {
-                    <td>{{ c }}</td>
-                  }
-                </tr>
-              }
+              <tr>
+                @for (field of mappingFields; track field) {
+                  <td>
+                    <select class="form-control" (change)="onMappingChange(field, $event)">
+                      <option value="">-- nie mapuj --</option>
+                      @for (h of csvPreview.headers; track h) {
+                        <option [value]="csvPreview.headers.indexOf(h)">{{ csvPreview.headers.indexOf(h) }}: {{ h }}</option>
+                      }
+                    </select>
+                  </td>
+                }
+              </tr>
             </tbody>
           </table>
+
+          <div class="preview-wrap">
+            <table class="table table-sm preview-table">
+              <thead>
+                <tr>
+                  <th class="col-index">#</th>
+                  @for (h of csvPreview.headers; track h) { <th>{{ h }}</th> }
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of csvPreview.rows; track r) {
+                  <tr>
+                    <td class="col-index">{{ csvPreview.rows.indexOf(r) + 1 }}</td>
+                    @for (c of r; track c) { <td class="cell-ellipsis" [title]="c">{{ c }}</td> }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
 
           <div class="import-actions">
             <button class="btn" (click)="performImport(false)">Analizuj (dry run)</button>
@@ -165,29 +218,39 @@
     </section>
   }
 
-  <section class="card members-list">
-    <h3>Członkowie grupy ({{ filteredMembers.length }})</h3>
+  @if (!hasGroup) {
+    <section class="card">
+      <h3>Nie masz jeszcze żadnych grup</h3>
+      <p>Utwórz grupę, aby dodać odbiorców i zarządzać importem CSV.</p>
+      <button class="btn btn-primary" (click)="openCreateGroup()">Utwórz grupę</button>
+    </section>
+  }
 
-    @if (filteredMembers.length > 0) {
-      <table class="table table-striped members-table">
-        <thead>
-          <tr><th>Imię</th><th>Nazwisko</th><th>E-mail</th><th>Stanowisko</th><th>Akcje</th></tr>
-        </thead>
-        <tbody>
-          @for (m of filteredMembers; track m) {
-            <tr>
-              <td>{{ m.firstName }}</td>
-              <td>{{ m.lastName }}</td>
-              <td>{{ m.email }}</td>
-              <td>{{ m.position }}</td>
-              <td><button class="btn btn-danger btn-sm" (click)="removeMember(m.id)">Usuń</button></td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    } @else {
-      <div class="empty">Brak członków w grupie — dodaj ręcznie lub zaimportuj CSV.</div>
-    }
-  </section>
+  @if (hasGroup) {
+    <section class="card members-list">
+      <h3>Członkowie grupy ({{ filteredMembers.length }})</h3>
+
+      @if (filteredMembers.length > 0) {
+        <table class="table table-striped members-table">
+          <thead>
+            <tr><th>Imię</th><th>Nazwisko</th><th>E-mail</th><th>Stanowisko</th><th>Akcje</th></tr>
+          </thead>
+          <tbody>
+            @for (m of filteredMembers; track m) {
+              <tr>
+                <td>{{ m.firstName }}</td>
+                <td>{{ m.lastName }}</td>
+                <td>{{ m.email }}</td>
+                <td>{{ m.position }}</td>
+                <td><button class="btn btn-danger btn-sm" (click)="removeMember(m.id)">Usuń</button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <div class="empty">Brak członków w grupie — dodaj ręcznie lub zaimportuj CSV.</div>
+      }
+    </section>
+  }
 </div>
 
