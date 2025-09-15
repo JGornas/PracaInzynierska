@@ -22,6 +22,7 @@ namespace PhishApp.WebApi.Infrastructure
             builder.HasDefaultSchema(null);
         }
 
+        public DbSet<TemplateEntity> Templates { get; set; }
 
     }
 }

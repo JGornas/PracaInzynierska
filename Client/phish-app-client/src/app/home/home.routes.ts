@@ -3,6 +3,7 @@ import { Home } from "./home";
 import { Dashboard } from "./dashboard/dashboard";
 import { Campaigns } from "./campaigns/campaigns";
 import { Recipients } from "./recipients/recipients";
+import { Templates } from "./templates/templates";
 
 export const homeRoutes: Routes = [
   {
@@ -13,6 +14,7 @@ export const homeRoutes: Routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'campaigns', component: Campaigns },
       { path: 'recipients', component: Recipients },
+      { path: 'templates', component: Templates },
       { path: '**', redirectTo: 'dashboard' } // zły routing -> dashboard
     ]
   }

@@ -29,4 +29,8 @@ export class Home {
   navigateToRecipients() {
     this.router.navigate(['/home', 'recipients']);
   }
+
+  navigateToTemplates() {
+    this.router.navigate(['/home', 'templates']);
+  }
 }

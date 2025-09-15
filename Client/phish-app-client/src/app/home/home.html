@@ -33,7 +33,7 @@
                 <span *ngIf="isSidebarExpanded" class="text nav-text">Odbiorcy</span>
             </div>
             </li>
-            <li class="item-link">
+            <li class="item-link" (click)="navigateToTemplates()">
             <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
                 <i class='bx bx-iframe'></i>
                 <span *ngIf="isSidebarExpanded" class="text nav-text">Szablony</span>
