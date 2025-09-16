@@ -20,7 +20,7 @@
   <div class="example-table-container">
     <table
       mat-table
-      [dataSource]="dataSource"
+      [dataSource]="apiUrl ? dataSource : tableDataSource"
       matSort
       class="mat-elevation-z8"
     >

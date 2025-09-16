@@ -1,5 +1,14 @@
 <p>templates works!</p>
 
 
-<app-grid apiUrl="/api/templates/grid"
-          [columnsToDisplay]="['id', 'name', 'subject']"></app-grid>
+<app-grid 
+    apiUrl="/api/templates/grid"
+    [columnsToDisplay]="['id', 'name', 'subject']">
+</app-grid>
+
+
+<app-grid 
+      [localData]="templates"
+      [columnsToDisplay]="['id', 'name', 'description']"
+      [filterable]="true">
+</app-grid>
