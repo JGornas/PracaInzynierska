@@ -2,7 +2,7 @@ import { Routes } from "@angular/router";
 import { Home } from "./home";
 import { Dashboard } from "./dashboard/dashboard";
 import { Campaigns } from "./campaigns/campaigns";
-import { Recipients } from "./recipients/recipients";
+import { Recipients } from "./recipients";
 import { Templates } from "./templates/templates";
 
 export const homeRoutes: Routes = [

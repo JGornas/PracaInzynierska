@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule
-} from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 interface Member {
   id?: string;
@@ -17,6 +12,14 @@ interface Member {
   externalId?: string;
   createdAt?: string;
   importError?: string | null;
+}
+
+interface Group {
+  id: string;
+  name: string;
+  campaign?: string; // opcjonalna nazwa kampanii
+  members: Member[];
+  expanded?: boolean;
 }
 
 interface CsvPreview {
@@ -44,31 +47,40 @@ interface ImportReport {
   styleUrls: ['recipients.scss']
 })
 export class Recipients {
-  // data
-  members: Member[] = [];
-  hasGroup = false;
-  selectedGroupName = '';
+  // lista grup
+  groups: Group[] = [];
 
-  // UI state
+  // modal grupy (tworzenie/edycja)
+  showGroupModal = false;
+  editingIndex: number | null = null;
+  groupName = '';
+  campaign = '';
+  groupNameTouched = false;
+  membersTouched = false;
+
+  // formularz i stan dodawania odbiorców w modalu
+  memberForm: FormGroup;
+  membersWorking: Member[] = [];
   showAddMember = false;
   showCsvImport = false;
   search = '';
-  showCreateGroup = false;
-  newGroupName = '';
 
-  // form
-  memberForm: FormGroup;
-
-  // CSV import state
+  // CSV import stan
   csvFileName: string | null = null;
-  delimiter = ','; // aktualny delimiter
+  delimiter = ',';
   csvPreview: CsvPreview | null = null;
-  csvMapping: Record<string, number> = {}; // e.g. { email: 0, firstName: 1 }
+  csvMapping: Record<string, number> = {};
   mappingFields = ['email', 'firstName', 'lastName', 'position', 'externalId'];
-
-  // import report
+  fieldLabels: Record<string, string> = {
+    email: 'E-mail',
+    firstName: 'Imię',
+    lastName: 'Nazwisko',
+    position: 'Stanowisko',
+    externalId: 'Identyfikator zewnętrzny'
+  };
   dryRun = true;
   importReport: ImportReport | null = null;
+  lastCsvText: string | null = null;
 
   constructor(private fb: FormBuilder) {
     this.memberForm = this.fb.group({
@@ -77,18 +89,82 @@ export class Recipients {
       email: ['', [Validators.required, Validators.email]],
       position: ['']
     });
-    this.selectedGroupName = '';
-    this.hasGroup = false;
   }
 
-  // ---- Add member ----
+  // ---- Modal group flow ----
+  openCreateGroup() {
+    this.editingIndex = null;
+    this.groupName = '';
+    this.campaign = '';
+    this.membersWorking = [];
+    this.groupNameTouched = false;
+    this.membersTouched = false;
+    this.resetCsvState();
+    this.showAddMember = false;
+    this.showCsvImport = false;
+    this.showGroupModal = true;
+  }
+
+  openEditGroup(index: number) {
+    const g = this.groups[index];
+    if (!g) return;
+    this.editingIndex = index;
+    this.groupName = g.name;
+    this.campaign = g.campaign || '';
+    this.groupNameTouched = false;
+    this.membersTouched = false;
+    this.membersWorking = (g.members || []).map(m => ({ ...m }));
+    this.resetCsvState();
+    this.showAddMember = false;
+    this.showCsvImport = false;
+    this.showGroupModal = true;
+  }
+
+  cancelGroupModal() {
+    this.showGroupModal = false;
+  }
+
+  saveGroup() {
+    // zaznacz walidacje, aby pokazać komunikaty
+    this.groupNameTouched = true;
+    this.membersTouched = true;
+    const name = (this.groupName || '').trim();
+    if (!name) return;
+    if (this.membersWorking.length < 1) return;
+    const payload: Group = {
+      id: this.editingIndex === null ? this.generateId() : this.groups[this.editingIndex].id,
+      name,
+      campaign: (this.campaign || '').trim() || undefined,
+      members: this.membersWorking.map(m => ({ ...m }))
+    };
+    if (this.editingIndex === null) {
+      this.groups.push(payload);
+    } else {
+      this.groups[this.editingIndex] = { ...payload, expanded: this.groups[this.editingIndex].expanded };
+    }
+    this.showGroupModal = false;
+  }
+
+  deleteGroup(index: number) {
+    const g = this.groups[index];
+    if (!g) return;
+    const ok = confirm(`Usunąć grupę "${g.name}"?`);
+    if (ok) this.groups.splice(index, 1);
+  }
+
+  toggleExpand(index: number) {
+    const g = this.groups[index];
+    if (!g) return;
+    g.expanded = !g.expanded;
+  }
+
+  // ---- Add member (manual) ----
   toggleAddMember() {
     this.showAddMember = !this.showAddMember;
     if (!this.showAddMember) this.memberForm.reset();
   }
 
   addMemberFromForm() {
-    if (!this.hasGroup) return;
     if (this.memberForm.invalid) {
       this.memberForm.markAllAsTouched();
       return;
@@ -102,7 +178,6 @@ export class Recipients {
       position: val.position || undefined,
       createdAt: new Date().toISOString()
     };
-
     if (!this.isValidEmail(newMember.email)) {
       alert('Nieprawidłowy email');
       return;
@@ -111,44 +186,40 @@ export class Recipients {
       alert('Taki email już istnieje');
       return;
     }
-
-    this.members.push(newMember);
+    this.membersWorking.push(newMember);
     this.toggleAddMember();
   }
 
-  // ---- CSV file selection and parsing ----
+  // ---- CSV import ----
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement | null;
     if (!input || !input.files || input.files.length === 0) return;
     const file = input.files[0];
     this.csvFileName = file.name;
-
     const reader = new FileReader();
     reader.onload = () => {
       const text = reader.result as string;
+      this.lastCsvText = text;
+      this.delimiter = this.detectDelimiter(text);
       this.parseCsv(text);
     };
     reader.readAsText(file, 'utf-8');
   }
 
   parseCsv(text: string) {
-    // simple CSV parsing (handles quoted values minimally)
     const lines = text.split(/\r\n|\n/).filter(l => l.trim().length > 0);
     if (lines.length === 0) {
       this.csvPreview = null;
       this.csvMapping = {};
       return;
     }
-
     const headers = this.splitLine(lines[0], this.delimiter).map(h => h.trim());
     const rows: string[][] = [];
     for (let i = 1; i < lines.length && rows.length < 1000; i++) {
       rows.push(this.splitLine(lines[i], this.delimiter));
     }
-
     this.csvPreview = { headers, rows };
-
-    // prefill mapping heuristics
+    // heurystyka mapowania
     this.csvMapping = {};
     const lcHeaders = headers.map(h => h.toLowerCase());
     const tryFind = (cands: string[]) => {
@@ -168,7 +239,6 @@ export class Recipients {
       const idx = tryFind(candidates[f] ?? []);
       if (idx >= 0) this.csvMapping[f] = idx;
     }
-
     this.importReport = null;
   }
 
@@ -178,63 +248,68 @@ export class Recipients {
     let inQuotes = false;
     for (let i = 0; i < line.length; i++) {
       const ch = line[i];
-      if (ch === '"') {
-        inQuotes = !inQuotes;
-        continue;
-      }
-      if (!inQuotes && ch === delim) {
-        res.push(cur);
-        cur = '';
-      } else {
-        cur += ch;
-      }
+      if (ch === '"') { inQuotes = !inQuotes; continue; }
+      if (!inQuotes && ch === delim) { res.push(cur); cur = ''; }
+      else { cur += ch; }
     }
     res.push(cur);
     return res;
   }
 
-  // ---- handlers called from template (avoid casting in template) ----
   onDelimiterChange(event: Event) {
     const val = (event.target as HTMLSelectElement | null)?.value ?? ',';
     this.delimiter = val;
-    // if file already loaded, require reupload for simplicity
-    if (this.csvFileName && this.csvPreview) {
-      this.csvPreview = null;
-      this.csvFileName = null;
-      this.csvMapping = {};
-      this.importReport = null;
+    if (this.lastCsvText) {
+      this.parseCsv(this.lastCsvText);
     }
+  }
+
+  onDelimiterModelChange(value: string) {
+    this.delimiter = value || ',';
+    if (this.lastCsvText) {
+      this.parseCsv(this.lastCsvText);
+    }
+  }
+
+  private detectDelimiter(text: string): string {
+    const candidates = [',', ';'];
+    const lines = text.split(/\r\n|\n/).filter(l => l.trim().length > 0).slice(0, 10);
+    if (lines.length === 0) return ',';
+    let best = ',';
+    let bestScore = -Infinity;
+    for (const d of candidates) {
+      const counts = lines.map(l => this.splitLine(l, d).length);
+      const avg = counts.reduce((a, b) => a + b, 0) / counts.length;
+      const min = Math.min(...counts);
+      const max = Math.max(...counts);
+      const consistency = 1 - (max - min) / Math.max(1, max);
+      const score = (avg >= 2 ? avg : 0) + 0.1 * consistency;
+      if (score > bestScore) { bestScore = score; best = d; }
+    }
+    return best;
   }
 
   onMappingChange(field: string, event: Event) {
     const raw = (event.target as HTMLSelectElement | null)?.value ?? '';
     const idx = raw === '' ? -1 : +raw;
-    if (idx === -1) {
-      delete this.csvMapping[field];
-    } else {
-      this.csvMapping[field] = idx;
-    }
+    if (idx === -1) delete this.csvMapping[field];
+    else this.csvMapping[field] = idx;
   }
 
-  // ---- import processing ----
   performImport(save: boolean) {
     if (!this.csvPreview) return;
     const rows = this.csvPreview.rows;
     const errors: ImportErrorItem[] = [];
     const valid: Member[] = [];
-
     for (let r = 0; r < rows.length; r++) {
       const row = rows[r];
-
       const getField = (field: string) => {
         const idx = this.csvMapping[field];
         if (idx === undefined || idx < 0 || idx >= row.length) return '';
         return (row[idx] ?? '').trim();
       };
-
       const emailRaw = getField('email') || '';
       const email = emailRaw.trim().toLowerCase();
-
       const member: Member = {
         firstName: getField('firstName') || undefined,
         lastName: getField('lastName') || undefined,
@@ -244,31 +319,26 @@ export class Recipients {
         createdAt: new Date().toISOString(),
         importError: null
       };
-
       if (!email || !this.isValidEmail(email)) {
         errors.push({ email: email || '(brak)', importError: 'Nieprawidłowy e-mail' });
         continue;
       }
-
       if (this.isDuplicate(email) || valid.some(v => v.email === email)) {
         errors.push({ email, importError: 'Duplikat e-mail' });
         continue;
       }
-
       valid.push(member);
     }
-
     this.importReport = {
       total: rows.length,
       valid: valid.length,
       invalid: errors.length,
       errors
     };
-
     if (save && !this.dryRun) {
       for (const v of valid) {
         v.id = this.generateId();
-        this.members.push(v);
+        this.membersWorking.push(v);
       }
       this.csvPreview = null;
       this.csvFileName = null;
@@ -283,28 +353,20 @@ export class Recipients {
   }
 
   isDuplicate(email: string) {
-    return this.members.some(m => m.email.toLowerCase() === email.toLowerCase());
+    return this.membersWorking.some(m => m.email.toLowerCase() === email.toLowerCase());
   }
 
-  generateId() {
-    return Math.random().toString(36).slice(2, 9);
-  }
+  generateId() { return Math.random().toString(36).slice(2, 9); }
 
-  // ---- NEW: removeMember (was missing) ----
   removeMember(id?: string) {
     if (!id) return;
-    this.members = this.members.filter(m => m.id !== id);
+    this.membersWorking = this.membersWorking.filter(m => m.id !== id);
   }
 
-  assignGroupToCampaign() {
-    alert(`Grupa "${this.selectedGroupName}" przypisana do kampanii (UI only).`);
-  }
-
-  // ---- UI helpers ----
   get filteredMembers(): Member[] {
     const q = (this.search || '').trim().toLowerCase();
-    if (!q) return this.members;
-    return this.members.filter(m =>
+    if (!q) return this.membersWorking;
+    return this.membersWorking.filter(m =>
       (m.firstName || '').toLowerCase().includes(q) ||
       (m.lastName || '').toLowerCase().includes(q) ||
       (m.position || '').toLowerCase().includes(q) ||
@@ -312,37 +374,11 @@ export class Recipients {
     );
   }
 
-  // ---- Group flow ----
-  openCreateGroup() {
-    this.newGroupName = '';
-    this.showCreateGroup = true;
-  }
-
-  closeCreateGroup() {
-    this.showCreateGroup = false;
-  }
-
-  createGroup() {
-    const name = (this.newGroupName || '').trim();
-    this.selectedGroupName = name || 'Nowa grupa';
-    this.hasGroup = true;
-    this.showCreateGroup = false;
-    this.members = [];
-    this.importReport = null;
+  private resetCsvState() {
+    this.csvFileName = null;
     this.csvPreview = null;
-  }
-
-  saveGroup() {
-    if (!this.hasGroup) return;
-    const name = (this.selectedGroupName || '').trim();
-    if (!name) {
-      alert('Podaj nazwę grupy');
-      return;
-    }
-    if (this.members.length < 1) {
-      alert('Dodaj co najmniej jednego odbiorcę do grupy');
-      return;
-    }
-    alert('Grupa zapisana (UI only)');
+    this.csvMapping = {};
+    this.importReport = null;
+    this.dryRun = true;
   }
 }
