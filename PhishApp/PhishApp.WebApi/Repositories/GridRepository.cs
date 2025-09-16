@@ -57,14 +57,17 @@ namespace PhishApp.WebApi.Repositories
             // Sortowanie
             if (!string.IsNullOrEmpty(request.Sort))
             {
-                var prop = typeof(T).GetProperty(request.Sort);
+                var prop = typeof(T).GetProperties()
+                                    .FirstOrDefault(p => string.Equals(p.Name, request.Sort, StringComparison.OrdinalIgnoreCase));
+
                 if (prop != null)
                 {
-                    query = request.Order.ToLower() == Constants.Descending
-                        ? query.OrderByDescending(e => EF.Property<object>(e, request.Sort))
-                        : query.OrderBy(e => EF.Property<object>(e, request.Sort));
+                    query = request.Order.Equals(Constants.Descending, StringComparison.OrdinalIgnoreCase)
+                        ? query.OrderByDescending(e => EF.Property<object>(e, prop.Name))
+                        : query.OrderBy(e => EF.Property<object>(e, prop.Name));
                 }
             }
+
 
             // Liczba wszystkich rekordów po filtrze
             var totalCount = await query.CountAsync();
@@ -80,7 +83,7 @@ namespace PhishApp.WebApi.Repositories
                     var idValue = request.SelectedItemId.Value;
 
                     // Pobierz wszystkie Id w aktualnym sortowaniu i filtrze
-                    var allIds = await query.Select(e => EF.Property<int>(e, "Id")).ToListAsync();
+                    var allIds = await query.Select(e => EF.Property<int>(e, idProp.Name)).ToListAsync();
 
                     var position = allIds.IndexOf(idValue);
                     if (position >= 0)

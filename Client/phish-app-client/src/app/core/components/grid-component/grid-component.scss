@@ -72,3 +72,7 @@ tr.example-element-row:not(.example-expanded-row):active {
   align-items: center;
   justify-content: center;
 }
+
+.active-row {
+  background-color: rgba(183, 207, 253, 0.753);
+}

@@ -5,7 +5,9 @@ import {
   SimpleChanges,
   AfterViewInit,
   ViewChild,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  Output,
+  EventEmitter
 } from '@angular/core';
 
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -14,10 +16,10 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { merge, of as observableOf, Subject } from 'rxjs';
 import { catchError, startWith, switchMap, debounceTime } from 'rxjs/operators';
-import { GridData, GridElement, GridRequest } from './grid-component.models';
+import { GridColumn, GridData, GridElement, GridRequest } from './grid-component.models';
 import { GridService } from './grid-component.service';
 
 @Component({
@@ -25,6 +27,7 @@ import { GridService } from './grid-component.service';
   standalone: true,
   imports: [
     NgIf,
+    NgFor,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -40,12 +43,13 @@ export class GridComponent implements OnChanges, AfterViewInit {
 
   @Input() localData: GridElement[] | null = null;
   @Input() apiUrl: string | null = null;
-  @Input() columnsToDisplay: string[] = [];
+  @Input() columnsToDisplay: GridColumn[] = [];
   @Input() filterable: boolean = true;
+
+  @Output() rowDoubleClicked = new EventEmitter<GridElement>();
 
   // tryb API
   dataSource: GridElement[] = [];
-
   // tryb local
   tableDataSource = new MatTableDataSource<GridElement>([]);
 
@@ -53,9 +57,13 @@ export class GridComponent implements OnChanges, AfterViewInit {
   isLoadingResults = false;
   isError = false;
 
+  displayedColumns: string[] = [];
+
+
   currentSortColumn: string = '';
   currentSortDirection: 'asc' | 'desc' | '' = '';
   currentFilter: string = '';
+  selectedGridElement: GridElement | null = null;
 
   private filterChange = new Subject<string>();
 
@@ -63,14 +71,18 @@ export class GridComponent implements OnChanges, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['columnsToDisplay'] && this.columnsToDisplay) {
+      this.displayedColumns = this.columnsToDisplay.map(c => c.field);
+    }
+
     if (changes['localData'] && this.localData && !this.apiUrl) {
-      // local mode
       this.tableDataSource = new MatTableDataSource(this.localData);
       this.resultsLength = this.localData.length;
       this.tableDataSource.paginator = this.paginator;
       this.tableDataSource.sort = this.sort;
     }
   }
+
 
   ngAfterViewInit() {
     // debounce filter
@@ -106,6 +118,15 @@ export class GridComponent implements OnChanges, AfterViewInit {
       this.currentSortDirection = this.sort.direction;
     });
   }
+
+  onRowClick(element: GridElement) {
+    this.selectedGridElement = element;
+  }
+
+  onRowDoubleClick(element: GridElement) {
+    this.rowDoubleClicked.emit(element);
+  }
+
 
   /** Obsługa filtra */
   applyFilter(event: Event) {

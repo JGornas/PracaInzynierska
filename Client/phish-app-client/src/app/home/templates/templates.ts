@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { GridComponent } from '../../core/components/grid-component/grid-component';
+import { GridColumn, GridElement } from '../../core/components/grid-component/grid-component.models';
 
 @Component({
   selector: 'app-templates',
@@ -8,7 +9,20 @@ import { GridComponent } from '../../core/components/grid-component/grid-compone
   styleUrl: './templates.scss'
 })
 export class Templates {
-  columns = ['id', 'title', 'body'];
+  // columns = ['id', 'title', 'body'];
+
+  columns: GridColumn[] = [
+    { field: 'id', label: 'ID' },
+    { field: 'name', label: 'Nazwa' },
+    { field: 'subject', label: 'Tytuł' }
+  ];
+
+  localColumns: GridColumn[] = [
+    { field: 'id', label: 'ID' },
+    { field: 'name', label: 'Nazwa' },
+    { field: 'description', label: 'Opis' }
+  ];
+
 
    templates = [
     { id: 1, name: 'Template 1', description: 'Description 1' },
@@ -37,4 +51,10 @@ export class Templates {
     { id: 24, name: 'Template 24', description: 'Description 24' },
     { id: 25, name: 'Template 25', description: 'Description 25' }
   ];
+
+  handleRowDoubleClick(selected: GridElement) {
+    console.log('Double clicked row:', selected);
+    // Tutaj możesz wykonać dowolną logikę
+  }
+
 }

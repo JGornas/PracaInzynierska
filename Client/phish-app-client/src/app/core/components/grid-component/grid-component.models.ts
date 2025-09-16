@@ -14,6 +14,12 @@ export interface GridPageInfo{
   pageSize?: number; 
 }
 
+export interface GridColumn {
+  field: string;
+  label: string; 
+}
+
+
 
 export interface GridRequest {
   sort: string;           

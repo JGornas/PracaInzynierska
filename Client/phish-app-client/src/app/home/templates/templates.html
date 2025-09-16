@@ -1,14 +1,17 @@
 <p>templates works!</p>
 
+<div class="templates-container">
+    <app-grid 
+        apiUrl="/api/templates/grid"
+        [columnsToDisplay]="columns"
+        (rowDoubleClicked)="handleRowDoubleClick($event)">
+    </app-grid>
 
-<app-grid 
-    apiUrl="/api/templates/grid"
-    [columnsToDisplay]="['id', 'name', 'subject']">
-</app-grid>
 
+    <app-grid 
+        [localData]="templates"
+        [columnsToDisplay]="localColumns"
+        [filterable]="true">
+    </app-grid>
+</div>
 
-<app-grid 
-      [localData]="templates"
-      [columnsToDisplay]="['id', 'name', 'description']"
-      [filterable]="true">
-</app-grid>
