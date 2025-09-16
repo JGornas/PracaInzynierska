@@ -45,6 +45,8 @@ export class GridComponent implements OnChanges, AfterViewInit {
   @Input() apiUrl: string | null = null;
   @Input() columnsToDisplay: GridColumn[] = [];
   @Input() filterable: boolean = true;
+  @Input() isSelectable: boolean = true;
+
 
   @Output() rowDoubleClicked = new EventEmitter<GridElement>();
 
@@ -120,12 +122,15 @@ export class GridComponent implements OnChanges, AfterViewInit {
   }
 
   onRowClick(element: GridElement) {
+    if (!this.isSelectable) return;
     this.selectedGridElement = element;
   }
 
   onRowDoubleClick(element: GridElement) {
+    if (!this.isSelectable) return;
     this.rowDoubleClicked.emit(element);
   }
+
 
 
   /** Obsługa filtra */
