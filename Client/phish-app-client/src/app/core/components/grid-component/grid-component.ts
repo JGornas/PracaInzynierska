@@ -44,6 +44,10 @@ export class GridComponent implements OnChanges, AfterViewInit {
   @Input() filterable: boolean = true;
 
   tableDataSource = new MatTableDataSource<GridElement>([]);
+
+  dataSource: GridElement[] = [];
+
+
   resultsLength = 0;
   isLoadingResults = false;
   isError = false;
@@ -164,30 +168,25 @@ export class GridComponent implements OnChanges, AfterViewInit {
   }
 
 
-  /** Aktualizacja tabeli po otrzymaniu danych z API */
   private updateTable(data: GridData) {
-    if (!this.tableDataSource) return;
+    if (!data) return;
 
-    // 1. Ustaw paginację przed aktualizacją danych
+    // dane do tabeli
+    this.dataSource = data.items;
+
+    // ustawienia paginatora
     if (this.paginator) {
       this.paginator.pageIndex = data.pageInfo.pageIndex ?? 0;
       this.paginator.length = data.pageInfo.totalCount ?? 0;
       this.paginator.pageSize = data.pageInfo.pageSize ?? 10;
     }
 
-    // 2. Zaktualizuj dane w istniejącym datasource
-    this.tableDataSource.data = data.items;
-
-    // 3. Powiadom MatTable o zmianie danych
-    this.tableDataSource._updateChangeSubscription();
-
-    // 4. Odśwież widok i loader
+    // loader i odświeżenie
     this.isLoadingResults = false;
     this.isError = false;
-    this.resultsLength = this.paginator?.length ?? 0;
+    this.resultsLength = data.pageInfo.totalCount ?? 0;
     this.cdr.detectChanges();
   }
-
 
 
 
