@@ -65,7 +65,7 @@ tr.example-element-row:not(.example-expanded-row):active {
   left: 0;
   bottom: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.7);
+  // background: rgba(255, 255, 255, 0.7);
   z-index: 1000;
 
   display: flex;
@@ -73,6 +73,23 @@ tr.example-element-row:not(.example-expanded-row):active {
   justify-content: center;
 }
 
+/* Aktywny wiersz */
 .active-row {
-  background-color: rgba(183, 207, 253, 0.753);
+  background-color: rgb(229, 238, 255); /* Twój kolor tła */
 }
+
+.active-row td:first-child {
+  position: relative;
+}
+
+.active-row td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;           /* szerokość linii */
+  background-color: #3a5891; /* kolor linii */
+}
+
+
