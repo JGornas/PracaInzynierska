@@ -4,7 +4,9 @@
     <app-grid 
         apiUrl="/api/templates/grid"
         [columnsToDisplay]="columns"
-        (rowDoubleClicked)="handleRowDoubleClick($event)">
+        [isRemovable]="true"
+        (rowDoubleClicked)="handleRowDoubleClick($event)"
+        (rowRemoved)="handleRowDeleted($event)">
     </app-grid>
 
 

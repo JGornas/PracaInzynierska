@@ -57,4 +57,8 @@ export class Templates {
     // Tutaj możesz wykonać dowolną logikę
   }
 
+  handleRowDeleted(selected: GridElement) {
+    console.log('Usunieto wiersz o id ', selected['id'])
+  }
+
 }

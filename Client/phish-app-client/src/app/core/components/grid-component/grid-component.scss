@@ -92,4 +92,47 @@ tr.example-element-row:not(.example-expanded-row):active {
   background-color: #3a5891; /* kolor linii */
 }
 
+/* Domyślnie kolumny mają auto szerokość */
+.mat-column-remove {
+  width: 1%;                  /* minimalna szerokość */
+  white-space: nowrap;         /* nie łamie przycisku */
+  text-align: center;          /* wyśrodkuj ikonę */
+  padding: 0 10px;              /* zmniejsz padding */
+}
+
+.mat-column-remove i {
+  font-size: 20px;
+  font-weight: lighter;
+}
+
+.mat-column-remove button {
+  margin: 0 auto;
+  display: block;
+  color: rgb(224, 52, 52);
+  border: 2px solid rgb(224, 52, 52);
+  background-color: #f1f1f1;
+  border-radius: 4px;
+  padding: 5px; 
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.mat-column-remove button:hover{
+  background-color: rgb(224, 52, 52);
+  color: white;  
+  border-color: rgb(224, 52, 52);
+}
+
+.mat-column-remove button:hover i{  
+  animation: shakeRotate 0.5s ease forwards;
+}
+
+@keyframes shakeRotate {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(-7deg); }
+  50%  { transform: rotate(7deg); }
+  75%  { transform: rotate(-7deg); }
+  100% { transform: rotate(0deg); }
+}
+
+
 

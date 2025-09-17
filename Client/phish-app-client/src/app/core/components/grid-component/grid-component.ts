@@ -46,9 +46,10 @@ export class GridComponent implements OnChanges, AfterViewInit {
   @Input() columnsToDisplay: GridColumn[] = [];
   @Input() filterable: boolean = true;
   @Input() isSelectable: boolean = true;
-
+  @Input() isRemovable: boolean = false;
 
   @Output() rowDoubleClicked = new EventEmitter<GridElement>();
+  @Output() rowRemoved = new EventEmitter<GridElement>();
 
   // tryb API
   dataSource: GridElement[] = [];
@@ -61,6 +62,9 @@ export class GridComponent implements OnChanges, AfterViewInit {
 
   displayedColumns: string[] = [];
 
+  get finalDisplayedColumns(): string[] {
+    return this.isRemovable ? [...this.displayedColumns, 'remove'] : this.displayedColumns;
+  }
 
   currentSortColumn: string = '';
   currentSortDirection: 'asc' | 'desc' | '' = '';
@@ -121,17 +125,32 @@ export class GridComponent implements OnChanges, AfterViewInit {
     });
   }
 
-  onRowClick(element: GridElement) {
+  onRowClick(element: GridElement, event: MouseEvent) {
+    if (this.isClickOnRemoveColumn(event)) {
+      return;
+    }
+
     if (!this.isSelectable) return;
     this.selectedGridElement = element;
   }
 
-  onRowDoubleClick(element: GridElement) {
+  onRowDoubleClick(element: GridElement, event: MouseEvent) {
+    if (this.isClickOnRemoveColumn(event)) {
+      return;
+    }
+
     if (!this.isSelectable) return;
     this.rowDoubleClicked.emit(element);
   }
 
+  onRemoveClick(element: GridElement, event: MouseEvent) {
+    event.stopPropagation(); // żeby nie zaznaczał wiersza przy usuwaniu
+    this.rowRemoved.emit(element);
+  }
 
+  private isClickOnRemoveColumn(event: MouseEvent): boolean {
+    return !!(event.target as HTMLElement).closest('.mat-column-remove');
+  }
 
   /** Obsługa filtra */
   applyFilter(event: Event) {
