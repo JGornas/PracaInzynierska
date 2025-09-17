@@ -1,5 +1,6 @@
 ﻿using PhishApp.WebApi.Models.Grid;
 using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Models.Rows;
 using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
 
@@ -16,9 +17,9 @@ namespace PhishApp.WebApi.Services
             _gridService = gridService;
         }
 
-        public async Task<GridData<TemplateEntity>> GetTemplatesGridData(GridRequest request)
+        public async Task<GridData<TemplateRow>> GetTemplatesGridData(GridRequest request)
         {
-            return await _gridService.GetGridData<TemplateEntity>(request);
+            return await _gridService.GetGridData<TemplateRow>(request);
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Models.Rows;
 
 namespace PhishApp.WebApi.Infrastructure
 {
@@ -23,6 +24,6 @@ namespace PhishApp.WebApi.Infrastructure
         }
 
         public DbSet<TemplateEntity> Templates { get; set; }
-
+        public DbSet<TemplateRow> TemplateRows { get; set; }
     }
 }
