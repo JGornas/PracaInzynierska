@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { LoginModel } from '../auth.models';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
   imports: [FormsModule, ButtonComponent]
 })
 export class Login {
+  @ViewChild('emailInput') emailInput!: ElementRef<HTMLInputElement>;
   @ViewChild('passwordInput') passwordInput!: ElementRef<HTMLInputElement>;
 
 
@@ -31,6 +32,15 @@ export class Login {
   }
 
   public test: boolean | null = null;
+
+  @HostListener('window:keydown', ['$event'])
+  handleGlobalKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.handleEnter();
+    }
+  }
+
 
   public handleSubmit(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -62,6 +72,20 @@ export class Login {
     });
   }
 
+  public handleEnter() {
+    if (!this.LoginModel.email) {
+      this.emailInput.nativeElement.focus();
+      return;
+    }
+
+    if (!this.LoginModel.password) {
+      this.passwordInput.nativeElement.focus();
+      return;
+    }
+
+    // jeśli oba pola są wypełnione – wykonaj logowanie
+    this.handleSubmit();
+  }
 
   togglePasswordVisibility() {
     this.passwordVisible = !this.passwordVisible;

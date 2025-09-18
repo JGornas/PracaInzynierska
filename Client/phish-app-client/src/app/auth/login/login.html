@@ -2,20 +2,23 @@
   <div class="auth-panel">
     <div class="auth-header">
       <div class="brand-logo">
+        <!-- dodaj swoje logo -->
       </div>
-      <h1>Sign in to PhishApp</h1>
-      <p>Create phishing campains</p>
+      <h1>Zaloguj się do PhishApp</h1>
+      <p>Twórz kampanie phishingowe</p>
     </div>
+    
     <div class="input-row">
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" required autocomplete="email" [(ngModel)]="LoginModel.email" />
+      <input type="email" id="email" name="email" required autocomplete="email" [(ngModel)]="LoginModel.email" #emailInput />
       <span class="error-message" id="emailError"></span>
     </div>
+    
     <div class="input-row">
-      <label for="password">Password</label>
+      <label for="password">Hasło</label>
       <div class="password-box">
         <input type="password" id="password" name="password" required autocomplete="current-password" [(ngModel)]="LoginModel.password" #passwordInput />
-        <button type="button" class="show-password-btn" id="passwordToggle" aria-label="Toggle password visibility" (click)="togglePasswordVisibility()">
+        <button type="button" class="show-password-btn" id="passwordToggle" aria-label="Pokaż/Ukryj hasło" (click)="togglePasswordVisibility()">
           <svg class="eye-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M10 3C5 3 1.73 7.11 1 10c.73 2.89 4 7 9 7s8.27-4.11 9-7c-.73-2.89-4-7-9-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z" fill="currentColor"/>
           </svg>
@@ -23,21 +26,23 @@
       </div>
       <span class="error-message" id="passwordError"></span>
     </div>
+    
     <div class="section-divider">
       <app-button-component
-        [label]="'Sign In'"
+        [label]="'Zaloguj się'"
         [action]="handleSubmit.bind(this)"
         (loadingChange)="loadingChange($event)">
       </app-button-component>
     </div>
+    
     <div class="section-divider">
-      <span>or</span>
+      <span>lub</span>
     </div>
+    
     <div class="social-area">
-      
       <app-button-component
-        [label]="'Contact us to Register'"
-        [disabled] = "contactButtonDisabled"
+        [label]="'Skontaktuj się z nami'"
+        [disabled]="contactButtonDisabled"
         [variant]="'white-outline-theme'">
       </app-button-component>
     </div>

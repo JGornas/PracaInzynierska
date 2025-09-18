@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonComponent } from '../../core/components/button-component/button-component';
@@ -9,19 +9,20 @@ import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-set-password',
+  standalone: true,
   imports: [FormsModule, CommonModule, ButtonComponent],
   providers: [AuthService],
   templateUrl: './set-password.html',
-  styleUrl: './set-password.scss'
+  styleUrls: ['./set-password.scss']
 })
 export class SetPassword {
-  @ViewChild('passwordInput', { static: true }) passwordInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('confirmPasswordInput', { static: true }) confirmPasswordInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('passwordInput') passwordInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('confirmPasswordInput') confirmPasswordInput!: ElementRef<HTMLInputElement>;
 
   loading = false;
   passwordVisible = false;
   confirmPasswordVisible = false;
-  
+
   public passwordForm: SetPasswordFormModel = new SetPasswordFormModel();
 
   constructor(private router: Router, private authService: AuthService, private route: ActivatedRoute) {}
@@ -58,11 +59,7 @@ export class SetPassword {
     const hasNumbers = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-    return password.length >= minLength && 
-           hasUpperCase && 
-           hasLowerCase && 
-           hasNumbers && 
-           hasSpecialChar;
+    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
   }
 
   getPasswordMissingRequirements(): string {
@@ -75,28 +72,22 @@ export class SetPassword {
       { met: /[!@#$%^&*(),.?":{}|<>]/.test(password), message: 'znak specjalny' }
     ];
 
-    const missing = requirements.filter(req => !req.met).map(req => req.message);
-    return missing.join(', ');
+    return requirements.filter(req => !req.met).map(req => req.message).join(', ');
   }
 
   public handleSubmit(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.passwordsMatch()) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Błąd',
-          text: 'Hasła nie są identyczne'
-        });
+        Swal.fire({ icon: 'error', title: 'Błąd', text: 'Hasła nie są identyczne' });
         reject('Passwords do not match');
         return;
       }
 
       if (!this.isPasswordStrong()) {
-        const missingRequirements = this.getPasswordMissingRequirements();
         Swal.fire({
           icon: 'error',
           title: 'Błąd',
-          text: `Hasło jest zbyt słabe. Brakuje: ${missingRequirements}`
+          text: `Hasło jest zbyt słabe. Brakuje: ${this.getPasswordMissingRequirements()}`
         });
         reject('Password is too weak');
         return;
@@ -109,11 +100,7 @@ export class SetPassword {
 
       this.authService.setPassword(loginModel).subscribe({
         next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Sukces',
-            text: 'Hasło zostało ustawione'
-          });
+          Swal.fire({ icon: 'success', title: 'Sukces', text: 'Hasło zostało ustawione' });
           this.router.navigate(['/home']);
           resolve();
         },
@@ -127,19 +114,31 @@ export class SetPassword {
 
   private showError(error: any): void {
     let errorMessage = 'Wystąpił błąd podczas ustawiania hasła';
-    
-    if (error?.error?.message) {
-      errorMessage = error.error.message;
-    } else if (error?.message) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    }
+    if (error?.error?.message) errorMessage = error.error.message;
+    else if (error?.message) errorMessage = error.message;
+    else if (typeof error === 'string') errorMessage = error;
+    Swal.fire({ icon: 'error', title: 'Błąd', text: errorMessage });
+  }
 
-    Swal.fire({
-      icon: 'error',
-      title: 'Błąd',
-      text: errorMessage
-    });
+  // --- obsługa Enter ---
+  @HostListener('window:keydown', ['$event'])
+  handleGlobalKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.handleEnter();
+    }
+  }
+
+  public handleEnter() {
+    if (!this.passwordForm.password) {
+      this.passwordInput.nativeElement.focus();
+      return;
+    }
+    if (!this.passwordForm.confirmPassword) {
+      this.confirmPasswordInput.nativeElement.focus();
+      return;
+    }
+    // jeśli oba pola wypełnione – wykonaj logowanie
+    this.handleSubmit();
   }
 }
