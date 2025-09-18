@@ -1,3 +1,16 @@
-.templates-container{
-    padding: 100px;
+.templates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 40px 60px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+app-grid {
+  width: 100%;
 }

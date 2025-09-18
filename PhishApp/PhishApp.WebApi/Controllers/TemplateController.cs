@@ -6,6 +6,7 @@ using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.RestApi;
 using PhishApp.WebApi.Models.RestApi.Auth;
 using PhishApp.WebApi.Models.Rows;
+using PhishApp.WebApi.Models.Templates;
 using PhishApp.WebApi.Services;
 using PhishApp.WebApi.Services.Interfaces;
 
@@ -30,6 +31,15 @@ namespace PhishApp.WebApi.Controllers
            var response = await _templateService.GetTemplatesGridData(request);
 
            return RestResponse<GridData<TemplateRow>>.CreateResponse(response);
+        }
+
+        [HttpPost]
+        [Route(Routes.UpdateTemplate)]
+        public async Task<RestResponse<Template>> UpdateTemplate(Template template)
+        {
+            var response = await _templateService.UpdateTemplate(template);
+
+            return RestResponse<Template>.CreateResponse(response);
         }
     }
 }

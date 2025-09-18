@@ -1,20 +1,22 @@
-<p>templates works!</p>
-
 <div class="templates-container">
-    <app-grid 
-        apiUrl="/api/templates/grid"
-        [columnsToDisplay]="columns"
-        [isRemovable]="true"
-        (rowDoubleClicked)="handleRowDoubleClick($event)"
-        (rowRemoved)="handleRowDeleted($event)">
-    </app-grid>
+  <div class="header-row">
+    <h2>Szablony email</h2>
+    <!-- <button mat-raised-button color="primary" (click)="createTemplate()">
+      Dodaj nowy
+    </button> -->
 
+    <app-button-component
+        [label]="'Stwórz nowy'"
+        [variant]="'blue-theme'"
+        [action]="createTemplate.bind(this)">
+    </app-button-component>
+  </div>
 
-    <!-- <app-grid 
-        [localData]="templates"
-        [columnsToDisplay]="localColumns"
-        [filterable]="true"
-        [isSelectable]="false">
-    </app-grid> -->
+  <app-grid 
+      apiUrl="/api/templates/grid"
+      [columnsToDisplay]="columns"
+      [isRemovable]="true"
+      (rowDoubleClicked)="handleRowDoubleClick($event)"
+      (rowRemoved)="handleRowDeleted($event)">
+  </app-grid>
 </div>
-
