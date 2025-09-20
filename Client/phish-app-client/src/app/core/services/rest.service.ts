@@ -96,9 +96,9 @@ export class RestService {
         return throwError(() => new Error(errorMessage));
       }),
       switchMap((response: any) => {
-        if (response?.accessToken) {
-          localStorage.setItem('accessToken', response.accessToken);
-          return of(response);
+        if (response?.data) {
+          localStorage.setItem('accessToken', response.data);
+          return of(response.data);
         } else {
           console.error('Brak accessToken w odpowiedzi:', response);
           // Rzucamy error zamiast pokazywać Swal

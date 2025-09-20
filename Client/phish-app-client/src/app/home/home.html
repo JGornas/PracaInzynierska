@@ -7,7 +7,7 @@
         </span>
         <div *ngIf="isSidebarExpanded" class="text header-text">
             <span class="name">PhishApp</span>
-            <span class="profession">Phishing Detection</span>
+            <span class="profession">Kampanie phishingowe</span>
         </div>
         </div>
     </header>
@@ -55,12 +55,6 @@
             <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
                 <i class='bx bx-send'></i>
                 <span *ngIf="isSidebarExpanded" class="text nav-text">Profile wysyłki</span>
-            </div>
-            </li>
-            <li class="item-link">
-            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
-                <i class='bx bx-user-circle'></i>
-                <span *ngIf="isSidebarExpanded" class="text nav-text">Administracja</span>
             </div>
             </li>
         </ul>
