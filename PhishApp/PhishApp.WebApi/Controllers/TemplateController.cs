@@ -40,5 +40,14 @@ namespace PhishApp.WebApi.Controllers
 
             return RestResponse<Template>.CreateResponse(response);
         }
+
+        [HttpGet]
+        [Route(Routes.GetTemplate)]
+        public async Task<RestResponse<Template>> GetTemplate(int id)
+        {
+            var response = await _templateService.GetTemplate(id);
+
+            return RestResponse<Template>.CreateResponse(response);
+        }
     }
 }

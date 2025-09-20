@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
 
 declare var unlayer: any;
 
@@ -11,43 +11,36 @@ declare var unlayer: any;
 export class TemplateEditorComponent implements AfterViewInit {
 
   @Input() htmlContent: string | null = null;
+  @Output() contentChange = new EventEmitter<string>();
+
+  private editorInitialized = false;
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      if (typeof unlayer !== 'undefined') {
-        unlayer.init({
-          id: 'editor',
-          displayMode: 'email',
-          projectId: 0
+    if (typeof unlayer !== 'undefined') {
+      unlayer.init({
+        id: 'editor',
+        displayMode: 'email',
+        projectId: 0
+      });
+
+      this.editorInitialized = true;
+
+      this.loadHtmlContent();
+
+      unlayer.addEventListener('design:updated', () => {
+        unlayer.exportHtml((data: any) => {
+          this.contentChange.emit(data.html);
         });
-
-        if (this.htmlContent) {
-          // jeśli dostajesz gotowy HTML z backendu
-          unlayer.loadDesign({
-            body: { rows: [] },
-            schemaVersion: 1
-          });
-
-          // 🔑 metoda do załadowania czystego HTML
-          unlayer.loadHtml(this.htmlContent);
-        } else {
-          // pusty start
-          unlayer.loadDesign({
-            body: { rows: [] },
-            options: { hideComments: true, hideImages: false },
-            schemaVersion: 1
-          });
-        }
-
-      } else {
-        console.error('Unlayer script not loaded!');
-      }
-    }, 200);
+      });
+    } else {
+      console.error('Unlayer script not loaded!');
+    }
   }
-  // saveDesign() {
-  //   unlayer.exportHtml((data: any) => {
-  //     console.log('HTML:', data.html);
-  //     console.log('JSON (design):', data.design);
-  //   });
-  // }
+
+  private loadHtmlContent() {
+    if (this.editorInitialized && this.htmlContent) {
+      unlayer.loadDesign({ body: { rows: [] }, schemaVersion: 1 });
+      unlayer.loadHtml(this.htmlContent);
+    }
+  }
 }

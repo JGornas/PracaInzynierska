@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.template-inputs {
+  display: flex;
+  flex-wrap: wrap; // pozwala na przenoszenie inputów na kolejne wiersze
+  gap: 16px;
+}
+
+.template-field {
+  flex: 1 1 250px; // minimalna szerokość 250px, ale rośnie, jeśli jest miejsce
+  min-width: 250px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}

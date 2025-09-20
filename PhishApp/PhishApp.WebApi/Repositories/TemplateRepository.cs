@@ -13,6 +13,17 @@ namespace PhishApp.WebApi.Repositories
             _context = context;
         }
 
+        public async Task<TemplateEntity?> GetTemplateByIdAsync(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentException("Id musi być większe od zera.", nameof(id));
+
+            var template = await _context.Templates.FindAsync(id);
+
+            return template;
+        }
+
+
         public async Task<TemplateEntity> UpdateTemplateAsync(TemplateEntity template)
         {
             if (template is null)

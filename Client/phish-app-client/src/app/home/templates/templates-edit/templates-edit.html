@@ -1,18 +1,34 @@
-<h2>Szablony email</h2>
+<div class="container">
+  <h2>Szablony email</h2>
 
+  <div class="template-inputs">
+    <mat-form-field class="template-field" appearance="outline">
+      <mat-label>Nazwa szablonu</mat-label>
+      <input matInput [(ngModel)]="template.name" placeholder="Wpisz nazwę szablonu" />
+    </mat-form-field>
 
+    <mat-form-field class="template-field" appearance="outline">
+      <mat-label>Temat email</mat-label>
+      <input matInput [(ngModel)]="template.subject" placeholder="Wpisz temat maila" />
+    </mat-form-field>
+  </div>
 
-<app-template-editor-component></app-template-editor-component>
+  <app-template-editor-component
+  [htmlContent]="template.content"
+  (contentChange)="onTemplateChange($event)">
+  </app-template-editor-component>
 
-<app-button-component
-        [label]="'Anuluj'"
-        [variant]="'white-outline-theme'"
-        >
-        <!-- [action]="createTemplate.bind(this)"> -->
-</app-button-component>
-<app-button-component
-        [label]="'Zapisz'"
-        [variant]="'blue-theme'"
-        >
-        <!-- [action]="createTemplate.bind(this)"> -->
-</app-button-component>
+  <div class="row">
+    <app-button-component
+      [label]="'Anuluj'"
+      [variant]="'white-outline-theme'"
+      [action]="cancel.bind(this)"
+      >
+    </app-button-component>
+    <app-button-component
+      [label]="'Zapisz'"
+      [variant]="'blue-theme'"
+      [action] = "save.bind(this)">
+    </app-button-component>
+  </div>
+</div>

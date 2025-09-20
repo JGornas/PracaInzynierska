@@ -13,5 +13,6 @@
 
         public const string TemplatesGrid = "api/templates/grid";
         public const string UpdateTemplate= "api/templates/update";
+        public const string GetTemplate= "api/templates/{id}";
     }
 }

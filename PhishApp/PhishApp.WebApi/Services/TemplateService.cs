@@ -24,6 +24,14 @@ namespace PhishApp.WebApi.Services
             return await _gridService.GetGridData<TemplateRow>(request);
         }
 
+        public async Task<Template> GetTemplate(int id)
+        {
+            var templateEntity = await  _templateRepository.GetTemplateByIdAsync(id);
+            var template = BuildTemplate(templateEntity);
+
+            return template;
+        }
+
         public async Task<Template> UpdateTemplate(Template template)
         {
             TemplateEntity templateEntity = BuildTemplateEntity(template);
@@ -32,8 +40,13 @@ namespace PhishApp.WebApi.Services
             return template;
         }
 
-        private static Template BuildTemplate(TemplateEntity templateEntity)
+        private static Template BuildTemplate(TemplateEntity? templateEntity)
         {
+            if (templateEntity == null) 
+            {
+                throw new ArgumentNullException("Podany szablon nie istnieje");
+            }
+
             var template = new Template
             {
                 Id = templateEntity.Id,
@@ -41,12 +54,13 @@ namespace PhishApp.WebApi.Services
                 Subject = templateEntity.Subject,
                 Content = templateEntity.Content,
             };
-            Validate(template);
             return template;
         }
 
         private static TemplateEntity BuildTemplateEntity(Template template)
         {
+
+            Validate(template);
             return new TemplateEntity
             {
                 Id = template.Id,
@@ -66,17 +80,17 @@ namespace PhishApp.WebApi.Services
             {
                 throw new ArgumentException(nameof(template.Id));
             }
-            if (!string.IsNullOrEmpty(template.Name))
+            if (string.IsNullOrEmpty(template.Name))
             {
-                throw new ArgumentException(nameof(template.Name));
+                throw new ArgumentException("Nazwa musi być uzupełniona");
             }
-            if (!string.IsNullOrEmpty(template.Subject))
+            if (string.IsNullOrEmpty(template.Subject))
             {
-                throw new ArgumentException(nameof(template.Subject));
+                throw new ArgumentException("Temat maila musi być uzupełniony");
             }
-            if (!string.IsNullOrEmpty(template.Content))
+            if (string.IsNullOrEmpty(template.Content))
             {
-                throw new ArgumentException(nameof(template.Content));
+                throw new ArgumentException("Zawartość maila musi być uzupełniona");
             }
         }
 
