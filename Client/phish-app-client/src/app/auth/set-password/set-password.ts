@@ -11,7 +11,6 @@ import { AuthService } from '../auth.service';
   selector: 'app-set-password',
   standalone: true,
   imports: [FormsModule, CommonModule, ButtonComponent],
-  providers: [AuthService],
   templateUrl: './set-password.html',
   styleUrls: ['./set-password.scss']
 })

@@ -30,9 +30,9 @@ export class Templates {
     await this.router.navigate(['create'], { relativeTo: this.route });
   }
 
-  handleRowDoubleClick(selected: GridElement) {
+  async handleRowDoubleClick(selected: GridElement): Promise<void> {
     console.log('Double clicked row:', selected);
-    // Tutaj możesz wykonać dowolną logikę
+    await this.router.navigate([selected['id'], 'edit'], { relativeTo: this.route });
   }
 
   handleRowDeleted(selected: GridElement) {

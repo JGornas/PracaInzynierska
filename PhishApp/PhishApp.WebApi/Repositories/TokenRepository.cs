@@ -60,5 +60,10 @@ namespace PhishApp.WebApi.Repositories
             return token;
         }
 
+        public async Task DeleteRefreshTokenAsync(ApplicationUserToken tokenEntity)
+        {
+            _context.UserTokens.Remove(tokenEntity);
+            await _context.SaveChangesAsync();
+        }
     }
 }

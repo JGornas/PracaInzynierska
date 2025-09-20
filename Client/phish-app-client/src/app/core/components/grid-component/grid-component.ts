@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,6 +21,7 @@ import { merge, of as observableOf, Subject } from 'rxjs';
 import { catchError, startWith, switchMap, debounceTime } from 'rxjs/operators';
 import { GridColumn, GridData, GridElement, GridRequest } from './grid-component.models';
 import { GridService } from './grid-component.service';
+import { getPolishPaginatorIntl } from './paginator-intl';
 
 @Component({
   selector: 'app-grid',
@@ -34,6 +35,9 @@ import { GridService } from './grid-component.service';
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+  ],
+  providers: [
+    { provide: MatPaginatorIntl, useValue: getPolishPaginatorIntl() }
   ],
   templateUrl: './grid-component.html',
   styleUrl: './grid-component.scss',
@@ -59,6 +63,9 @@ export class GridComponent implements OnChanges, AfterViewInit {
   resultsLength = 0;
   isLoadingResults = false;
   isError = false;
+
+  pageSize = 10;
+  pageSizeOptions = [5, 10, 20, 50];
 
   displayedColumns: string[] = [];
 

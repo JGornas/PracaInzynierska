@@ -6,6 +6,7 @@ namespace PhishApp.WebApi.Services.Interfaces
     public interface IAuthService
     {
         Task<AuthTokens> LoginAsync(LoginRequestInfo request);
+        Task LogoutAsync(string? refreshToken);
         Task<AuthTokens> RefreshTokenAsync(string? refreshToken);
         Task<string> RegisterAsync(LoginRequestInfo request);
         Task<AuthTokens> SetPasswordAsync(LoginRequestInfo requestInfo);

@@ -84,7 +84,21 @@ namespace PhishApp.WebApi.Controllers
             });
             return RestResponse<string>.CreateResponse(response.AccessToken);
         }
-        
+
+        [HttpPost]
+        [Route(Routes.Logout)]
+        public async Task<RestResponse<bool>> Logout()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            await _authService.LogoutAsync(refreshToken);
+
+            Response.Cookies.Delete("refreshToken");
+
+            return RestResponse<bool>.CreateResponse(true);
+        }
+
+
         [HttpPost]
         [Route(Routes.Register)]
         [AllowAnonymous] //TODO w jakiś sposób trzeba ustawić aby tylko adimn mogl to wykonywac

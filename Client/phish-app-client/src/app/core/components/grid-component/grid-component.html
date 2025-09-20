@@ -8,11 +8,11 @@
     style="width: 100%; margin-bottom: 16px"
     *ngIf="filterable"
   >
-    <mat-label>Filter</mat-label>
+    <mat-label>Filtr</mat-label>
     <input
       matInput
       (keyup)="applyFilter($event)"
-      placeholder="Search..."
+      placeholder="Szukaj..."
       #input
     />
   </mat-form-field>
@@ -62,8 +62,8 @@
 
   <mat-paginator
     [length]="resultsLength"
-    [pageSize]="10"
-    [pageSizeOptions]="[5, 10, 20, 50]"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
     aria-label="Select page"
   ></mat-paginator>
 </div>

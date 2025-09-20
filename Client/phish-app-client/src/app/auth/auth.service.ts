@@ -4,12 +4,13 @@ import { LoginModel, JwtPayload } from './auth.models';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
   constructor(private rest: RestService) {}
 
   public login(data: LoginModel): Observable<boolean> {
-        console.log(data);
     return this.rest.post<string>('/api/auth/login', data).pipe(
       map(token => {
         // Po otrzymaniu odpowiedzi przypisz token do localStorage
@@ -30,6 +31,15 @@ export class AuthService {
       })
     );
   }
+
+  public logout(): Observable<void> {
+    return this.rest.post<void>('/api/auth/logout', {}).pipe(
+      map(() => {
+        localStorage.removeItem('accessToken');
+      })
+    );
+  }
+
 
   public setPassword(data: LoginModel): Observable<any> {
     return this.rest.post<any>('/api/auth/setPassword', data).pipe(

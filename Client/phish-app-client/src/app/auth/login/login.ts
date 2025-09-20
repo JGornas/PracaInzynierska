@@ -11,7 +11,6 @@ import Swal from 'sweetalert2';
   standalone: true,
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
-  providers: [AuthService],
   imports: [FormsModule, ButtonComponent]
 })
 export class Login {

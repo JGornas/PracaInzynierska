@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +13,15 @@ import { RouterModule, Router } from '@angular/router';
 export class Home {
   isSidebarExpanded = true;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
+
+
+  logout() {
+    this.authService.logout().subscribe({
+      next: () => this.router.navigate(['/auth/login']),
+      error: (err) => console.error('Błąd przy wylogowaniu', err)
+    });
+  }
 
   toggleSidebar() {
     this.isSidebarExpanded = !this.isSidebarExpanded;

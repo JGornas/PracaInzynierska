@@ -108,16 +108,16 @@ namespace PhishApp.WebApi.Services
         public async Task<AuthTokens> RefreshTokenAsync(string? refreshToken)
         {
             if (string.IsNullOrEmpty(refreshToken))
-                throw new SecurityTokenException("Token odświeżający jest wymagany");
+                throw new SecurityTokenException("Sesja wygasła");
 
             var tokenEntity = await _tokenRepository.GetRefreshTokenByValueAsync(refreshToken);
 
             if (tokenEntity == null || tokenEntity.ExpirationTime < DateTime.UtcNow)
-                throw new SecurityTokenException("Nieprawidłowy lub wygasły token odświeżający");
+                throw new SecurityTokenException("Sesja wygasła");
 
             var user = await _userManager.FindByIdAsync(tokenEntity.UserId.ToString());
             if (user == null)
-                throw new InvalidOperationException("Nieprawidłowy użytkownik");
+                throw new InvalidOperationException("Sesja wygasła");
 
             var accessToken = GenerateJwtToken(user, mustSetPassword: false);
 
@@ -153,6 +153,18 @@ namespace PhishApp.WebApi.Services
             return activationKey;
         }
 
+        public async Task LogoutAsync(string? refreshToken)
+        {
+            if (string.IsNullOrEmpty(refreshToken))
+                return;
+
+            var tokenEntity = await _tokenRepository.GetRefreshTokenByValueAsync(refreshToken);
+            if (tokenEntity != null)
+            {
+                await _tokenRepository.DeleteRefreshTokenAsync(tokenEntity);
+            }
+        }
+
         private string GenerateJwtToken(ApplicationUser user, bool mustSetPassword)
         {
             var claims = new List<Claim>
@@ -186,6 +198,7 @@ namespace PhishApp.WebApi.Services
             var refreshTokenExpiration = DateTime.UtcNow.AddDays(Constants.RefreshTokenValidityPeriod);
             var refreshToken = await _tokenRepository.SetRefreshTokenAsync(user, refreshTokenNewValue, refreshTokenExpiration);
             return refreshToken;
-        }
+        }        
+
     }
 }

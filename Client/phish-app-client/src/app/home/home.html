@@ -68,7 +68,7 @@
     </div>
 
     <div class="bar-bottom" [ngClass]="isSidebarExpanded ? 'padding-expanded' : 'padding-hidden'">
-        <li class="item-link logout">
+        <li class="item-link logout" (click)="logout()">
         <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
             <i class='bx bx-arrow-out-left-square-half'></i>
             <span *ngIf="isSidebarExpanded" class="text nav-text">Wyloguj</span>

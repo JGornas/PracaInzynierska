@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TemplateEditorComponent } from '../../../core/components/template-editor-component/template-editor-component';
 
 @Component({
   selector: 'app-templates-edit',
-  imports: [],
+  imports: [TemplateEditorComponent],
   templateUrl: './templates-edit.html',
   styleUrls: ['./templates-edit.scss']
 })

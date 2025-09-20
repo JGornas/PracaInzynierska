@@ -25,7 +25,6 @@ namespace PhishApp.WebApi.Controllers
 
         [HttpPost]
         [Route(Routes.TemplatesGrid)]
-        [AllowAnonymous]
         public async Task<RestResponse<GridData<TemplateRow>>> Login(GridRequest request)
         {
            var response = await _templateService.GetTemplatesGridData(request);

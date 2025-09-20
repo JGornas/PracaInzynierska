@@ -1,5 +1,9 @@
 table {
   width: 100%;
+  background-color: inherit !important;
+}
+mat-paginator{
+  background-color: inherit !important;
 }
 
 tr.example-detail-row {
