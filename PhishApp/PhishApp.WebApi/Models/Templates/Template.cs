@@ -11,5 +11,7 @@ namespace PhishApp.WebApi.Models.Templates
         public string Subject { get; set; } = string.Empty;
 
         public string Content { get; set; } = string.Empty;
+
+        public string DesignObject { get; set; } = string.Empty;
     }
 }

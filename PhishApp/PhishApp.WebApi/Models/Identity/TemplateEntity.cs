@@ -17,6 +17,8 @@ namespace PhishApp.WebApi.Models.Identity
 
         [Required]
         public string Content { get; set; } = string.Empty;
+        [Required]
+        public string DesignObject { get; set; } = string.Empty;
     }
     
 }

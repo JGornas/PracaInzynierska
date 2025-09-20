@@ -30,6 +30,7 @@ export class TemplateEditorComponent implements AfterViewInit {
       unlayer.addEventListener('design:updated', () => {
         unlayer.exportHtml((data: any) => {
           this.contentChange.emit(data.html);
+          console.log(data.design)
         });
       });
     } else {
