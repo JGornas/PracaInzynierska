@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, Input, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
+import { TemplateEditorChange } from './template-editor-component.models';
 
 declare var unlayer: any;
 
@@ -9,9 +10,6 @@ declare var unlayer: any;
   styleUrls: ['./template-editor-component.scss']
 })
 export class TemplateEditorComponent implements AfterViewInit {
-
-  @Input() htmlContent: string | null = null;
-  @Output() contentChange = new EventEmitter<string>();
 
   private editorInitialized = false;
 
@@ -24,24 +22,37 @@ export class TemplateEditorComponent implements AfterViewInit {
       });
 
       this.editorInitialized = true;
-
-      this.loadHtmlContent();
-
-      unlayer.addEventListener('design:updated', () => {
-        unlayer.exportHtml((data: any) => {
-          this.contentChange.emit(data.html);
-          console.log(data.design)
-        });
-      });
     } else {
       console.error('Unlayer script not loaded!');
     }
   }
 
-  private loadHtmlContent() {
-    if (this.editorInitialized && this.htmlContent) {
+  public getContent(): Promise<TemplateEditorChange> {
+    return new Promise((resolve, reject) => {
+      if (!this.editorInitialized) {
+        reject(new Error('Editor not initialized'));
+        return;
+      }
+
+      unlayer.exportHtml((data: any) => {
+        resolve({
+          html: data.html,
+          design: data.design
+        });
+      });
+    });
+  }
+
+  public setDesign(design: any) {
+    if (!this.editorInitialized) {
+      console.error('Editor not initialized');
+      return;
+    }
+
+    if (design) {
+      unlayer.loadDesign(design);
+    } else {
       unlayer.loadDesign({ body: { rows: [] }, schemaVersion: 1 });
-      unlayer.loadHtml(this.htmlContent);
     }
   }
 }

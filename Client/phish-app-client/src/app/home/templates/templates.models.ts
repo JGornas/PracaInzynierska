@@ -3,6 +3,7 @@ export class Template {
   name: string = '';
   subject: string = '';
   content: string = '';
+  designObject: any;
 
   constructor(init?: Partial<Template>) {
     Object.assign(this, init);

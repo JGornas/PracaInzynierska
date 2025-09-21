@@ -5,6 +5,7 @@ using PhishApp.WebApi.Models.Templates;
 using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
 using System.Net.NetworkInformation;
+using System.Text.Json;
 
 namespace PhishApp.WebApi.Services
 {
@@ -32,6 +33,10 @@ namespace PhishApp.WebApi.Services
             return template;
         }
 
+        public async Task DeleteTemplate(int id)
+        {
+            await _templateRepository.DeleteTemplateAsync(id);
+        }
         public async Task<Template> UpdateTemplate(Template template)
         {
             TemplateEntity templateEntity = BuildTemplateEntity(template);
@@ -53,6 +58,7 @@ namespace PhishApp.WebApi.Services
                 Name = templateEntity.Name,
                 Subject = templateEntity.Subject,
                 Content = templateEntity.Content,
+                DesignObject = string.IsNullOrEmpty(templateEntity.DesignObject) ? null : JsonSerializer.Deserialize<object>(templateEntity.DesignObject)
             };
             return template;
         }
@@ -67,6 +73,7 @@ namespace PhishApp.WebApi.Services
                 Name = template.Name,
                 Subject = template.Subject,
                 Content = template.Content,
+                DesignObject = template.DesignObjectJson
             };
         }
 
@@ -88,7 +95,7 @@ namespace PhishApp.WebApi.Services
             {
                 throw new ArgumentException("Temat maila musi być uzupełniony");
             }
-            if (string.IsNullOrEmpty(template.Content))
+            if (string.IsNullOrEmpty(template.Content) || template.DesignObject is null)
             {
                 throw new ArgumentException("Zawartość maila musi być uzupełniona");
             }

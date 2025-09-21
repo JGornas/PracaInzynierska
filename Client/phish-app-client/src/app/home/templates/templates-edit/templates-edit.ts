@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TemplateEditorComponent } from '../../../core/components/template-editor-component/template-editor-component';
 import { ButtonComponent } from '../../../core/components/button-component/button-component';
@@ -20,10 +20,15 @@ import { firstValueFrom } from 'rxjs';
 export class TemplatesEdit implements OnInit {
 
   isEditMode: boolean = false;
-
   template: Template = new Template(); 
 
-  constructor(private route: ActivatedRoute, private router: Router, private templateService: TemplatesService) {}
+  @ViewChild(TemplateEditorComponent) editor!: TemplateEditorComponent;
+
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router, 
+    private templateService: TemplatesService
+  ) {}
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -32,12 +37,8 @@ export class TemplatesEdit implements OnInit {
     if (this.isEditMode) {
       this.loadTemplate(id);
     }
-    else{
-      //ustawiam this.Template na pusty obiekt
-    }
   }
 
-  
   async save(): Promise<void> {
     const result = await Swal.fire({
       title: 'Zapisz zmiany?',
@@ -49,14 +50,17 @@ export class TemplatesEdit implements OnInit {
     });
 
     if (!result.isConfirmed) {
-      return; // użytkownik anulował zapis
+      return;
     }
 
     try {
-      // Wywołanie metody REST, przesyłamy aktualny template
+      if (this.editor) {
+        const content = await this.editor.getContent();
+        this.template.content = content.html;
+        this.template.designObject = content.design;
+      }
+
       const updatedTemplate = await firstValueFrom(this.templateService.saveTemplate(this.template));
-      
-      // Jeśli się udało, aktualizujemy lokalny obiekt template
       this.template = updatedTemplate;
 
       await Swal.fire({
@@ -65,20 +69,20 @@ export class TemplatesEdit implements OnInit {
         text: 'Szablon został zapisany pomyślnie.'
       });
     } catch (error: any) {
-      // Jeśli wystąpił błąd podczas zapisu
       await Swal.fire({
         icon: 'error',
         title: 'Błąd zapisu',
         text: error?.message || 'Nie udało się zapisać szablonu.'
       });
-
-      // Następnie wykonujemy cancel, aby wrócić do listy szablonów
-      // await this.cancel();
     }
   }
 
-
   async cancel(): Promise<void> {
+    if (!this.isEditMode) {
+      await this.router.navigate(['home/templates']);
+      return;
+    }
+
     const result = await Swal.fire({
       title: 'Anulować zmiany?',
       text: 'Wszystkie niezapisane zmiany zostaną utracone.',
@@ -89,15 +93,8 @@ export class TemplatesEdit implements OnInit {
     });
 
     if (result.isConfirmed) {
-      // Przejście bezwzględne do listy szablonów
       await this.router.navigate(['home/templates']);
     }
-  }
-
-
-  onTemplateChange(event: string){
-    console.log('template change')
-    this.template.content = event;
   }
 
   private async loadTemplate(id: string | null) {
@@ -109,22 +106,21 @@ export class TemplatesEdit implements OnInit {
       const templateId = Number(id);
       if (isNaN(templateId)) throw new Error('Nieprawidłowe ID szablonu');
 
-      // Pobranie szablonu z serwisu
       this.template = await firstValueFrom(this.templateService.getTemplate(templateId));
 
+      if (this.editor && this.template.designObject) {
+        this.editor.setDesign(this.template.designObject);
+      }
     } catch (error) {
       console.error('Błąd pobierania szablonu:', error);
 
-      // Wyświetlenie komunikatu o błędzie
       await Swal.fire({
         icon: 'error',
         title: 'Błąd',
         text: 'Nie istnieje szablon o podanym ID.'
       });
 
-      // Przekierowanie do listy szablonów
       await this.router.navigate(['home/templates']);
     }
   }
-
 }

@@ -49,5 +49,14 @@ namespace PhishApp.WebApi.Controllers
 
             return RestResponse<Template>.CreateResponse(response);
         }
+
+        [HttpDelete]
+        [Route(Routes.DeleteTemplate)]
+        public async Task<RestResponse<bool>> DeleteTemplate(int id)
+        {
+            await _templateService.DeleteTemplate(id);
+
+            return RestResponse<bool>.CreateResponse(true);
+        }
     }
 }

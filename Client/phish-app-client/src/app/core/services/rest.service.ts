@@ -34,6 +34,16 @@ export class RestService {
       );
   }
 
+  public delete<T>(url: string, params?: any): Observable<T> {
+    return this.http
+      .delete<{ data: T }>(url, { headers: this.createHeaders(), params, withCredentials: true })
+      .pipe(
+        map(response => response.data),
+        catchError(err => this.handleError<T>(err, () => this.delete(url, params)))
+      );
+  }
+
+
   private handleError<T>(error: any, retryFn: () => Observable<T>): Observable<T> {
     const backendMessage = error?.error?.data || 'Wystąpił nieznany błąd.';
 

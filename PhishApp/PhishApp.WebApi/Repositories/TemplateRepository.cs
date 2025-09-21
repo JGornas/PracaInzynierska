@@ -23,6 +23,20 @@ namespace PhishApp.WebApi.Repositories
             return template;
         }
 
+        public async Task DeleteTemplateAsync(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentException("Id musi być większe od zera.", nameof(id));
+
+            var template = await _context.Templates.FindAsync(id);
+
+            if (template == null)
+                throw new Exception("Nie ma szablonu o podanym id");
+
+            _context.Templates.Remove(template);
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task<TemplateEntity> UpdateTemplateAsync(TemplateEntity template)
         {

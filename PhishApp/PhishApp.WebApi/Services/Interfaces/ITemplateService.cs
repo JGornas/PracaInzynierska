@@ -7,6 +7,7 @@ namespace PhishApp.WebApi.Services.Interfaces
 {
     public interface ITemplateService
     {
+        Task DeleteTemplate(int id);
         Task<Template> GetTemplate(int id);
         Task<GridData<TemplateRow>> GetTemplatesGridData(GridRequest request);
         Task<Template> UpdateTemplate(Template template);

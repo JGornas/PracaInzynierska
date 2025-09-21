@@ -27,5 +27,15 @@ export class TemplatesService {
         );
     }
 
+    public deleteTemplate(id: number): Observable<void> {
+        return this.rest.delete<void>(`/api/templates/${id}`).pipe(
+            catchError(error => {
+            console.error(`Błąd usuwania szablonu o id=${id}:`, error);
+            return throwError(() => error);
+            })
+        );
+    }
+
+
   
 }
