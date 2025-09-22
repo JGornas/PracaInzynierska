@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EMPTY, Observable, of, throwError } from 'rxjs';
 import { catchError, switchMap, map } from 'rxjs/operators';
@@ -34,6 +34,15 @@ export class RestService {
       );
   }
 
+  public put<T>(url: string, body: any): Observable<T> {
+    return this.http
+      .put<{ data: T }>(url, body, { headers: this.createHeaders(), withCredentials: true })
+      .pipe(
+        map(response => response.data),
+        catchError(err => this.handleError<T>(err, () => this.put(url, body)))
+      );
+  }
+
   public delete<T>(url: string, params?: any): Observable<T> {
     return this.http
       .delete<{ data: T }>(url, { headers: this.createHeaders(), params, withCredentials: true })
@@ -42,7 +51,6 @@ export class RestService {
         catchError(err => this.handleError<T>(err, () => this.delete(url, params)))
       );
   }
-
 
   private handleError<T>(error: any, retryFn: () => Observable<T>): Observable<T> {
     const backendMessage = error?.error?.data || 'Wystąpił nieznany błąd.';
@@ -54,7 +62,7 @@ export class RestService {
           // Po odświeżeniu tokena, ponawiamy oryginalne zapytanie
           return retryFn().pipe(
             catchError((retryError) => {
-              // Jeśli ponowne zapytanie też zwróci 401 - sesja wygasła
+              // Jeżeli ponowne zapytanie też zwróci 401 - sesja wygasła
               if (retryError.status === 401) {
                 this.showSessionExpiredError(
                   retryError?.error?.data || 'Sesja wygasła. Zaloguj się ponownie.'
@@ -69,7 +77,7 @@ export class RestService {
           );
         }),
         catchError((refreshError) => {
-          // Jeśli refresh token się nie udał - również pokazujemy błąd
+          // Jeżeli refresh token się nie udał - również pokazujemy błąd
           this.showSessionExpiredError(
             refreshError.message || 'Sesja wygasła. Zaloguj się ponownie.'
           );
@@ -82,18 +90,15 @@ export class RestService {
     }
   }
 
-
-
-
   private refreshAccessToken(): Observable<any> {
-    return this.http.post('/api/auth/refresh', {}, { 
+    return this.http.post('/api/auth/refresh', {}, {
       withCredentials: true
     }).pipe(
       catchError(error => {
         console.error('Błąd refresh token:', error);
-        
+
         let errorMessage = 'Sesja wygasła. Zaloguj się ponownie.';
-        
+
         if (error?.error?.data) {
           errorMessage = error.error.data;
         } else if (error?.error?.message) {
@@ -101,7 +106,7 @@ export class RestService {
         } else if (error?.message) {
           errorMessage = error.message;
         }
-        
+
         // TYLKO rzucamy error, bez pokazywania Swal
         return throwError(() => new Error(errorMessage));
       }),
@@ -126,9 +131,8 @@ export class RestService {
       confirmButtonText: 'Zaloguj się',
       allowOutsideClick: false,
       allowEscapeKey: false
-    }).then((result) => {
+    }).then(() => {
       this.router.navigate(['/auth/login']);
     });
-
   }
 }

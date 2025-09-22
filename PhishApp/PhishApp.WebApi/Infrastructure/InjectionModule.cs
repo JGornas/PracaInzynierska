@@ -20,15 +20,14 @@ namespace PhishApp.WebApi.Infrastructure
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<ITokenRepository, TokenRepository>();
 
-
             services.AddTransient<IGridRepository, GridRepository>();
             services.AddTransient<IGridService, GridService>();
 
             services.AddTransient<ITemplateRepository, TemplateRepository>();
             services.AddTransient<ITemplateService, TemplateService>();
 
-
-
+            services.AddTransient<IRecipientRepository, RecipientRepository>();
+            services.AddTransient<IRecipientService, RecipientService>();
 
             services.AddDbContext<DataContext>(options =>
             {

@@ -15,5 +15,15 @@
         public const string UpdateTemplate= "api/templates/update";
         public const string GetTemplate= "api/templates/{id}";
         public const string DeleteTemplate= "api/templates/{id}";
+
+        public const string GetRecipients = "api/recipients/individuals";
+        public const string CreateRecipient = "api/recipients/individuals";
+        public const string UpdateRecipient = "api/recipients/individuals/{id}";
+        public const string DeleteRecipient = "api/recipients/individuals/{id}";
+
+        public const string GetRecipientGroups = "api/recipients/groups";
+        public const string CreateRecipientGroup = "api/recipients/groups";
+        public const string UpdateRecipientGroup = "api/recipients/groups/{id}";
+        public const string DeleteRecipientGroup = "api/recipients/groups/{id}";
     }
 }

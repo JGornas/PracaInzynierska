@@ -1,26 +1,12 @@
-import { Component } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
-interface Member {
-  id?: string;
-  firstName?: string;
-  lastName?: string;
-  email: string; // wymagane
-  position?: string;
-  externalId?: string;
-  createdAt?: string;
-  importError?: string | null;
-}
-
-interface Group {
-  id: string;
-  name: string;
-  campaign?: string; // opcjonalna nazwa kampanii
-  members: Member[];
-  expanded?: boolean;
-}
+import { firstValueFrom } from 'rxjs';
+import { GridComponent } from '../../core/components/grid-component/grid-component';
+import { GridColumn, GridElement } from '../../core/components/grid-component/grid-component.models';
+import { RecipientsService } from './recipients.service';
+import { RecipientDto, RecipientGroupDto, RecipientGroupPayload, RecipientPayload } from './recipients.models';
 
 interface CsvPreview {
   headers: string[];
@@ -39,33 +25,86 @@ interface ImportReport {
   errors: ImportErrorItem[];
 }
 
+type RecipientGridRow = RecipientDto & { createdAtLabel: string };
+
+type GroupGridRow = {
+  id: number;
+  name: string;
+  campaignLabel: string;
+  membersCount: number;
+};
+
+type MemberWorking = RecipientPayload & {
+  id?: number | null;
+  createdAt?: string | null;
+  clientKey: string;
+};
+
 @Component({
   selector: 'app-recipients',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, GridComponent],
   templateUrl: 'recipients.html',
   styleUrls: ['recipients.scss']
 })
-export class Recipients {
-  // lista grup
-  groups: Group[] = [];
+export class Recipients implements OnInit {
+  constructor(private fb: FormBuilder, private recipientsService: RecipientsService) {
+    this.memberForm = this.fb.group({
+      firstName: [''],
+      lastName: [''],
+      email: ['', [Validators.required, Validators.email]],
+      position: ['']
+    });
 
-  // modal grupy (tworzenie/edycja)
+    this.recipientForm = this.fb.group({
+      firstName: [''],
+      lastName: [''],
+      email: ['', [Validators.required, Validators.email]],
+      position: ['']
+    });
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.loadData();
+  }
+
+  individualColumns: GridColumn[] = [
+    { field: 'email', label: 'E-mail' },
+    { field: 'firstName', label: 'Imię' },
+    { field: 'lastName', label: 'Nazwisko' },
+    { field: 'position', label: 'Stanowisko' }
+  ];
+
+  groupColumns: GridColumn[] = [
+    { field: 'name', label: 'Nazwa grupy' },
+    { field: 'campaignLabel', label: 'Kampania' },
+    { field: 'membersCount', label: 'Liczba odbiorców' }
+  ];
+
+  individualRecipients: RecipientDto[] = [];
+  individualGridData: RecipientGridRow[] = [];
+
+  groups: RecipientGroupDto[] = [];
+  groupGridData: GroupGridRow[] = [];
+
+  showRecipientModal = false;
+  recipientForm: FormGroup;
+  editingRecipientId: number | null = null;
+
   showGroupModal = false;
+  editingGroupId: number | null = null;
   editingIndex: number | null = null;
   groupName = '';
   campaign = '';
   groupNameTouched = false;
   membersTouched = false;
 
-  // formularz i stan dodawania odbiorców w modalu
   memberForm: FormGroup;
-  membersWorking: Member[] = [];
+  membersWorking: MemberWorking[] = [];
   showAddMember = false;
   showCsvImport = false;
   search = '';
 
-  // CSV import stan
   csvFileName: string | null = null;
   delimiter = ',';
   csvPreview: CsvPreview | null = null;
@@ -82,17 +121,147 @@ export class Recipients {
   importReport: ImportReport | null = null;
   lastCsvText: string | null = null;
 
-  constructor(private fb: FormBuilder) {
-    this.memberForm = this.fb.group({
-      firstName: [''],
-      lastName: [''],
-      email: ['', [Validators.required, Validators.email]],
-      position: ['']
-    });
+  isLoading = false;
+  isSavingRecipient = false;
+  isSavingGroup = false;
+
+  async loadData(): Promise<void> {
+    this.isLoading = true;
+    try {
+      await Promise.all([this.loadRecipients(), this.loadGroups()]);
+    } catch (error) {
+      this.handleError(error, 'Nie udało się pobrać odbiorców.');
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  // ---- Modal group flow ----
-  openCreateGroup() {
+  private async loadRecipients(): Promise<void> {
+    const recipients = await firstValueFrom(this.recipientsService.getRecipients());
+    this.individualRecipients = recipients;
+    this.refreshRecipientGridData();
+  }
+
+  private async loadGroups(): Promise<void> {
+    const groups = await firstValueFrom(this.recipientsService.getGroups());
+    this.groups = groups;
+    this.refreshGroupGridData();
+  }
+
+  private refreshRecipientGridData(): void {
+    this.individualGridData = this.individualRecipients.map(rec => ({
+      ...rec,
+      createdAtLabel: rec.createdAt ? this.formatDate(rec.createdAt) : ''
+    }));
+  }
+
+  private refreshGroupGridData(): void {
+    this.groupGridData = this.groups.map(group => ({
+      id: group.id,
+      name: group.name,
+      campaignLabel: group.campaign || '-',
+      membersCount: group.members?.length ?? 0
+    }));
+  }
+
+  openCreateRecipient(): void {
+    this.editingRecipientId = null;
+    this.recipientForm.reset();
+    this.recipientForm.markAsPristine();
+    this.recipientForm.markAsUntouched();
+    this.showRecipientModal = true;
+  }
+
+  openEditRecipient(row: GridElement): void {
+    const id = Number(row['id']);
+    if (!id) {
+      return;
+    }
+    const recipient = this.individualRecipients.find(r => r.id === id);
+    if (!recipient) {
+      return;
+    }
+    this.editingRecipientId = id;
+    this.recipientForm.reset({
+      firstName: recipient.firstName || '',
+      lastName: recipient.lastName || '',
+      email: recipient.email,
+      position: recipient.position || ''
+    });
+    this.recipientForm.markAsPristine();
+    this.recipientForm.markAsUntouched();
+    this.showRecipientModal = true;
+  }
+
+  cancelRecipientModal(): void {
+    this.showRecipientModal = false;
+    this.editingRecipientId = null;
+  }
+
+  async saveRecipient(): Promise<void> {
+    if (this.recipientForm.invalid) {
+      this.recipientForm.markAllAsTouched();
+      return;
+    }
+
+    const value = this.recipientForm.value;
+    const normalizedEmail = (value.email || '').trim().toLowerCase();
+    if (!this.isValidEmail(normalizedEmail)) {
+      alert('Nieprawidłowy email');
+      return;
+    }
+
+    const payload: RecipientPayload = {
+      id: this.editingRecipientId ?? undefined,
+      email: normalizedEmail,
+      firstName: (value.firstName || '').trim() || null,
+      lastName: (value.lastName || '').trim() || null,
+      position: (value.position || '').trim() || null,
+      externalId: null
+    };
+
+    this.isSavingRecipient = true;
+    try {
+      if (this.editingRecipientId) {
+        await firstValueFrom(this.recipientsService.updateRecipient(this.editingRecipientId, payload));
+      } else {
+        await firstValueFrom(this.recipientsService.createRecipient(payload));
+      }
+      await Promise.all([this.loadRecipients(), this.loadGroups()]);
+      this.showRecipientModal = false;
+      this.editingRecipientId = null;
+    } catch (error) {
+      this.handleError(error, 'Nie udało się zapisać odbiorcy.');
+    } finally {
+      this.isSavingRecipient = false;
+    }
+  }
+
+  async handleRecipientRemoved(row: GridElement): Promise<void> {
+    const id = Number(row['id']);
+    if (!id) {
+      return;
+    }
+    const recipient = this.individualRecipients.find(r => r.id === id);
+    const email = recipient?.email || '';
+    const confirmed = confirm(`Usunąć odbiorcę "${email || id}"?`);
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await firstValueFrom(this.recipientsService.deleteRecipient(id));
+      await Promise.all([this.loadRecipients(), this.loadGroups()]);
+    } catch (error) {
+      this.handleError(error, 'Nie udało się usunąć odbiorcy.');
+    }
+  }
+
+  handleRecipientDoubleClicked(row: GridElement): void {
+    this.openEditRecipient(row);
+  }
+
+  openCreateGroup(): void {
+    this.editingGroupId = null;
     this.editingIndex = null;
     this.groupName = '';
     this.campaign = '';
@@ -102,96 +271,158 @@ export class Recipients {
     this.resetCsvState();
     this.showAddMember = false;
     this.showCsvImport = false;
+    this.search = '';
+    this.memberForm.reset();
     this.showGroupModal = true;
   }
 
-  openEditGroup(index: number) {
-    const g = this.groups[index];
-    if (!g) return;
+  openEditGroup(index: number): void {
+    const group = this.groups[index];
+    if (!group) {
+      return;
+    }
     this.editingIndex = index;
-    this.groupName = g.name;
-    this.campaign = g.campaign || '';
+    this.openGroupForEditing(group);
+  }
+
+  openEditGroupById(id: number): void {
+    const index = this.groups.findIndex(g => g.id === id);
+    const group = index >= 0 ? this.groups[index] : undefined;
+    if (!group) {
+      return;
+    }
+    this.editingIndex = index >= 0 ? index : null;
+    this.openGroupForEditing(group);
+  }
+
+  private openGroupForEditing(group: RecipientGroupDto): void {
+    this.editingGroupId = group.id;
+    this.groupName = group.name;
+    this.campaign = group.campaign || '';
     this.groupNameTouched = false;
     this.membersTouched = false;
-    this.membersWorking = (g.members || []).map(m => ({ ...m }));
+    this.membersWorking = (group.members || []).map(member => ({
+      id: member.id,
+      email: member.email,
+      firstName: member.firstName || null,
+      lastName: member.lastName || null,
+      position: member.position || null,
+      externalId: member.externalId || null,
+      createdAt: member.createdAt || null,
+      clientKey: this.buildClientKey(member.id)
+    }));
     this.resetCsvState();
     this.showAddMember = false;
     this.showCsvImport = false;
+    this.search = '';
+    this.memberForm.reset();
     this.showGroupModal = true;
   }
 
-  cancelGroupModal() {
+  cancelGroupModal(): void {
     this.showGroupModal = false;
+    this.editingGroupId = null;
+    this.editingIndex = null;
   }
 
-  saveGroup() {
-    // zaznacz walidacje, aby pokazać komunikaty
+  async saveGroup(): Promise<void> {
     this.groupNameTouched = true;
     this.membersTouched = true;
     const name = (this.groupName || '').trim();
     if (!name) return;
     if (this.membersWorking.length < 1) return;
-    const payload: Group = {
-      id: this.editingIndex === null ? this.generateId() : this.groups[this.editingIndex].id,
+
+    const payload: RecipientGroupPayload = {
       name,
-      campaign: (this.campaign || '').trim() || undefined,
-      members: this.membersWorking.map(m => ({ ...m }))
+      campaign: (this.campaign || '').trim() || null,
+      members: this.membersWorking.map(member => ({
+        id: member.id ?? null,
+        email: member.email,
+        firstName: member.firstName || null,
+        lastName: member.lastName || null,
+        position: member.position || null,
+        externalId: member.externalId || null
+      }))
     };
-    if (this.editingIndex === null) {
-      this.groups.push(payload);
-    } else {
-      this.groups[this.editingIndex] = { ...payload, expanded: this.groups[this.editingIndex].expanded };
+
+    this.isSavingGroup = true;
+    try {
+      if (this.editingGroupId === null) {
+        await firstValueFrom(this.recipientsService.createGroup(payload));
+      } else {
+        await firstValueFrom(this.recipientsService.updateGroup(this.editingGroupId, payload));
+      }
+      this.showGroupModal = false;
+      this.editingGroupId = null;
+      this.editingIndex = null;
+      await Promise.all([this.loadGroups(), this.loadRecipients()]);
+    } catch (error) {
+      this.handleError(error, 'Nie udało się zapisać grupy.');
+    } finally {
+      this.isSavingGroup = false;
     }
-    this.showGroupModal = false;
   }
 
-  deleteGroup(index: number) {
-    const g = this.groups[index];
-    if (!g) return;
-    const ok = confirm(`Usunąć grupę "${g.name}"?`);
-    if (ok) this.groups.splice(index, 1);
+  async handleGroupRemoved(row: GridElement): Promise<void> {
+    const id = Number(row['id']);
+    if (!id) {
+      return;
+    }
+    const group = this.groups.find(g => g.id === id);
+    const confirmed = confirm(`Usunąć grupę "${group?.name || id}"?`);
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await firstValueFrom(this.recipientsService.deleteGroup(id));
+      await Promise.all([this.loadGroups(), this.loadRecipients()]);
+    } catch (error) {
+      this.handleError(error, 'Nie udało się usunąć grupy.');
+    }
   }
 
-  toggleExpand(index: number) {
-    const g = this.groups[index];
-    if (!g) return;
-    g.expanded = !g.expanded;
+  handleGroupDoubleClicked(row: GridElement): void {
+    const id = Number(row['id']);
+    if (!id) {
+      return;
+    }
+    this.openEditGroupById(id);
   }
 
-  // ---- Add member (manual) ----
-  toggleAddMember() {
+  toggleAddMember(): void {
     this.showAddMember = !this.showAddMember;
     if (!this.showAddMember) this.memberForm.reset();
   }
 
-  addMemberFromForm() {
+  addMemberFromForm(): void {
     if (this.memberForm.invalid) {
       this.memberForm.markAllAsTouched();
       return;
     }
     const val = this.memberForm.value;
-    const newMember: Member = {
-      id: this.generateId(),
-      firstName: val.firstName || undefined,
-      lastName: val.lastName || undefined,
-      email: (val.email || '').trim().toLowerCase(),
-      position: val.position || undefined,
-      createdAt: new Date().toISOString()
-    };
-    if (!this.isValidEmail(newMember.email)) {
+    const email = (val.email || '').trim().toLowerCase();
+    if (!this.isValidEmail(email)) {
       alert('Nieprawidłowy email');
       return;
     }
-    if (this.isDuplicate(newMember.email)) {
-      alert('Taki email już istnieje');
+    if (this.isDuplicateInWorkingMembers(email)) {
+      alert('Taki email już istnieje w tej grupie');
       return;
     }
+    const newMember: MemberWorking = {
+      id: null,
+      email,
+      firstName: (val.firstName || '').trim() || null,
+      lastName: (val.lastName || '').trim() || null,
+      position: (val.position || '').trim() || null,
+      externalId: null,
+      clientKey: this.generateClientKey()
+    };
     this.membersWorking.push(newMember);
     this.toggleAddMember();
   }
 
-  // ---- CSV import ----
-  onFileSelected(event: Event) {
+  onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement | null;
     if (!input || !input.files || input.files.length === 0) return;
     const file = input.files[0];
@@ -206,7 +437,7 @@ export class Recipients {
     reader.readAsText(file, 'utf-8');
   }
 
-  parseCsv(text: string) {
+  parseCsv(text: string): void {
     const lines = text.split(/\r\n|\n/).filter(l => l.trim().length > 0);
     if (lines.length === 0) {
       this.csvPreview = null;
@@ -219,44 +450,45 @@ export class Recipients {
       rows.push(this.splitLine(lines[i], this.delimiter));
     }
     this.csvPreview = { headers, rows };
-    // heurystyka mapowania
-    this.csvMapping = {};
-    const lcHeaders = headers.map(h => h.toLowerCase());
-    const tryFind = (cands: string[]) => {
-      for (let i = 0; i < lcHeaders.length; i++) {
-        if (cands.some(c => lcHeaders[i].includes(c))) return i;
-      }
-      return -1;
-    };
-    const candidates: Record<string, string[]> = {
-      email: ['email', 'e-mail', 'adres', 'kontakt'],
-      firstName: ['firstname', 'first name', 'imie', 'imię'],
-      lastName: ['lastname', 'last name', 'nazwisko'],
-      position: ['position', 'stanowisko'],
-      externalId: ['externalid', 'id', 'employeeid', 'employee id']
-    };
-    for (const f of this.mappingFields) {
-      const idx = tryFind(candidates[f] ?? []);
-      if (idx >= 0) this.csvMapping[f] = idx;
-    }
     this.importReport = null;
+
+    const headerIndex: Record<string, number> = {};
+    headers.forEach((h, idx) => {
+      const normalized = h.toLowerCase();
+      if (normalized.includes('email')) headerIndex['email'] = idx;
+      if (normalized.includes('first')) headerIndex['firstName'] = idx;
+      if (normalized.includes('last')) headerIndex['lastName'] = idx;
+      if (normalized.includes('position') || normalized.includes('title')) headerIndex['position'] = idx;
+      if (normalized.includes('external')) headerIndex['externalId'] = idx;
+    });
+    this.csvMapping = { ...headerIndex };
   }
 
-  splitLine(line: string, delim: string) {
-    const res: string[] = [];
-    let cur = '';
+  private splitLine(line: string, delimiter: string): string[] {
+    const result: string[] = [];
+    let current = '';
     let inQuotes = false;
     for (let i = 0; i < line.length; i++) {
       const ch = line[i];
-      if (ch === '"') { inQuotes = !inQuotes; continue; }
-      if (!inQuotes && ch === delim) { res.push(cur); cur = ''; }
-      else { cur += ch; }
+      if (ch === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch === delimiter && !inQuotes) {
+        result.push(current);
+        current = '';
+      } else {
+        current += ch;
+      }
     }
-    res.push(cur);
-    return res;
+    result.push(current);
+    return result;
   }
 
-  onDelimiterChange(event: Event) {
+  onDelimiterChange(event: Event): void {
     const val = (event.target as HTMLSelectElement | null)?.value ?? ',';
     this.delimiter = val;
     if (this.lastCsvText) {
@@ -264,7 +496,7 @@ export class Recipients {
     }
   }
 
-  onDelimiterModelChange(value: string) {
+  onDelimiterModelChange(value: string): void {
     this.delimiter = value || ',';
     if (this.lastCsvText) {
       this.parseCsv(this.lastCsvText);
@@ -289,18 +521,18 @@ export class Recipients {
     return best;
   }
 
-  onMappingChange(field: string, event: Event) {
+  onMappingChange(field: string, event: Event): void {
     const raw = (event.target as HTMLSelectElement | null)?.value ?? '';
     const idx = raw === '' ? -1 : +raw;
     if (idx === -1) delete this.csvMapping[field];
     else this.csvMapping[field] = idx;
   }
 
-  performImport(save: boolean) {
+  performImport(save: boolean): void {
     if (!this.csvPreview) return;
     const rows = this.csvPreview.rows;
     const errors: ImportErrorItem[] = [];
-    const valid: Member[] = [];
+    const valid: MemberWorking[] = [];
     for (let r = 0; r < rows.length; r++) {
       const row = rows[r];
       const getField = (field: string) => {
@@ -310,23 +542,23 @@ export class Recipients {
       };
       const emailRaw = getField('email') || '';
       const email = emailRaw.trim().toLowerCase();
-      const member: Member = {
-        firstName: getField('firstName') || undefined,
-        lastName: getField('lastName') || undefined,
-        email,
-        position: getField('position') || undefined,
-        externalId: getField('externalId') || undefined,
-        createdAt: new Date().toISOString(),
-        importError: null
-      };
       if (!email || !this.isValidEmail(email)) {
         errors.push({ email: email || '(brak)', importError: 'Nieprawidłowy e-mail' });
         continue;
       }
-      if (this.isDuplicate(email) || valid.some(v => v.email === email)) {
+      if (this.isDuplicateInWorkingMembers(email) || valid.some(v => v.email === email)) {
         errors.push({ email, importError: 'Duplikat e-mail' });
         continue;
       }
+      const member: MemberWorking = {
+        id: null,
+        email,
+        firstName: getField('firstName') || null,
+        lastName: getField('lastName') || null,
+        position: getField('position') || null,
+        externalId: getField('externalId') || null,
+        clientKey: this.generateClientKey()
+      };
       valid.push(member);
     }
     this.importReport = {
@@ -336,34 +568,28 @@ export class Recipients {
       errors
     };
     if (save && !this.dryRun) {
-      for (const v of valid) {
-        v.id = this.generateId();
-        this.membersWorking.push(v);
-      }
+      this.membersWorking.push(...valid);
       this.csvPreview = null;
       this.csvFileName = null;
       this.csvMapping = {};
     }
   }
 
-  // ---- helpers ----
-  isValidEmail(email: string) {
+  isValidEmail(email: string): boolean {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email) && email.length <= 254;
   }
 
-  isDuplicate(email: string) {
-    return this.membersWorking.some(m => m.email.toLowerCase() === email.toLowerCase());
+  private isDuplicateInWorkingMembers(email: string): boolean {
+    return this.membersWorking.some(m => (m.email || '').toLowerCase() === email.toLowerCase());
   }
 
-  generateId() { return Math.random().toString(36).slice(2, 9); }
-
-  removeMember(id?: string) {
-    if (!id) return;
-    this.membersWorking = this.membersWorking.filter(m => m.id !== id);
+  removeMember(clientKey: string | undefined): void {
+    if (!clientKey) return;
+    this.membersWorking = this.membersWorking.filter(m => m.clientKey !== clientKey);
   }
 
-  get filteredMembers(): Member[] {
+  get filteredMembers(): MemberWorking[] {
     const q = (this.search || '').trim().toLowerCase();
     if (!q) return this.membersWorking;
     return this.membersWorking.filter(m =>
@@ -374,11 +600,38 @@ export class Recipients {
     );
   }
 
-  private resetCsvState() {
+  private resetCsvState(): void {
     this.csvFileName = null;
     this.csvPreview = null;
     this.csvMapping = {};
     this.importReport = null;
     this.dryRun = true;
   }
+
+  private buildClientKey(id?: number | null): string {
+    return id ? `srv-${id}` : this.generateClientKey();
+  }
+
+  private generateClientKey(): string {
+    return `tmp-${Math.random().toString(36).slice(2, 11)}`;
+  }
+
+  private formatDate(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+    return date.toLocaleString();
+  }
+
+  private handleError(error: unknown, fallbackMessage: string): void {
+    const message = error instanceof Error ? error.message : fallbackMessage;
+    alert(message || fallbackMessage);
+  }
 }
+
+
+
+
+
+

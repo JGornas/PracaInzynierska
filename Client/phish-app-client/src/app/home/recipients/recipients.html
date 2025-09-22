@@ -1,89 +1,90 @@
-<div class="recipients-container">
+﻿<div class="recipients-container">
   <header class="toolbar">
     <div class="left">
       <h2>Odbiorcy</h2>
-      <div class="hint">Zarządzaj grupami odbiorców</div>
-    </div>
-    <div class="right">
-      <button class="btn btn-primary" (click)="openCreateGroup()">Dodaj grupę</button>
+      <div class="hint">Zarządzaj osobami i grupami odbiorców kampanii.</div>
     </div>
   </header>
 
-  @if (groups.length === 0) {
-    <div class="card" style="border-color:#e5e7eb;background:#fafafa;">
-      <div><strong>Brak grup.</strong> Utwórz pierwszą grupę, aby dodać odbiorców.</div>
-      <div style="margin-top:8px">
-        <button class="btn btn-primary" (click)="openCreateGroup()">Utwórz grupę</button>
+  <section class="card individuals-card">
+    <div class="section-header">
+      <div>
+        <h3>Pojedynczy odbiorcy</h3>
+        <div class="section-hint">Podwójne kliknięcie otwiera edycję, kosz usuwa wpis.</div>
       </div>
+      <button class="btn btn-primary" (click)="openCreateRecipient()">Dodaj odbiorcę</button>
     </div>
-  } @else {
-    <section class="card">
-      <h3>Twoje grupy</h3>
-      <table class="table table-striped table-sm">
-        <thead>
-          <tr>
-            <th>Nazwa grupy</th>
-            <th>Kampania</th>
-            <th>Liczba odbiorców</th>
-            <th>Akcje</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (g of groups; track g.id) {
-            <tr>
-              <td>{{ g.name }}</td>
-              <td>{{ g.campaign || '—' }}</td>
-              <td>{{ g.members?.length || 0 }}</td>
-              <td>
-                <button class="btn btn-sm" (click)="toggleExpand($index)">{{ g.expanded ? 'Ukryj' : 'Podgląd' }}</button>
-                <button class="btn btn-sm" (click)="openEditGroup($index)">Edytuj</button>
-                <button class="btn btn-danger btn-sm" (click)="deleteGroup($index)">Usuń</button>
-              </td>
-            </tr>
-            @if (g.expanded) {
-              <tr>
-                <td colspan="4">
-                  @if ((g.members?.length || 0) > 0) {
-                    <div class="preview-wrap">
-                      <table class="table table-sm">
-                        <thead>
-                          <tr>
-                            <th>Imię</th>
-                            <th>Nazwisko</th>
-                            <th>E-mail</th>
-                            <th>Stanowisko</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (m of g.members; track m.email) {
-                            <tr>
-                              <td>{{ m.firstName }}</td>
-                              <td>{{ m.lastName }}</td>
-                              <td>{{ m.email }}</td>
-                              <td>{{ m.position }}</td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    </div>
-                  } @else {
-                    <div class="empty">Ta grupa nie ma jeszcze odbiorców.</div>
-                  }
-                </td>
-              </tr>
+
+    <app-grid
+      [localData]="individualGridData"
+      [columnsToDisplay]="individualColumns"
+      [isRemovable]="true"
+      (rowDoubleClicked)="handleRecipientDoubleClicked($event)"
+      (rowRemoved)="handleRecipientRemoved($event)">
+    </app-grid>
+  </section>
+
+  <section class="card groups-card">
+    <div class="section-header">
+      <div>
+        <h3>Grupy odbiorców</h3>
+        <div class="section-hint">Podwójne kliknięcie otwiera edycję grupy. W edycji dodasz członków ręcznie lub z CSV.</div>
+      </div>
+      <button class="btn btn-primary" (click)="openCreateGroup()">Dodaj grupę</button>
+    </div>
+
+    <app-grid
+      [localData]="groupGridData"
+      [columnsToDisplay]="groupColumns"
+      [isRemovable]="true"
+      (rowDoubleClicked)="handleGroupDoubleClicked($event)"
+      (rowRemoved)="handleGroupRemoved($event)">
+    </app-grid>
+  </section>
+
+  @if (showRecipientModal) {
+    <div class="modal-backdrop" (click)="cancelRecipientModal()"></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3>{{ editingRecipientId ? 'Edytuj odbiorcę' : 'Nowy odbiorca' }}</h3>
+        <button class="close" type="button" (click)="cancelRecipientModal()">x</button>
+      </div>
+      <form class="modal-body" [formGroup]="recipientForm" (ngSubmit)="saveRecipient()">
+        <div class="member-form" style="grid-template-columns: 1fr 1fr;">
+          <label>
+            Imię
+            <input class="form-control" formControlName="firstName" />
+          </label>
+          <label>
+            Nazwisko
+            <input class="form-control" formControlName="lastName" />
+          </label>
+          <label>
+            E-mail *
+            <input class="form-control" formControlName="email" />
+            @if (recipientForm.get('email')?.invalid && recipientForm.get('email')?.touched) {
+              <div class="error">Podaj poprawny adres e-mail</div>
             }
-          }
-        </tbody>
-      </table>
-    </section>
+          </label>
+          <label>
+            Stanowisko
+            <input class="form-control" formControlName="position" />
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" (click)="cancelRecipientModal()">Anuluj</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSavingRecipient">Zapisz</button>
+        </div>
+      </form>
+    </div>
   }
 
   @if (showGroupModal) {
     <div class="modal-backdrop" (click)="cancelGroupModal()"></div>
     <div class="modal-dialog" role="dialog" aria-modal="true">
       <div class="modal-header">
-        <h3>{{ editingIndex === null ? 'Nowa grupa' : 'Edytuj grupę' }}</h3>
-        <button class="close" (click)="cancelGroupModal()">×</button>
+        <h3>{{ editingGroupId === null ? 'Nowa grupa' : 'Edytuj grupę' }}</h3>
+        <button class="close" type="button" (click)="cancelGroupModal()">x</button>
       </div>
       <div class="modal-body">
         <div class="member-form" style="grid-template-columns: 1fr 1fr;">
@@ -104,7 +105,7 @@
 
         <div class="subtoolbar">
           <div class="search">
-            <input class="form-control" [(ngModel)]="search" placeholder="Szukaj po imieniu, nazwisku, emailu..." />
+            <input class="form-control" [(ngModel)]="search" placeholder="Szukaj po imieniu, nazwisku, e-mailu..." />
           </div>
           <div class="spacer"></div>
           <button class="btn" (click)="toggleAddMember()">{{ showAddMember ? 'Anuluj' : 'Dodaj odbiorcę' }}</button>
@@ -125,7 +126,7 @@
               E-mail *
               <input class="form-control" formControlName="email" />
               @if (memberForm.get('email')?.invalid && memberForm.get('email')?.touched) {
-                <div class="error">Niepoprawny adres e-mail</div>
+                <div class="error">Podaj poprawny adres e-mail</div>
               }
             </label>
             <label>
@@ -133,7 +134,8 @@
               <input class="form-control" formControlName="position" />
             </label>
             <div class="modal-actions">
-              <button class="btn btn-primary" type="submit" [disabled]="memberForm.invalid">Dodaj</button>
+              <button class="btn" type="button" (click)="toggleAddMember()">Anuluj</button>
+              <button class="btn btn-primary" type="submit">Dodaj</button>
             </div>
           </form>
         }
@@ -142,23 +144,21 @@
           <section class="card import-card">
             <h3>Import CSV</h3>
             <div class="import-controls">
+              <div class="field file-field">
+                <label class="btn btn-secondary">
+                  Wybierz plik
+                  <input type="file" accept=".csv" (change)="onFileSelected($event)" />
+                </label>
+                <span class="filename-chip" [class.empty]="!csvFileName">{{ csvFileName || 'Brak pliku' }}</span>
+              </div>
               <div class="field">
-                <label>Ogranicznik</label>
-                <select class="form-control" [(ngModel)]="delimiter" (ngModelChange)="onDelimiterModelChange($event)">
+                <label>Separator</label>
+                <select class="form-control" [(ngModel)]="delimiter" (change)="onDelimiterChange($event)" name="delimiter">
                   <option value=",">Przecinek (,)</option>
                   <option value=";">Średnik (;)</option>
                 </select>
               </div>
-              <div class="field file-field">
-                <label>Plik</label>
-                <div class="file-input">
-                  <input id="csvFile" type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
-                  <label for="csvFile" class="btn">Wybierz plik</label>
-                  <span class="filename-chip" [class.empty]="!csvFileName">{{ csvFileName || 'Brak pliku' }}</span>
-                </div>
-              </div>
               <div class="field switch-field">
-                <label>Tryb</label>
                 <label class="switch">
                   <input type="checkbox" [(ngModel)]="dryRun" name="dryRun" />
                   <span class="slider"></span>
@@ -181,7 +181,7 @@
                       <td>{{ fieldLabels[f] || f }}</td>
                       <td>
                         <select class="form-control" (change)="onMappingChange(f, $event)">
-                          <option value="">— brak —</option>
+                          <option value="">- brak -</option>
                           @for (h of csvPreview!.headers; track h; let i = $index) {
                             <option [selected]="csvMapping[f] === i" [value]="i">{{ i + 1 }}: {{ h }}</option>
                           }
@@ -223,7 +223,7 @@
                   @if (importReport.errors.length) {
                     <ul>
                       @for (e of importReport.errors; track e.email) {
-                        <li>{{ e.email }} — {{ e.importError }}</li>
+                        <li>{{ e.email }} - {{ e.importError }}</li>
                       }
                     </ul>
                   }
@@ -250,19 +250,19 @@
                 </tr>
               </thead>
               <tbody>
-                @for (m of filteredMembers; track m.id) {
+                @for (m of filteredMembers; track m.clientKey) {
                   <tr>
                     <td>{{ m.firstName }}</td>
                     <td>{{ m.lastName }}</td>
                     <td>{{ m.email }}</td>
                     <td>{{ m.position }}</td>
-                    <td><button class="btn btn-danger btn-sm" (click)="removeMember(m.id)">Usuń</button></td>
+                    <td><button class="btn btn-danger btn-sm" (click)="removeMember(m.clientKey)">Usuń</button></td>
                   </tr>
                 }
               </tbody>
             </table>
           } @else {
-            <div class="empty">Brak członków — dodaj ręcznie lub zaimportuj CSV.</div>
+            <div class="empty">Brak członków – dodaj ręcznie lub zaimportuj CSV.</div>
           }
         </section>
 
@@ -275,7 +275,11 @@
 
         <div class="modal-actions">
           <button class="btn" (click)="cancelGroupModal()">Anuluj</button>
-          <button class="btn btn-primary" (click)="saveGroup()" [disabled]="!groupName?.trim() || membersWorking.length === 0">Zapisz grupę</button>
+          <button class="btn btn-primary"
+                  (click)="saveGroup()"
+                  [disabled]="isSavingGroup || !groupName?.trim() || membersWorking.length === 0">
+            Zapisz grupę
+          </button>
         </div>
       </div>
     </div>
