@@ -42,4 +42,8 @@ export class Home {
   navigateToTemplates() {
     this.router.navigate(['/home', 'templates']);
   }
+
+  navigateToLandingPages() {
+    this.router.navigate(['/home', 'landing-pages']);
+  }
 }

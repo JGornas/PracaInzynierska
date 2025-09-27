@@ -29,6 +29,9 @@ namespace PhishApp.WebApi.Infrastructure
             services.AddTransient<IRecipientRepository, RecipientRepository>();
             services.AddTransient<IRecipientService, RecipientService>();
 
+            services.AddTransient<ILandingPageRepository, LandingPageRepository>();
+            services.AddTransient<ILandingPageService, LandingPageService>();
+
             services.AddDbContext<DataContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));

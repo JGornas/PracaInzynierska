@@ -1,0 +1,19 @@
+<div class="landing-pages-container">
+  <div class="header-row">
+    <h2>Strony docelowe</h2>
+
+    <app-button-component
+        [label]="'Stwórz nowy'"
+        [variant]="'blue-theme'"
+        [action]="null">
+    </app-button-component>
+  </div>
+
+  <app-grid 
+      apiUrl="/api/landingPages/grid"
+      [columnsToDisplay]="columns"
+      [isRemovable]="true"
+      (rowDoubleClicked)="handleRowDoubleClick($event)"
+      (rowRemoved)="handleRowDeleted($event)">
+  </app-grid>
+</div>

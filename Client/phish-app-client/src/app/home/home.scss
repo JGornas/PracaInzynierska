@@ -163,6 +163,11 @@ ul, li {
 .sidebar li div:hover {
   background: var(--primary-color);
   color: white;
+  caret-color: transparent;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .sidebar li.logout div:hover {
@@ -197,6 +202,11 @@ ul, li {
 .item-link:hover div span {
   color: white;
   transition: var(--tran-04);
+  caret-color: transparent;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 

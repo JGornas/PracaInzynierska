@@ -1,0 +1,15 @@
+.landing-pages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+app-grid {
+  width: 100%;
+}

@@ -55,5 +55,6 @@ namespace PhishApp.WebApi.Infrastructure
         public DbSet<RecipientEntity> Recipients { get; set; }
         public DbSet<RecipientGroupEntity> RecipientGroups { get; set; }
         public DbSet<RecipientGroupMemberEntity> RecipientGroupMembers { get; set; }
+        public DbSet<LandingPageEntity> LandingPages { get; set; }
     }
 }

@@ -5,6 +5,7 @@ import { Campaigns } from "./campaigns/campaigns";
 import { Recipients } from "./recipients";
 import { Templates } from "./templates/templates";
 import { templatesRoutes } from "./templates/templates.routing";
+import { landingPagesRoutes } from "./landing-pages/landing-pages.routing";
 
 export const homeRoutes: Routes = [
   {
@@ -16,6 +17,7 @@ export const homeRoutes: Routes = [
       { path: 'campaigns', component: Campaigns },
       { path: 'recipients', component: Recipients },
       ...templatesRoutes,
+      ...landingPagesRoutes,
       { path: '**', redirectTo: 'dashboard' }
     ]
   }

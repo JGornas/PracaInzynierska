@@ -25,5 +25,9 @@
         public const string CreateRecipientGroup = "api/recipients/groups";
         public const string UpdateRecipientGroup = "api/recipients/groups/{id}";
         public const string DeleteRecipientGroup = "api/recipients/groups/{id}";
+
+
+        public const string LandingPagesGrid = "api/landingPages/grid";
+        public const string DeleteLandingPage= "api/landingPages/{id}";
     }
 }

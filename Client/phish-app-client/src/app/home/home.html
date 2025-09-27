@@ -39,7 +39,7 @@
                 <span *ngIf="isSidebarExpanded" class="text nav-text">Szablony</span>
             </div>
             </li>
-            <li class="item-link">
+            <li class="item-link" (click)="navigateToLandingPages()">
             <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
                 <i class='bx bx-globe'></i>
                 <span *ngIf="isSidebarExpanded" class="text nav-text">Strony docelowe</span>

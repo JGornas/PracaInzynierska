@@ -25,7 +25,7 @@ namespace PhishApp.WebApi.Controllers
 
         [HttpPost]
         [Route(Routes.TemplatesGrid)]
-        public async Task<RestResponse<GridData<TemplateRow>>> Login(GridRequest request)
+        public async Task<RestResponse<GridData<TemplateRow>>> GetGridData(GridRequest request)
         {
            var response = await _templateService.GetTemplatesGridData(request);
 
