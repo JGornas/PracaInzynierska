@@ -32,12 +32,10 @@ export class Templates {
 
 
   async createTemplate(): Promise<void> {
-    console.log('stworzono nowy');
     await this.router.navigate(['create'], { relativeTo: this.route });
   }
 
   async handleRowDoubleClick(selected: GridElement): Promise<void> {
-    console.log('Double clicked row:', selected);
     await this.router.navigate([selected['id'], 'edit'], { relativeTo: this.route });
   }
 

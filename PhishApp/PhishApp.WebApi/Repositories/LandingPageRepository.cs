@@ -1,4 +1,5 @@
 ﻿using PhishApp.WebApi.Infrastructure;
+using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Repositories.Interfaces;
 
 namespace PhishApp.WebApi.Repositories
@@ -25,5 +26,16 @@ namespace PhishApp.WebApi.Repositories
             _context.LandingPages.Remove(template);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<LandingPageEntity?> GetById(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentException("Id musi być większe od zera.", nameof(id));
+
+            var landingPage = await _context.LandingPages.FindAsync(id);
+
+            return landingPage;
+        }
+
     }
 }

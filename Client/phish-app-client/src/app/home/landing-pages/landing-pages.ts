@@ -5,6 +5,7 @@ import { ButtonComponent } from '../../core/components/button-component/button-c
 import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 import { LandingPagesService } from './landing-pages.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-landing-pages',
@@ -15,7 +16,10 @@ import { LandingPagesService } from './landing-pages.service';
 export class LandingPages {
   @ViewChild(GridComponent) grid!: GridComponent;
 
-  constructor(private landingPagesService: LandingPagesService) {}
+  constructor(
+    private landingPagesService: LandingPagesService,
+    private router: Router,
+    private route: ActivatedRoute) {}
 
   columns: GridColumn[] = [
     { field: 'id', label: 'ID' },
@@ -23,7 +27,11 @@ export class LandingPages {
   ];
 
   async handleRowDoubleClick(selected: GridElement): Promise<void> {
-      console.log('Double clicked row:', selected);
+    await this.router.navigate([selected['id'], 'edit'], { relativeTo: this.route });
+  }
+
+  async createLandingPage(): Promise<void> {
+    await this.router.navigate(['create'], { relativeTo: this.route });
   }
 
   async handleRowDeleted(selected: GridElement) {

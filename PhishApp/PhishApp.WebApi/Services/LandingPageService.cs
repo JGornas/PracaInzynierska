@@ -1,5 +1,6 @@
 ﻿using PhishApp.WebApi.Models.Grid;
 using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Models.LandingPages;
 using PhishApp.WebApi.Models.Rows;
 using PhishApp.WebApi.Repositories;
 using PhishApp.WebApi.Repositories.Interfaces;
@@ -21,6 +22,23 @@ namespace PhishApp.WebApi.Services
         public async Task DeleteLandingPage(int id)
         {
             await _landingPageRepository.DeleteTemplateAsync(id);
+        }
+
+        public async Task<LandingPage> GetLandingPage(int id)
+        {
+            LandingPageEntity? entity = await  _landingPageRepository.GetById(id);
+            return BuildLandingPage(entity);
+        }
+
+        private LandingPage BuildLandingPage(LandingPageEntity? entity)
+        {
+            if (entity is null) throw new ArgumentNullException("Podana strona docelowa nie istnieje");
+            return new LandingPage
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Content = entity.Content
+            };
         }
 
         public async Task<GridData<LandingPageEntity>> GetLandingPagesGridData(GridRequest request)

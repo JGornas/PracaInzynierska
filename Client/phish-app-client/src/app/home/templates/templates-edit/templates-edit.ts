@@ -100,8 +100,6 @@ export class TemplatesEdit implements OnInit {
   private async loadTemplate(id: string | null) {
     if (!id) return;
 
-    console.log('Pobieram szablon o id:', id);
-
     try {
       const templateId = Number(id);
       if (isNaN(templateId)) throw new Error('Nieprawidłowe ID szablonu');
