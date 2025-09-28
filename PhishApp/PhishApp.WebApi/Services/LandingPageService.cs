@@ -30,6 +30,14 @@ namespace PhishApp.WebApi.Services
             return BuildLandingPage(entity);
         }
 
+        public async Task<LandingPage> UpdateLandingPage(LandingPage landingPage)
+        {
+            LandingPageEntity entity = BuildLandingPageEntity(landingPage);
+            await _landingPageRepository.UpdateLandingPageAsync(entity);
+            landingPage = BuildLandingPage(entity);
+            return landingPage;
+        }
+
         private LandingPage BuildLandingPage(LandingPageEntity? entity)
         {
             if (entity is null) throw new ArgumentNullException("Podana strona docelowa nie istnieje");
@@ -38,6 +46,19 @@ namespace PhishApp.WebApi.Services
                 Id = entity.Id,
                 Name = entity.Name,
                 Content = entity.Content
+            };
+        }
+
+        private LandingPageEntity BuildLandingPageEntity(LandingPage landingPage)
+        {
+            if (landingPage == null)
+                throw new ArgumentNullException(nameof(landingPage));
+
+            return new LandingPageEntity
+            {
+                Id = landingPage.Id,
+                Name = landingPage.Name,
+                Content = landingPage.Content
             };
         }
 

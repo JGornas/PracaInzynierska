@@ -9,6 +9,17 @@ import { LandingPage } from "./landing-pages.models";
 export class LandingPagesService {
   constructor(private rest: RestService) {}
 
+
+  public saveLandingPage(landingPage: LandingPage): Observable<LandingPage> {
+    return this.rest.post<LandingPage>('/api/landingPages/update', landingPage).pipe(
+      catchError(error => {
+        console.error('Błąd zapisu strony docelowej:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+
   public deleteLandingPage(id: number): Observable<void> {
     return this.rest.delete<void>(`/api/landingPages/${id}`).pipe(
       catchError(error => {

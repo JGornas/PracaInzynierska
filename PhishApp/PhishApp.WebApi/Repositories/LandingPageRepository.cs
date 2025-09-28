@@ -1,5 +1,6 @@
 ﻿using PhishApp.WebApi.Infrastructure;
 using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Models.LandingPages;
 using PhishApp.WebApi.Repositories.Interfaces;
 
 namespace PhishApp.WebApi.Repositories
@@ -36,6 +37,37 @@ namespace PhishApp.WebApi.Repositories
 
             return landingPage;
         }
+
+        public async Task<LandingPageEntity> UpdateLandingPageAsync(LandingPageEntity landingPage)
+        {
+            if (landingPage is null)
+                throw new ArgumentNullException(nameof(landingPage));
+
+            LandingPageEntity? existing = null;
+
+            if (landingPage.Id == 0)
+            {
+                await _context.LandingPages.AddAsync(landingPage);
+            }
+            else
+            {
+                existing = await _context.LandingPages.FindAsync(landingPage.Id);
+                if (existing != null)
+                {
+                    _context.Entry(existing).CurrentValues.SetValues(landingPage);
+                    landingPage = existing;
+                }
+                else
+                {
+                    await _context.LandingPages.AddAsync(landingPage);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return landingPage;
+        }
+
 
     }
 }

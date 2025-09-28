@@ -9,5 +9,6 @@ namespace PhishApp.WebApi.Services.Interfaces
         Task DeleteLandingPage(int id);
         Task<LandingPage> GetLandingPage(int id);
         Task<GridData<LandingPageEntity>> GetLandingPagesGridData(GridRequest request);
+        Task<LandingPage> UpdateLandingPage(LandingPage landingPage);
     }
 }

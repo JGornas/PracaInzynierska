@@ -6,21 +6,27 @@ import Swal from 'sweetalert2';
 import { firstValueFrom } from 'rxjs';
 import { HtmlEditorComponent } from '../../../core/components/html-editor-component/html-editor-component';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ButtonComponent } from '../../../core/components/button-component/button-component';
 
 @Component({
   selector: 'app-langing-pages-edit',
-  imports: [HtmlEditorComponent, FormsModule],
+  imports: [HtmlEditorComponent, FormsModule, CommonModule, MatFormFieldModule, MatInputModule, ButtonComponent],
   templateUrl: './langing-pages-edit.html',
   styleUrl: './langing-pages-edit.scss'
 })
 export class LangingPagesEdit implements OnInit, AfterViewInit {
   
   isEditMode: boolean = false;
+  isVertical: boolean = false;
   landingPage: LandingPage = new LandingPage();
 
   htmlCode: string = '<h1>Hello World!</h1>';
 
   @ViewChild('previewIframe', { static: true }) iframe!: ElementRef<HTMLIFrameElement>;
+  @ViewChild(HtmlEditorComponent) htmlEditor?: HtmlEditorComponent;
 
   constructor(private route: ActivatedRoute, private router: Router, private landingPagesService: LandingPagesService) {}
 
@@ -44,9 +50,71 @@ export class LangingPagesEdit implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // ustaw początkowy podgląd (jeśli masz już htmlCode)
     this.updatePreview(this.htmlCode);
   }
+
+  async save(): Promise<void> {
+    const result = await Swal.fire({
+      title: 'Zapisz zmiany?',
+      text: 'Czy na pewno chcesz zapisać zmiany w stronie docelowej?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Tak, zapisz',
+      cancelButtonText: 'Nie, anuluj'
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    try {
+      // pobierz aktualny HTML z edytora
+      if (this.htmlCode) {
+        this.landingPage.content = this.htmlCode;
+      }
+      console.log('Saving landing page:', this.landingPage);
+      const updatedLandingPage = await firstValueFrom(
+        this.landingPagesService.saveLandingPage(this.landingPage)
+      );
+      this.landingPage = updatedLandingPage;
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Zapisano',
+        text: 'Strona docelowa została zapisana pomyślnie.'
+      });
+
+      // po zapisie można np. wrócić do listy
+      await this.router.navigate(['home/landing-pages']);
+    } catch (error: any) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Błąd zapisu',
+        text: error?.message || 'Nie udało się zapisać strony docelowej.'
+      });
+    }
+  }
+
+  async cancel(): Promise<void> {
+    if (!this.isEditMode) {
+      await this.router.navigate(['home/landing-pages']);
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Anulować zmiany?',
+      text: 'Wszystkie niezapisane zmiany zostaną utracone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Tak, anuluj',
+      cancelButtonText: 'Nie, zostań'
+    });
+
+    if (result.isConfirmed) {
+      await this.router.navigate(['home/landing-pages']);
+    }
+  }
+
 
   onEditorChange(newHtml: string) {
     this.htmlCode = newHtml;
@@ -80,6 +148,18 @@ export class LangingPagesEdit implements OnInit, AfterViewInit {
 
       await this.router.navigate(['home/landing-pages']);
     }
+  }
+
+  toggleLayout() {
+    this.isVertical = !this.isVertical;
+
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+
+      if (this.htmlEditor && typeof (this.htmlEditor as any).layout === 'function') {
+        try { (this.htmlEditor as any).layout(); } catch { /* ignore */ }
+      }
+    }, 50);
   }
 
 

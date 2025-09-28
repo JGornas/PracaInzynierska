@@ -7,5 +7,6 @@ namespace PhishApp.WebApi.Repositories.Interfaces
     {
         Task DeleteTemplateAsync(int id);
         Task<LandingPageEntity?> GetById(int id);
+        Task<LandingPageEntity> UpdateLandingPageAsync(LandingPageEntity landingPage);
     }
 }

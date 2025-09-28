@@ -40,6 +40,16 @@ namespace PhishApp.WebApi.Controllers
             return RestResponse<bool>.CreateResponse(true);
         }
 
+        [HttpPost]
+        [Route(Routes.UpdateLandingPage)]
+        public async Task<RestResponse<LandingPage>> UpdateLandingPage(LandingPage landingPage)
+        {
+            var response = await _landingPageService.UpdateLandingPage(landingPage);
+
+            return RestResponse<LandingPage>.CreateResponse(response);
+        }
+        //Jakub kaczor swinouujscie koscian 16,40 
+
         [HttpGet]
         [Route(Routes.GetLandingPage)]
         public async Task<RestResponse<LandingPage>> GetLandingPage(int id)

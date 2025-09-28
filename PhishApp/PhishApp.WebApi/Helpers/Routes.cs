@@ -28,6 +28,7 @@
 
         public const string LandingPagesGrid = "api/landingPages/grid";
         public const string DeleteLandingPage= "api/landingPages/{id}";
+        public const string UpdateLandingPage= "api/landingPages/update";
         public const string GetLandingPage = "api/landingPages/{id}";
     }
 }

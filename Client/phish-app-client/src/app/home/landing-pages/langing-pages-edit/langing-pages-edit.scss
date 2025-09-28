@@ -1,0 +1,61 @@
+.editor-preview {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+
+  /* domyślnie poziomo (lub wtedy gdy !isVertical) */
+  &.horizontal {
+    flex-direction: row;
+
+    .editor,
+    .preview {
+      flex: 1;            /* rosną równomiernie */
+      min-width: 0;       /* !!! bardzo ważne, pozwala itemom się kurczyć */
+      max-width: 100%;
+    }
+  }
+
+  /* pionowo — jeden pod drugim */
+  &.vertical {
+    flex-direction: column;
+
+    .editor,
+    .preview {
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+      width: 100%;
+    }
+  }
+}
+
+/* Jeżeli używasz nu-monaco-editor lub innego wrappera — wymuś 100% szerokości wewnętrznego edytora */
+.editor ::ng-deep nu-monaco-editor,
+.editor ::ng-deep app-html-editor-component,
+.editor ::ng-deep .monaco-editor {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* ewentualnie ustaw minimalną wysokość by wyglądało spójnie */
+.editor, .preview {
+  min-height: 320px;
+}
+
+
+.inputs {
+  display: flex;
+  flex-wrap: wrap; // pozwala na przenoszenie inputów na kolejne wiersze
+  gap: 16px;
+}
+
+.input-field {
+  flex: 1 1 250px; // minimalna szerokość 250px, ale rośnie, jeśli jest miejsce
+  min-width: 250px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
