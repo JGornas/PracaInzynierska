@@ -1,0 +1,6 @@
+<nu-monaco-editor 
+    [(ngModel)]="htmlCode" 
+    (ngModelChange)="onCodeChange($event)"
+    [options]="{ language: 'html' }"
+    style="height: 400px;">
+</nu-monaco-editor>
