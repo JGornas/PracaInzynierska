@@ -2,7 +2,10 @@
   [class]="buttonClass"
   [disabled]="loading || disabled"
   (click)="handleClick()">
-  <span class="btn-label">{{ label }}</span>
+  <span class="btn-content">
+    <i *ngIf="iconClass" [class]="iconClass + ' btn-icon'"></i>
+    <span *ngIf="label" class="btn-label">{{ label }}</span>
+  </span>  
   <div class="btn-spinner" *ngIf="loading">
     <div class="spinner-dot"></div>
     <div class="spinner-dot"></div>

@@ -9,11 +9,12 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule]
 })
 export class ButtonComponent {
-  @Input() label: string = '';
+  @Input() label: string | null = null;
   @Input() action: (() => void) | null = null;
   @Input() disabled: boolean = false;
 
   @Input() variant: 'blue-theme' | 'white-outline-theme' = 'blue-theme';
+  @Input() iconClass: string | null = null;
 
   @Output() loadingChange = new EventEmitter<boolean>();
 

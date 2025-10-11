@@ -73,6 +73,24 @@
     transition: opacity 0.2s ease;
 }
 
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+
+.btn-icon {
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 .btn-spinner {
     position: absolute;
     display: flex;

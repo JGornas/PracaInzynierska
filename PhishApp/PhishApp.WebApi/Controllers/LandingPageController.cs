@@ -47,8 +47,7 @@ namespace PhishApp.WebApi.Controllers
             var response = await _landingPageService.UpdateLandingPage(landingPage);
 
             return RestResponse<LandingPage>.CreateResponse(response);
-        }
-        //Jakub kaczor swinouujscie koscian 16,40 
+        } 
 
         [HttpGet]
         [Route(Routes.GetLandingPage)]
