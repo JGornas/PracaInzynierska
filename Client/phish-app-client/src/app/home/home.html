@@ -1,4 +1,4 @@
-<div class="home-container">
+﻿<div class="home-container">
     <nav class="sidebar">
     <header (click)="toggleSidebar()" [ngClass]="isSidebarExpanded ? 'padding-expanded' : 'padding-hidden'">
         <div class="image-text">
@@ -51,10 +51,10 @@
                 <span *ngIf="isSidebarExpanded" class="text nav-text">Raporty</span>
             </div>
             </li>
-            <li class="item-link">
+            <li class="item-link" (click)="navigateToSendingProfiles()">
             <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
                 <i class='bx bx-send'></i>
-                <span *ngIf="isSidebarExpanded" class="text nav-text">Profile wysyłki</span>
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Profile wysylki</span>
             </div>
             </li>
         </ul>

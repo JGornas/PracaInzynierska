@@ -12,9 +12,9 @@
         public const string Logout = "api/auth/logout";
 
         public const string TemplatesGrid = "api/templates/grid";
-        public const string UpdateTemplate= "api/templates/update";
-        public const string GetTemplate= "api/templates/{id}";
-        public const string DeleteTemplate= "api/templates/{id}";
+        public const string UpdateTemplate = "api/templates/update";
+        public const string GetTemplate = "api/templates/{id}";
+        public const string DeleteTemplate = "api/templates/{id}";
 
         public const string GetRecipients = "api/recipients/individuals";
         public const string CreateRecipient = "api/recipients/individuals";
@@ -27,8 +27,14 @@
         public const string DeleteRecipientGroup = "api/recipients/groups/{id}";
 
         public const string LandingPagesGrid = "api/landingPages/grid";
-        public const string DeleteLandingPage= "api/landingPages/{id}";
-        public const string UpdateLandingPage= "api/landingPages/update";
+        public const string DeleteLandingPage = "api/landingPages/{id}";
+        public const string UpdateLandingPage = "api/landingPages/update";
         public const string GetLandingPage = "api/landingPages/{id}";
+
+        public const string GetSendingProfiles = "api/sending-profiles";
+        public const string CreateSendingProfile = "api/sending-profiles";
+        public const string GetSendingProfile = "api/sending-profiles/{id}";
+        public const string UpdateSendingProfile = "api/sending-profiles/{id}";
+        public const string DeleteSendingProfile = "api/sending-profiles/{id}";
     }
 }

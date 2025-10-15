@@ -1,6 +1,7 @@
-import {
+﻿import {
   Component,
   Input,
+  TemplateRef,
   OnChanges,
   SimpleChanges,
   AfterViewInit,
@@ -16,7 +17,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
 import { merge, of as observableOf, Subject } from 'rxjs';
 import { catchError, startWith, switchMap, debounceTime } from 'rxjs/operators';
 import { GridColumn, GridData, GridElement, GridRequest } from './grid-component.models';
@@ -29,6 +30,7 @@ import { getPolishPaginatorIntl } from './paginator-intl';
   imports: [
     NgIf,
     NgFor,
+    NgTemplateOutlet,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -51,13 +53,12 @@ export class GridComponent implements OnChanges, AfterViewInit {
   @Input() filterable: boolean = true;
   @Input() isSelectable: boolean = true;
   @Input() isRemovable: boolean = false;
+  @Input() actionTemplate: TemplateRef<GridElement> | null = null;
 
   @Output() rowDoubleClicked = new EventEmitter<GridElement>();
   @Output() rowRemoved = new EventEmitter<GridElement>();
 
-  // tryb API
   dataSource: GridElement[] = [];
-  // tryb local
   tableDataSource = new MatTableDataSource<GridElement>([]);
 
   resultsLength = 0;
@@ -70,12 +71,19 @@ export class GridComponent implements OnChanges, AfterViewInit {
   displayedColumns: string[] = [];
 
   get finalDisplayedColumns(): string[] {
-    return this.isRemovable ? [...this.displayedColumns, 'remove'] : this.displayedColumns;
+    const columns = [...this.displayedColumns];
+    if (this.actionTemplate) {
+      columns.push('actions');
+    }
+    if (this.isRemovable) {
+      columns.push('remove');
+    }
+    return columns;
   }
 
-  currentSortColumn: string = '';
+  currentSortColumn = '';
   currentSortDirection: 'asc' | 'desc' | '' = '';
-  currentFilter: string = '';
+  currentFilter = '';
   selectedGridElement: GridElement | null = null;
 
   private filterChange = new Subject<string>();
@@ -96,9 +104,7 @@ export class GridComponent implements OnChanges, AfterViewInit {
     }
   }
 
-
   ngAfterViewInit() {
-    // debounce filter
     this.filterChange.pipe(debounceTime(500)).subscribe(() => {
       if (this.apiUrl) {
         this.loadRemoteData();
@@ -109,19 +115,17 @@ export class GridComponent implements OnChanges, AfterViewInit {
     });
 
     if (this.apiUrl) {
-      // API mode
       merge(
         this.sort.sortChange,
         this.paginator.page,
         this.filterChange
       )
-      .pipe(
-        startWith({}),
-        switchMap(() => this.fetchData())
-      )
-      .subscribe(data => this.updateTable(data));
+        .pipe(
+          startWith({}),
+          switchMap(() => this.fetchData())
+        )
+        .subscribe(data => this.updateTable(data));
     } else if (this.localData) {
-      // local mode
       this.tableDataSource.paginator = this.paginator;
       this.tableDataSource.sort = this.sort;
     }
@@ -137,7 +141,9 @@ export class GridComponent implements OnChanges, AfterViewInit {
       return;
     }
 
-    if (!this.isSelectable) return;
+    if (!this.isSelectable) {
+      return;
+    }
     this.selectedGridElement = element;
   }
 
@@ -146,12 +152,14 @@ export class GridComponent implements OnChanges, AfterViewInit {
       return;
     }
 
-    if (!this.isSelectable) return;
+    if (!this.isSelectable) {
+      return;
+    }
     this.rowDoubleClicked.emit(element);
   }
 
   onRemoveClick(element: GridElement, event: MouseEvent) {
-    event.stopPropagation(); // żeby nie zaznaczał wiersza przy usuwaniu
+    event.stopPropagation();
     this.rowRemoved.emit(element);
   }
 
@@ -159,7 +167,6 @@ export class GridComponent implements OnChanges, AfterViewInit {
     return !!(event.target as HTMLElement).closest('.mat-column-remove');
   }
 
-  /** Obsługa filtra */
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.currentFilter = filterValue;
@@ -171,7 +178,6 @@ export class GridComponent implements OnChanges, AfterViewInit {
     }
   }
 
-  /** Pobieranie danych z API */
   private fetchData() {
     if (!this.apiUrl) {
       return observableOf({
@@ -202,25 +208,24 @@ export class GridComponent implements OnChanges, AfterViewInit {
       selectedItemId: null
     };
 
-    return this.gridService.loadData<GridData>(this.apiUrl, request)
-      .pipe(
-        catchError(() => {
-          this.isLoadingResults = false;
-          this.isError = true;
-          return observableOf({
-            items: [],
-            pageInfo: { totalCount: 0, pageIndex: 0, pageSize: 10 }
-          } as GridData);
-        })
-      );
+    return this.gridService.loadData<GridData>(this.apiUrl, request).pipe(
+      catchError(() => {
+        this.isLoadingResults = false;
+        this.isError = true;
+        return observableOf({
+          items: [],
+          pageInfo: { totalCount: 0, pageIndex: 0, pageSize: 10 }
+        } as GridData);
+      })
+    );
   }
 
-  /** Aktualizacja tabeli po fetchu */
   private updateTable(data: GridData) {
-    if (!data) return;
+    if (!data) {
+      return;
+    }
 
     if (this.apiUrl) {
-      // API mode -> zwykła tablica
       this.dataSource = data.items;
 
       if (this.paginator) {
@@ -231,7 +236,6 @@ export class GridComponent implements OnChanges, AfterViewInit {
 
       this.resultsLength = data.pageInfo.totalCount ?? 0;
     } else {
-      // local mode -> MatTableDataSource
       this.tableDataSource.data = data.items;
       this.resultsLength = data.items.length;
     }
@@ -241,7 +245,6 @@ export class GridComponent implements OnChanges, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  /** Publiczna metoda do ręcznego reloadu */
   public loadRemoteData(initialLoad = false) {
     if (initialLoad) {
       this.fetchData().subscribe(data => this.updateTable(data));

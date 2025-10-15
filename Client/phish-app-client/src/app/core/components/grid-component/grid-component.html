@@ -1,4 +1,4 @@
-<div class="example-container mat-elevation-z8">
+﻿<div class="example-container mat-elevation-z8">
   <div class="example-loading-shade" *ngIf="isLoadingResults">
     <mat-spinner></mat-spinner>
   </div>
@@ -33,6 +33,13 @@
         </td>
       </ng-container>
 
+      <ng-container *ngIf="actionTemplate" matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Akcje</th>
+        <td mat-cell *matCellDef="let element">
+          <ng-container *ngTemplateOutlet="actionTemplate; context: { $implicit: element }"></ng-container>
+        </td>
+      </ng-container>
+
       <ng-container *ngIf="isRemovable" matColumnDef="remove">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
@@ -44,7 +51,7 @@
 
       <tr mat-header-row *matHeaderRowDef="finalDisplayedColumns"></tr>
 
-      <tr mat-row *matRowDef="let element; columns: finalDisplayedColumns" 
+      <tr mat-row *matRowDef="let element; columns: finalDisplayedColumns"
           (click)="onRowClick(element, $event)"
           (dblclick)="onRowDoubleClick(element, $event)"
           [class.active-row]="selectedGridElement === element">

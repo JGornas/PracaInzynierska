@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Recipients;
 using PhishApp.WebApi.Models.Rows;
+using PhishApp.WebApi.Models.SendingProfiles;
 
 namespace PhishApp.WebApi.Infrastructure
 {
@@ -48,6 +49,21 @@ namespace PhishApp.WebApi.Infrastructure
                     .HasForeignKey(m => m.RecipientId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            builder.Entity<SendingProfileEntity>(entity =>
+            {
+                entity.HasIndex(e => e.Name).IsUnique();
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Protocol).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.SenderName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.SenderEmail).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Host).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Port).HasDefaultValue(587);
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Password).IsRequired();
+                entity.Property(e => e.ReplyTo).HasMaxLength(200);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            });
         }
 
         public DbSet<TemplateEntity> Templates { get; set; }
@@ -56,5 +72,6 @@ namespace PhishApp.WebApi.Infrastructure
         public DbSet<RecipientGroupEntity> RecipientGroups { get; set; }
         public DbSet<RecipientGroupMemberEntity> RecipientGroupMembers { get; set; }
         public DbSet<LandingPageEntity> LandingPages { get; set; }
+        public DbSet<SendingProfileEntity> SendingProfiles { get; set; }
     }
 }

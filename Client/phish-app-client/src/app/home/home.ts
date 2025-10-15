@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
@@ -19,7 +19,7 @@ export class Home {
   logout() {
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/auth/login']),
-      error: (err) => console.error('Błąd przy wylogowaniu', err)
+      error: (err) => console.error('Blad przy wylogowaniu', err)
     });
   }
 
@@ -46,4 +46,9 @@ export class Home {
   navigateToLandingPages() {
     this.router.navigate(['/home', 'landing-pages']);
   }
+
+  navigateToSendingProfiles() {
+    this.router.navigate(['/home', 'sending-profiles']);
+  }
 }
+
