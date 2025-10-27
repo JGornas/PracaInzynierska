@@ -10,6 +10,7 @@
   useSsl: boolean;
   replyTo?: string | null;
   hasPassword: boolean;
+  testEmail: string | null;
 }
 
 export interface SendingProfilePayload {
@@ -23,4 +24,5 @@ export interface SendingProfilePayload {
   password?: string | null;
   useSsl: boolean;
   replyTo?: string | null;
+  testEmail?: string | null;
 }

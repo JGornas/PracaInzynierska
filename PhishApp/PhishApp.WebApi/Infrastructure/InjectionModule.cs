@@ -35,6 +35,8 @@ namespace PhishApp.WebApi.Infrastructure
             services.AddTransient<ISendingProfileRepository, SendingProfileRepository>();
             services.AddTransient<ISendingProfileService, SendingProfileService>();
 
+            services.AddTransient<IEmailSendingService, EmailSendingService>();
+
             services.AddDbContext<DataContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));

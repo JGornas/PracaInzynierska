@@ -9,7 +9,7 @@
 
   <ng-template #actionsTemplate let-row>
     <div class="grid-actions">
-      <button class="btn btn-secondary btn-sm" type="button" (click)="openEditFromActions(row, $event)">Edytuj</button>
+      <button class="btn btn-secondary btn-sm" type="button" (click)="sendTestEmail(row, $event)">Test SMTP</button>
     </div>
   </ng-template>
 
@@ -17,7 +17,7 @@
     [localData]="gridRows"
     [columnsToDisplay]="columns"
     [filterable]="true"
-    [isSelectable]="false"
+    [isSelectable]="true"
     [isRemovable]="true"
     [actionTemplate]="actionsTemplate"
     (rowDoubleClicked)="handleRowDoubleClick($event)"
@@ -101,6 +101,14 @@
             Reply-to (opcjonalnie)
             <input class="form-control" formControlName="replyTo" placeholder="marketing@twoja-domena.pl" />
             <div class="error" *ngIf="createForm.get('replyTo')?.invalid && createForm.get('replyTo')?.touched">
+              Podaj poprawny adres e-mail.
+            </div>
+          </label>
+
+          <label>
+            Testowy email odbiorcy (opcjonalnie)
+            <input class="form-control" formControlName="testEmail" placeholder="odbiorca@twoja-domena.pl" />
+            <div class="error" *ngIf="editForm.get('testEmail')?.invalid && editForm.get('testEmail')?.touched">
               Podaj poprawny adres e-mail.
             </div>
           </label>
@@ -195,6 +203,14 @@
             Reply-to (opcjonalnie)
             <input class="form-control" formControlName="replyTo" placeholder="marketing@twoja-domena.pl" />
             <div class="error" *ngIf="editForm.get('replyTo')?.invalid && editForm.get('replyTo')?.touched">
+              Podaj poprawny adres e-mail.
+            </div>
+          </label>
+
+          <label>
+            Testowy email odbiorcy (opcjonalnie)
+            <input class="form-control" formControlName="testEmail" placeholder="odbiorca@twoja-domena.pl" />
+            <div class="error" *ngIf="editForm.get('testEmail')?.invalid && editForm.get('testEmail')?.touched">
               Podaj poprawny adres e-mail.
             </div>
           </label>

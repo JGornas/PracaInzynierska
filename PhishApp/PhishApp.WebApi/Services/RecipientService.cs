@@ -1,4 +1,5 @@
-﻿using PhishApp.WebApi.Models.Recipients;
+﻿using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Models.Recipients;
 using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
 

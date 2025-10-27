@@ -36,5 +36,6 @@
         public const string GetSendingProfile = "api/sending-profiles/{id}";
         public const string UpdateSendingProfile = "api/sending-profiles/{id}";
         public const string DeleteSendingProfile = "api/sending-profiles/{id}";
+        public const string SendOneTimeEmail = "api/sending-profiles/sendOneTimeEmail";
     }
 }

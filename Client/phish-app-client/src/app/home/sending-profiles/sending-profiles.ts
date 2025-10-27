@@ -5,6 +5,7 @@ import { GridColumn, GridElement } from '../../core/components/grid-component/gr
 import { GridComponent } from '../../core/components/grid-component/grid-component';
 import { SendingProfilesService } from './sending-profiles.service';
 import { SendingProfileDto, SendingProfilePayload } from './sending-profiles.models';
+import Swal from 'sweetalert2';
 
 interface SendingProfileGridRow extends GridElement {
   id: number;
@@ -88,7 +89,8 @@ export class SendingProfiles implements OnInit {
       username: profile.username,
       password: '',
       useSsl: profile.useSsl,
-      replyTo: profile.replyTo ?? ''
+      replyTo: profile.replyTo ?? '',
+      testEmail: profile.testEmail
     });
     this.editForm.markAsPristine();
     this.editForm.markAsUntouched();
@@ -104,6 +106,7 @@ export class SendingProfiles implements OnInit {
   }
 
   handleRowDoubleClick(row: GridElement): void {
+    console.log('double click', row);
     const id = Number(row['id']);
     if (!Number.isFinite(id)) {
       return;
@@ -111,9 +114,36 @@ export class SendingProfiles implements OnInit {
     this.openEditModalById(id);
   }
 
-  openEditFromActions(row: GridElement, event: MouseEvent): void {
-    event.stopPropagation();
-    this.handleRowDoubleClick(row);
+  sendTestEmail(row: GridElement, event: MouseEvent): void {
+    const id = Number(row['id']);
+    if (!Number.isFinite(id)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Błąd',
+        text: 'Nieprawidłowy identyfikator profilu.'
+      });
+      return;
+    }
+
+    this.profilesService.sendOneTimeEmail(id).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Wysłano',
+          text: 'E-mail testowy został wysłany.'
+        });
+      },
+      error: (err) => {
+        const message =
+          (err && (err.error?.message || err.message)) ||
+          (typeof err === 'string' ? err : JSON.stringify(err));
+        Swal.fire({
+          icon: 'error',
+          title: 'Nie udało się wysłać',
+          text: String(message)
+        });
+      }
+    });
   }
 
   handleRowRemoved(row: GridElement): void {
@@ -162,7 +192,8 @@ export class SendingProfiles implements OnInit {
       username: formValue.username?.trim() ?? '',
       password: (formValue.password ?? '').trim(),
       useSsl: !!formValue.useSsl,
-      replyTo: formValue.replyTo?.trim() ? formValue.replyTo.trim() : null
+      replyTo: formValue.replyTo?.trim() ? formValue.replyTo.trim() : null,
+      testEmail: formValue.testEmail?.trim() ? formValue.testEmail.trim() : null // already handled
     };
 
     this.isCreating = true;
@@ -201,7 +232,8 @@ export class SendingProfiles implements OnInit {
       port: Number(formValue.port) || 0,
       username: formValue.username?.trim() ?? '',
       useSsl: !!formValue.useSsl,
-      replyTo: formValue.replyTo?.trim() ? formValue.replyTo.trim() : null
+      replyTo: formValue.replyTo?.trim() ? formValue.replyTo.trim() : null,
+      testEmail: formValue.testEmail?.trim() ? formValue.testEmail.trim() : null // include testEmail for update
     };
 
     const passwordRaw = (formValue.password ?? '').trim();
@@ -262,7 +294,8 @@ export class SendingProfiles implements OnInit {
       username: ['', Validators.required],
       password: ['', passwordRequired ? [Validators.required] : []],
       useSsl: [true],
-      replyTo: ['', (control: AbstractControl) => this.optionalEmailValidator(control)]
+      replyTo: ['', (control: AbstractControl) => this.optionalEmailValidator(control)],
+      testEmail: ['', (control: AbstractControl) => this.optionalEmailValidator(control)] // added testEmail control
     });
   }
 
@@ -278,7 +311,8 @@ export class SendingProfiles implements OnInit {
       username: '',
       password: '',
       useSsl: true,
-      replyTo: ''
+      replyTo: '',
+      testEmail: '' // ensure testEmail is reset
     });
     this.editForm.markAsPristine();
     this.editForm.markAsUntouched();
@@ -295,7 +329,8 @@ export class SendingProfiles implements OnInit {
       username: '',
       password: '',
       useSsl: true,
-      replyTo: ''
+      replyTo: '',
+      testEmail: null
     });
     this.createForm.markAsPristine();
     this.createForm.markAsUntouched();

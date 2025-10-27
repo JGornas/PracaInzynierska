@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Infrastructure;
-using PhishApp.WebApi.Models.SendingProfiles;
+using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Repositories.Interfaces;
 
 namespace PhishApp.WebApi.Repositories

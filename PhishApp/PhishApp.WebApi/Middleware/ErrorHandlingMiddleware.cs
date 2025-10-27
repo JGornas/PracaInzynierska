@@ -31,6 +31,8 @@ namespace PhishApp.WebApi.Middleware
             int statusCode = ExceptionHelper.GetErrorStatusCode(ex);
 
             // budujemy odpowiedź w Twoim formacie
+            var errorMessage = ExceptionHelper.BuildMessage(ex);
+            Console.WriteLine(errorMessage);
             var response = RestResponse<string>.CreateResponse(ExceptionHelper.BuildMessage(ex));
 
             //var response = ExceptionHelper.BuildMessage(ex);

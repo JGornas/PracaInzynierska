@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Infrastructure;
+using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Recipients;
 using PhishApp.WebApi.Repositories.Interfaces;
 

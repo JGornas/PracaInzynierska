@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Recipients;
 using PhishApp.WebApi.Models.Rows;
-using PhishApp.WebApi.Models.SendingProfiles;
 
 namespace PhishApp.WebApi.Infrastructure
 {

@@ -26,4 +26,9 @@ export class SendingProfilesService {
   deleteProfile(id: number): Observable<void> {
     return this.rest.delete<void>(`/api/sending-profiles/${id}`);
   }
+
+  sendOneTimeEmail(sendingProfileId: number): Observable<void> {
+    const params = { SendingProfileId: sendingProfileId };
+    return this.rest.post<void>('/api/sending-profiles/sendOneTimeEmail', {}, params);
+  }
 }

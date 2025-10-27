@@ -57,5 +57,13 @@ namespace PhishApp.WebApi.Controllers
             await _sendingProfileService.DeleteProfileAsync(id);
             return RestResponse<bool>.CreateResponse(true);
         }
+
+        [HttpPost]
+        [Route(Routes.SendOneTimeEmail)]
+        public async Task<RestResponse<bool>> SendOneTimeEmail(int SendingProfileId)
+        {
+            await _sendingProfileService.SendOneTimeEmail(SendingProfileId);
+            return RestResponse<bool>.CreateResponse(true);
+        }
     }
 }

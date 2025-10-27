@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net.Mail;
+﻿using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.SendingProfiles;
 using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Net;
+using System.Net.Mail;
 
 namespace PhishApp.WebApi.Services
 {
@@ -14,10 +16,14 @@ namespace PhishApp.WebApi.Services
             Array.AsReadOnly(new[] { "SMTP" });
 
         private readonly ISendingProfileRepository _sendingProfileRepository;
+        private readonly IEmailSendingService _emailSendingService;
+        private readonly ITemplateService _templateService;
 
-        public SendingProfileService(ISendingProfileRepository sendingProfileRepository)
+        public SendingProfileService(ISendingProfileRepository sendingProfileRepository, IEmailSendingService emailSendingService, ITemplateService templateService)
         {
             _sendingProfileRepository = sendingProfileRepository;
+            _emailSendingService = emailSendingService;
+            _templateService = templateService;
         }
 
         public async Task<IReadOnlyCollection<SendingProfile>> GetProfilesAsync()
@@ -79,6 +85,20 @@ namespace PhishApp.WebApi.Services
             await _sendingProfileRepository.DeleteAsync(id);
         }
 
+        public async Task SendOneTimeEmail(int id)
+        {
+            var sendingProfile = await GetProfileAsync(id);
+
+            var recipientEmail = sendingProfile.TestEmail;
+
+            var subject = "Test wiadomości";
+            var body = "<b>Cześć!</b> To jest testowy e-mail.";
+
+            await _emailSendingService.SendMailAsync(sendingProfile, recipientEmail, subject, body);
+        }
+
+        
+
         private static SendingProfile MapEntityToModel(SendingProfileEntity entity)
         {
             return new SendingProfile
@@ -91,9 +111,11 @@ namespace PhishApp.WebApi.Services
                 Host = entity.Host,
                 Port = entity.Port,
                 Username = entity.Username,
+                Password = entity.Password,
                 UseSsl = entity.UseSsl,
                 ReplyTo = entity.ReplyTo,
-                HasPassword = !string.IsNullOrEmpty(entity.Password)
+                HasPassword = !string.IsNullOrEmpty(entity.Password),
+                TestEmail = entity.TestEmail
             };
         }
 
@@ -109,6 +131,7 @@ namespace PhishApp.WebApi.Services
             destination.UseSsl = model.UseSsl;
             destination.ReplyTo = model.ReplyTo;
             destination.UpdatedAt = DateTime.UtcNow;
+            destination.TestEmail = model.TestEmail;
             return destination;
         }
 
@@ -141,6 +164,7 @@ namespace PhishApp.WebApi.Services
             }
 
             profile.ReplyTo = NormalizeOptional(profile.ReplyTo);
+            profile.TestEmail = NormalizeOptional(profile.TestEmail);
             if (!string.IsNullOrEmpty(profile.ReplyTo))
             {
                 ValidateEmail(profile.ReplyTo, nameof(profile.ReplyTo));

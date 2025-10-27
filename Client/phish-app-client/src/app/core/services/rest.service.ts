@@ -25,12 +25,12 @@ export class RestService {
       );
   }
 
-  public post<T>(url: string, body: any): Observable<T> {
+  public post<T>(url: string, body: any, params?: any): Observable<T> {
     return this.http
-      .post<{ data: T }>(url, body, { headers: this.createHeaders(), withCredentials: true })
+      .post<{ data: T }>(url, body, { headers: this.createHeaders(), params, withCredentials: true })
       .pipe(
         map(response => response.data),
-        catchError(err => this.handleError<T>(err, () => this.post(url, body)))
+        catchError(err => this.handleError<T>(err, () => this.post(url, body, params)))
       );
   }
 

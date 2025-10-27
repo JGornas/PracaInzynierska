@@ -14,5 +14,6 @@
         public bool UseSsl { get; set; } = true;
         public string? ReplyTo { get; set; }
         public bool HasPassword { get; set; }
+        public string? TestEmail { get; set; }
     }
 }

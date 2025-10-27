@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PhishApp.WebApi.Models.SendingProfiles
+namespace PhishApp.WebApi.Models.Identity
 {
     [Table("SendingProfiles")]
     public class SendingProfileEntity
@@ -46,5 +46,7 @@ namespace PhishApp.WebApi.Models.SendingProfiles
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+
+        public string? TestEmail { get; set; }
     }
 }

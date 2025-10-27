@@ -9,5 +9,6 @@ namespace PhishApp.WebApi.Services.Interfaces
         Task<SendingProfile> CreateProfileAsync(SendingProfile profile);
         Task<SendingProfile> UpdateProfileAsync(int id, SendingProfile profile);
         Task DeleteProfileAsync(int id);
+        Task SendOneTimeEmail(int id);
     }
 }
