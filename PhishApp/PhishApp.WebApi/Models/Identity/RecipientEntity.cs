@@ -1,5 +1,4 @@
-﻿using PhishApp.WebApi.Models.Recipients;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PhishApp.WebApi.Models.Identity

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Models.Identity;
-using PhishApp.WebApi.Models.Recipients;
 using PhishApp.WebApi.Models.Rows;
 
 namespace PhishApp.WebApi.Infrastructure
@@ -63,14 +62,37 @@ namespace PhishApp.WebApi.Infrastructure
                 entity.Property(e => e.ReplyTo).HasMaxLength(200);
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
             });
+
+            builder.Entity<CampaignEntity>(entity =>
+            {
+                entity.HasMany(c => c.CampaignRecipientGroups)
+                      .WithOne(crg => crg.Campaign)
+                      .HasForeignKey(crg => crg.CampaignId);
+            });
+
+            builder.Entity<RecipientGroupEntity>(entity =>
+            {
+                entity.HasMany(r => r.CampaignRecipientGroups)
+                      .WithOne(crg => crg.RecipientGroup)
+                      .HasForeignKey(crg => crg.RecipientGroupId);
+            });
+
+            builder.Entity<CampaignRecipientGroupEntity>(entity =>
+            {
+                entity.HasKey(crg => crg.Id);
+                entity.ToTable("CampaignRecipientGroups");
+            });
         }
 
         public DbSet<TemplateEntity> Templates { get; set; }
-        public DbSet<TemplateRow> TemplateRows { get; set; }
         public DbSet<RecipientEntity> Recipients { get; set; }
         public DbSet<RecipientGroupEntity> RecipientGroups { get; set; }
         public DbSet<RecipientGroupMemberEntity> RecipientGroupMembers { get; set; }
         public DbSet<LandingPageEntity> LandingPages { get; set; }
         public DbSet<SendingProfileEntity> SendingProfiles { get; set; }
+        public DbSet<CampaignEntity> Campaigns { get; set; }
+
+        public DbSet<TemplateRow> TemplateRows { get; set; }
+        public DbSet<CampaignRow> CampaignRows { get; set; }
     }
 }

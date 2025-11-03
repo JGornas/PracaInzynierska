@@ -1,8 +1,7 @@
-﻿using PhishApp.WebApi.Models.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PhishApp.WebApi.Models.Recipients
+namespace PhishApp.WebApi.Models.Identity
 {
     [Table("RecipientGroupMembers")]
     public class RecipientGroupMemberEntity

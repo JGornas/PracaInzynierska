@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PhishApp.WebApi.Models.Recipients
+namespace PhishApp.WebApi.Models.Identity
 {
     [Table("RecipientGroups")]
     public class RecipientGroupEntity
@@ -21,5 +21,7 @@ namespace PhishApp.WebApi.Models.Recipients
         public DateTime? UpdatedAt { get; set; }
 
         public ICollection<RecipientGroupMemberEntity> Members { get; set; } = new List<RecipientGroupMemberEntity>();
+
+        public ICollection<CampaignRecipientGroupEntity> CampaignRecipientGroups { get; set; } = new List<CampaignRecipientGroupEntity>();
     }
 }
