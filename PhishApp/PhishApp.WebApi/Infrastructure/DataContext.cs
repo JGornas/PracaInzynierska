@@ -91,6 +91,8 @@ namespace PhishApp.WebApi.Infrastructure
         public DbSet<LandingPageEntity> LandingPages { get; set; }
         public DbSet<SendingProfileEntity> SendingProfiles { get; set; }
         public DbSet<CampaignEntity> Campaigns { get; set; }
+        public DbSet<CampaignRecipientGroupEntity> CampaignRecipientGroups { get; set; }
+
 
         public DbSet<TemplateRow> TemplateRows { get; set; }
         public DbSet<CampaignRow> CampaignRows { get; set; }

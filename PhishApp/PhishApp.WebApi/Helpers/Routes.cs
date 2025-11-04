@@ -40,5 +40,7 @@
 
 
         public const string CampaignsGrid = "api/campaigns/grid";
+        public const string DeleteCampaign = "api/campaigns/{id}";
+        public const string GetCampaign = "api/campaigns/{id}";
     }
 }

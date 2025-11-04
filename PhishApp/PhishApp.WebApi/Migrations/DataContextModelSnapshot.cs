@@ -253,7 +253,7 @@ namespace PhishApp.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Campaigns");
+                    b.ToTable("Campaigns", (string)null);
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.CampaignRecipientGroupEntity", b =>
@@ -298,7 +298,7 @@ namespace PhishApp.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LandingPages");
+                    b.ToTable("LandingPages", (string)null);
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.RecipientEntity", b =>
@@ -343,7 +343,7 @@ namespace PhishApp.WebApi.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Recipients");
+                    b.ToTable("Recipients", (string)null);
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.RecipientGroupEntity", b =>
@@ -373,7 +373,7 @@ namespace PhishApp.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RecipientGroups");
+                    b.ToTable("RecipientGroups", (string)null);
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.RecipientGroupMemberEntity", b =>
@@ -396,7 +396,7 @@ namespace PhishApp.WebApi.Migrations
 
                     b.HasIndex("RecipientId");
 
-                    b.ToTable("RecipientGroupMembers");
+                    b.ToTable("RecipientGroupMembers", (string)null);
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.SendingProfileEntity", b =>
@@ -469,7 +469,7 @@ namespace PhishApp.WebApi.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("SendingProfiles");
+                    b.ToTable("SendingProfiles", (string)null);
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.TemplateEntity", b =>
@@ -500,7 +500,7 @@ namespace PhishApp.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Templates");
+                    b.ToTable("Templates", (string)null);
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Rows.CampaignRow", b =>
@@ -521,7 +521,7 @@ namespace PhishApp.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CampaignRows");
+                    b.ToTable("CampaignRows", (string)null);
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Rows.TemplateRow", b =>
@@ -546,7 +546,7 @@ namespace PhishApp.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TemplateRows");
+                    b.ToTable("TemplateRows", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

@@ -7,6 +7,7 @@ import { SendingProfiles } from "./sending-profiles/sending-profiles";
 import { Templates } from "./templates/templates";
 import { templatesRoutes } from "./templates/templates.routing";
 import { landingPagesRoutes } from "./landing-pages/landing-pages.routing";
+import { campaignsRoutes } from "./campaigns/campaigns.routing";
 
 export const homeRoutes: Routes = [
   {
@@ -20,6 +21,7 @@ export const homeRoutes: Routes = [
       { path: 'sending-profiles', component: SendingProfiles },
       ...templatesRoutes,
       ...landingPagesRoutes,
+      ...campaignsRoutes,
       { path: '**', redirectTo: 'dashboard' }
     ]
   }

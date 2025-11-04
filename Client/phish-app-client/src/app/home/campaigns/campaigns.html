@@ -1,1 +1,19 @@
-<p>campaigns works!</p>
+<div class="templates-container">
+  <div class="header-row">
+    <h2>Kampanie</h2>
+
+    <app-button-component
+      [label]="'Stwórz nową'"
+      [variant]="'blue-theme'"
+      [action]="createCampaign.bind(this)">
+    </app-button-component>
+  </div>
+
+  <app-grid
+    apiUrl="/api/campaigns/grid"
+    [columnsToDisplay]="columns"
+    [isRemovable]="true"
+    (rowDoubleClicked)="handleRowDoubleClick($event)"
+    (rowRemoved)="handleRowDeleted($event)">
+  </app-grid>
+</div>
