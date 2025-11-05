@@ -1,0 +1,141 @@
+<div class="reports-container">
+  <header class="toolbar">
+    <div class="left">
+      <h2>Raporty</h2>
+      <div class="hint">Analizuj interakcje odbiorcow i skutecznosc kampanii phishingowych.</div>
+    </div>
+    <div class="actions">
+      <button class="btn" type="button" (click)="loadDemoData()" [disabled]="isLoading">
+        @if (demoLoaded) { Odswiez demo } @else { Dane przykladowe }
+      </button>
+      <button class="btn btn-primary" type="button" (click)="exportToPdf()" [disabled]="isExporting || isLoading || isLoadingFilters">
+        @if (isExporting) { Eksportowanie... } @else { Eksportuj do PDF }
+      </button>
+    </div>
+  </header>
+
+  <section class="card filters-card">
+    <form class="filters-form" [formGroup]="filtersForm">
+      <div class="filter-grid">
+        <label>
+          Kampania
+          <select class="form-control" formControlName="campaignId" [disabled]="isLoadingFilters">
+            <option [ngValue]="null">Wszystkie</option>
+            @for (campaign of campaigns; track campaign.id) {
+              <option [ngValue]="campaign.id">{{ campaign.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Grupa
+          <select class="form-control" formControlName="groupId" [disabled]="visibleGroups.length === 0">
+            <option [ngValue]="null">Wszystkie</option>
+            @if (visibleGroups.length === 0) {
+              <option [ngValue]="null" disabled>Brak grup dla wybranej kampanii</option>
+            } @else {
+              @for (group of visibleGroups; track group.id) {
+                <option [ngValue]="group.id">{{ group.name }}</option>
+              }
+            }
+          </select>
+        </label>
+        <label>
+          Data od
+          <input class="form-control" type="date" formControlName="dateFrom" />
+        </label>
+        <label>
+          Data do
+          <input class="form-control" type="date" formControlName="dateTo" />
+        </label>
+      </div>
+      <div class="filters-footer">
+        <div class="hint">Wybierz zakres raportu, aby zwezic dane do konkretnych kampanii i okresow.</div>
+        <button type="button" class="btn btn-secondary" (click)="clearFilters()" [disabled]="isLoading || isLoadingFilters">
+          Wyczysc filtry
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card chart-card">
+    <div class="section-header">
+      <div>
+        <h3>Skutecznosc kampanii</h3>
+        <div class="section-hint">Porownaj liczbe wyslanych maili, otwarc oraz klikniec w linki.</div>
+      </div>
+    </div>
+    <div class="chart-layout">
+      <div class="chart-summary">
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Open rate</div>
+            <div class="metric-value">{{ metrics.openRate | number: '1.0-1' }}%</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">CTR</div>
+            <div class="metric-value">{{ metrics.clickRate | number: '1.0-1' }}%</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">CTOR</div>
+            <div class="metric-value">{{ metrics.clickToOpenRate | number: '1.0-1' }}%</div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          @for (bar of chartBars; track bar.key) {
+            <div class="legend-item">
+              <span class="legend-dot" [style.background]="bar.color"></span>
+              <div class="legend-text">
+                <span class="legend-label">{{ bar.label }}</span>
+                <span class="legend-value">
+                  {{ bar.value }}
+                  @if (bar.rate !== null) {
+                    ({{ bar.rate | number: '1.0-1' }}%)
+                  }
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="chart-area">
+        <div class="chart-box">
+          <canvas #performanceChart></canvas>
+          <div class="chart-caption">Porownanie wyslan, otwarc oraz klikniec</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card table-card">
+    <div class="section-header">
+      <div>
+        <h3>Szczegolowe interakcje</h3>
+        <div class="section-hint">Sprawdz kto otworzyl wiadomosc oraz ktory link zostal klikniety.</div>
+      </div>
+      <div class="status-indicator">
+        @if (isLoading) {
+          <span class="status loading">Ladowanie danych...</span>
+        } @else if (errorMessage) {
+          <span class="status error">Wystapil blad</span>
+        } @else {
+          <span class="status ok">Zaktualizowano</span>
+        }
+      </div>
+    </div>
+
+    @if (errorMessage) {
+      <div class="error-state">{{ errorMessage }}</div>
+    }
+
+    @if (!errorMessage && !isLoading && gridRows.length === 0) {
+      <div class="empty-state">Brak danych dla wybranych filtrow.</div>
+    }
+
+    <app-grid
+      [localData]="gridRows"
+      [columnsToDisplay]="columns"
+      [filterable]="true"
+      [isSelectable]="false">
+    </app-grid>
+  </section>
+</div>

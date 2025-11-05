@@ -39,6 +39,10 @@ export class Home {
     this.router.navigate(['/home', 'recipients']);
   }
 
+  navigateToReports() {
+    this.router.navigate(['/home', 'reports']);
+  }
+
   navigateToTemplates() {
     this.router.navigate(['/home', 'templates']);
   }
