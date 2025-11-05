@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, from, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -56,22 +56,22 @@ export class ReportsService {
 
   private buildExportErrorMessage(error: unknown): Observable<string> {
     const httpError = error as { status?: number; error?: any };
-    const fallback = 'Nie udalo sie wyeksportowac raportu.';
+    const fallback = 'Nie udało się wyeksportować raportu.';
 
     if (httpError?.status === 0) {
-      return of('Brak polaczenia z serwerem. Sprawdz siec i sprobuj ponownie.');
+      return of('Brak połączenia z serwerem. Sprawdź sieć i spróbuj ponownie.');
     }
 
     if (httpError?.status === 401) {
-      return of('Sesja wygasla. Zaloguj sie ponownie.');
+      return of('Sesja wygasła. Zaloguj się ponownie.');
     }
 
     if (httpError?.status === 403) {
-      return of('Brak uprawnien do wygenerowania raportu.');
+      return of('Brak uprawnień do wygenerowania raportu.');
     }
 
     if (httpError?.status === 404) {
-      return of('Raport nie jest dostepny. Upewnij sie, ze filtry zwracaja wyniki lub skorzystaj z przykladowych danych.');
+      return of('Raport nie jest dostępny. Upewnij się, że filtry zwracają wyniki lub skorzystaj z przykładowych danych.');
     }
 
     if (httpError?.error instanceof Blob) {

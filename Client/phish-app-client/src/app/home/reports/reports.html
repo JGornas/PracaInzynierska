@@ -2,11 +2,11 @@
   <header class="toolbar">
     <div class="left">
       <h2>Raporty</h2>
-      <div class="hint">Analizuj interakcje odbiorcow i skutecznosc kampanii phishingowych.</div>
+      <div class="hint">Analizuj interakcje odbiorców i skuteczność kampanii phishingowych.</div>
     </div>
     <div class="actions">
       <button class="btn" type="button" (click)="loadDemoData()" [disabled]="isLoading">
-        @if (demoLoaded) { Odswiez demo } @else { Dane przykladowe }
+        @if (demoLoaded) { Odśwież demo } @else { Dane przykładowe }
       </button>
       <button class="btn btn-primary" type="button" (click)="exportToPdf()" [disabled]="isExporting || isLoading || isLoadingFilters">
         @if (isExporting) { Eksportowanie... } @else { Eksportuj do PDF }
@@ -49,9 +49,9 @@
         </label>
       </div>
       <div class="filters-footer">
-        <div class="hint">Wybierz zakres raportu, aby zwezic dane do konkretnych kampanii i okresow.</div>
+        <div class="hint">Wybierz zakres raportu, aby zawęzić dane do konkretnych kampanii i okresów.</div>
         <button type="button" class="btn btn-secondary" (click)="clearFilters()" [disabled]="isLoading || isLoadingFilters">
-          Wyczysc filtry
+          Wyczyść filtry
         </button>
       </div>
     </form>
@@ -60,8 +60,8 @@
   <section class="card chart-card">
     <div class="section-header">
       <div>
-        <h3>Skutecznosc kampanii</h3>
-        <div class="section-hint">Porownaj liczbe wyslanych maili, otwarc oraz klikniec w linki.</div>
+        <h3>Skuteczność kampanii</h3>
+        <div class="section-hint">Porównaj liczbę wysłanych maili, otwarć oraz kliknięć w linki.</div>
       </div>
     </div>
     <div class="chart-layout">
@@ -100,7 +100,7 @@
       <div class="chart-area">
         <div class="chart-box">
           <canvas #performanceChart></canvas>
-          <div class="chart-caption">Porownanie wyslan, otwarc oraz klikniec</div>
+          <div class="chart-caption">Porównanie wysłań, otwarć oraz kliknięć</div>
         </div>
       </div>
     </div>
@@ -109,14 +109,14 @@
   <section class="card table-card">
     <div class="section-header">
       <div>
-        <h3>Szczegolowe interakcje</h3>
-        <div class="section-hint">Sprawdz kto otworzyl wiadomosc oraz ktory link zostal klikniety.</div>
+        <h3>Szczegółowe interakcje</h3>
+        <div class="section-hint">Sprawdź kto otworzył wiadomość oraz który link został kliknięty.</div>
       </div>
       <div class="status-indicator">
         @if (isLoading) {
-          <span class="status loading">Ladowanie danych...</span>
+          <span class="status loading">Ładowanie danych...</span>
         } @else if (errorMessage) {
-          <span class="status error">Wystapil blad</span>
+          <span class="status error">Wystąpił błąd</span>
         } @else {
           <span class="status ok">Zaktualizowano</span>
         }
@@ -128,7 +128,7 @@
     }
 
     @if (!errorMessage && !isLoading && gridRows.length === 0) {
-      <div class="empty-state">Brak danych dla wybranych filtrow.</div>
+      <div class="empty-state">Brak danych dla wybranych filtrów.</div>
     }
 
     <app-grid

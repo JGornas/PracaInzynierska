@@ -67,9 +67,9 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     { field: 'campaignName', label: 'Kampania' },
     { field: 'groupName', label: 'Grupa' },
     { field: 'recipient', label: 'Odbiorca' },
-    { field: 'sentAtLabel', label: 'Wyslano' },
+    { field: 'sentAtLabel', label: 'Wysłano' },
     { field: 'openedAtLabel', label: 'Otwarcie maila' },
-    { field: 'clickedAtLabel', label: 'Klikniecie w URL' },
+    { field: 'clickedAtLabel', label: 'Kliknięcie w URL' },
     { field: 'statusLabel', label: 'Status' }
   ];
 
@@ -100,8 +100,8 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   private readonly demoGroups: ReportGroupOption[] = [
-    { id: 101, name: 'Zespol Sprzedazy', campaignId: 1 },
-    { id: 102, name: 'Zespol IT', campaignId: 1 },
+    { id: 101, name: 'Zespół Sprzedaży', campaignId: 1 },
+    { id: 102, name: 'Zespół IT', campaignId: 1 },
     { id: 201, name: 'Nowi pracownicy', campaignId: 2 }
   ];
 
@@ -111,7 +111,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       campaignId: 1,
       campaignName: 'Symulacja: BezpiecznaBank',
       groupId: 101,
-      groupName: 'Zespol Sprzedazy',
+      groupName: 'Zespół Sprzedaży',
       recipientEmail: 'anna.kowalska@firma.pl',
       recipientName: 'Anna Kowalska',
       sentAt: '2025-02-10T08:05:00Z',
@@ -125,7 +125,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       campaignId: 1,
       campaignName: 'Symulacja: BezpiecznaBank',
       groupId: 101,
-      groupName: 'Zespol Sprzedazy',
+      groupName: 'Zespół Sprzedaży',
       recipientEmail: 'marek.nowak@firma.pl',
       recipientName: 'Marek Nowak',
       sentAt: '2025-02-10T08:07:00Z',
@@ -139,7 +139,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       campaignId: 1,
       campaignName: 'Symulacja: BezpiecznaBank',
       groupId: 102,
-      groupName: 'Zespol IT',
+      groupName: 'Zespół IT',
       recipientEmail: 'ewa.zielinska@firma.pl',
       recipientName: 'Ewa Zielinska',
       sentAt: '2025-02-10T08:11:00Z',
@@ -244,7 +244,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
         },
         error: err => {
           this.isExporting = false;
-          const message = err instanceof Error ? err.message : 'Nie udalo sie wyeksportowac raportu.';
+          const message = err instanceof Error ? err.message : 'Nie udało się wyeksportować raportu.';
           Swal.fire({
             icon: 'error',
             title: 'Eksport PDF',
@@ -288,7 +288,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
         error: err => {
           this.isLoadingFilters = false;
           this.filtersReady = true;
-          const message = err instanceof Error ? err.message : 'Nie udalo sie zaladowac filtrow raportu.';
+          const message = err instanceof Error ? err.message : 'Nie udało się załadować filtrów raportu.';
           this.errorMessage = message;
           this.updateGridRows([]);
           this.updateChart(null);
@@ -315,7 +315,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
         },
         error: err => {
           this.isLoading = false;
-          const message = err instanceof Error ? err.message : 'Nie udalo sie pobrac danych raportu.';
+          const message = err instanceof Error ? err.message : 'Nie udało się pobrać danych raportu.';
           this.errorMessage = message;
           this.updateGridRows([]);
           this.updateChart(null);
@@ -408,9 +408,9 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     };
 
     this.chartBars = [
-      { key: 'sent', label: 'Wyslane maile', value: sent, color: '#334155', rate: null },
+      { key: 'sent', label: 'Wysłane maile', value: sent, color: '#334155', rate: null },
       { key: 'opened', label: 'Otwarcia', value: opened, color: '#1d4ed8', rate: openRate },
-      { key: 'clicked', label: 'Klikniecia', value: clicked, color: '#0f766e', rate: clickRate }
+      { key: 'clicked', label: 'Kliknięcia', value: clicked, color: '#0f766e', rate: clickRate }
     ];
 
     this.renderCharts();
@@ -622,8 +622,8 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
 
     Swal.fire({
       icon: 'info',
-      title: 'Dane przykladowe',
-      text: 'Wyswietlamy przykladowy raport. Aby pobrac dane z serwera, wybierz filtry lub uzyj eksportu.',
+      title: 'Dane przykładowe',
+      text: 'Wyświetlamy przykładowy raport. Aby pobrać dane z serwera, wybierz filtry lub użyj eksportu.',
       confirmButtonText: 'OK'
     });
   }
@@ -636,7 +636,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     Swal.fire({
       icon: 'success',
       title: 'Eksport PDF',
-      text: 'Wygenerowano przykladowy raport PDF.',
+      text: 'Wygenerowano przykładowy raport PDF.',
       confirmButtonText: 'OK'
     });
   }
@@ -702,9 +702,9 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     const boxWidth = 164;
     const boxGap = 12;
     const bars = data.bars.length ? data.bars : [
-      { key: 'sent', label: 'Wyslane maile', value: data.summary.sent, color: '#334155', rate: null },
+      { key: 'sent', label: 'Wysłane maile', value: data.summary.sent, color: '#334155', rate: null },
       { key: 'opened', label: 'Otwarcia', value: data.summary.opened, color: '#1d4ed8', rate: data.metrics.openRate },
-      { key: 'clicked', label: 'Klikniecia', value: data.summary.clicked, color: '#0f766e', rate: data.metrics.clickRate }
+      { key: 'clicked', label: 'Kliknięcia', value: data.summary.clicked, color: '#0f766e', rate: data.metrics.clickRate }
     ];
 
     bars.slice(0, 3).forEach((bar, index) => {
@@ -783,7 +783,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       this.addPdfText(commands, `${bar.value}`, valueX, barY + barHeight + 20, 10, '#0f172a');
     });
 
-    this.addPdfText(commands, 'Wydajnosc kampanii', chartX + 12, chartY + chartHeight + 26, 12, '#1e293b');
+    this.addPdfText(commands, 'Wydajność kampanii', chartX + 12, chartY + chartHeight + 26, 12, '#1e293b');
 
     // Interactions table
     const tableX = 54;
@@ -808,8 +808,8 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       const headerBaseline = tableBottom + tableHeight - 16;
       this.addPdfText(commands, 'Odbiorca', tableX + 12, headerBaseline, 11, '#1f2937');
       this.addPdfText(commands, 'Status', tableX + tableWidth * 0.45 + 8, headerBaseline, 11, '#1f2937');
-      this.addPdfText(commands, 'Wyslano', tableX + tableWidth * 0.62 + 8, headerBaseline, 11, '#1f2937');
-      this.addPdfText(commands, 'Klikniecie', tableX + tableWidth * 0.78 + 8, headerBaseline, 11, '#1f2937');
+      this.addPdfText(commands, 'Wysłano', tableX + tableWidth * 0.62 + 8, headerBaseline, 11, '#1f2937');
+      this.addPdfText(commands, 'Kliknięcie', tableX + tableWidth * 0.78 + 8, headerBaseline, 11, '#1f2937');
 
       rows.forEach((row, index) => {
         const y = tableBottom + tableHeight - headerHeight - (index + 1) * rowHeight;
@@ -916,12 +916,12 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
 
   private buildStatusLabel(item: InteractionReportDto): string {
     if (item.clicked) {
-      return 'Klikniety';
+      return 'Kliknięty';
     }
     if (item.opened) {
       return 'Otwarty';
     }
-    return 'Wyslany';
+    return 'Wysłany';
   }
 
   private triggerFileDownload(blob: Blob, filename: string): void {
