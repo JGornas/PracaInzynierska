@@ -1,1 +1,60 @@
-<p>campaigns-edit works!</p>
+<div class="container">
+  <h2>Edytuj kampanię</h2>
+
+  <div class="campaign-inputs">
+    <mat-form-field class="campaign-field" appearance="outline">
+      <mat-label>Nazwa Kampanii</mat-label>
+      <input matInput [(ngModel)]="campaign.name" placeholder="Wpisz nazwę kampanii" />
+    </mat-form-field>
+
+    <mat-form-field class="campaign-field" appearance="outline">
+      <mat-label>Opis</mat-label>
+      <input matInput [(ngModel)]="campaign.description" placeholder="Wpisz opis" />
+    </mat-form-field>
+  </div>
+
+  <div class="campaign-inputs">
+    <mat-form-field class="campaign-field" appearance="outline">
+      <mat-label>Data i godzina rozpoczęcia</mat-label>
+      <input
+        #datetimeInput
+        matInput
+        type="datetime-local"
+        [(ngModel)]="startedAtLocal"
+        placeholder="Wybierz datę i godzinę" />
+      <button mat-icon-button matSuffix tabindex="-1" (click)="openDateTimePicker()" aria-hidden="true">
+        <mat-icon>event</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field
+      class="campaign-field clickable"
+      appearance="outline"
+      role="button"
+      tabindex="0"
+      (click)="selectSendingProfile()"
+      (keydown.enter)="selectSendingProfile()">
+      <mat-label>Profil wysyłki</mat-label>
+
+      <input
+        matInput
+        placeholder="Wybierz profil wysyłki"
+        readonly />
+
+    </mat-form-field>
+  </div>
+
+  <div class="row">
+    <app-button-component
+      [label]="'Anuluj'"
+      [variant]="'white-outline-theme'"
+      [action]="cancel.bind(this)">
+    </app-button-component>
+
+    <app-button-component
+      [label]="'Zapisz'"
+      [variant]="'blue-theme'"
+      [action]="save.bind(this)">
+    </app-button-component>
+  </div>
+</div>

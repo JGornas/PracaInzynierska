@@ -1,8 +1,11 @@
 ﻿using PhishApp.WebApi.Models.Campaigns;
 using PhishApp.WebApi.Models.Grid;
 using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Models.LandingPages;
 using PhishApp.WebApi.Models.Recipients;
 using PhishApp.WebApi.Models.Rows;
+using PhishApp.WebApi.Models.SendingProfiles;
+using PhishApp.WebApi.Models.Templates;
 using PhishApp.WebApi.Repositories;
 using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
@@ -54,6 +57,11 @@ namespace PhishApp.WebApi.Services
 
             existingEntity.Name = campaign.Name;
             existingEntity.Description = campaign.Description;
+            existingEntity.SendTime = campaign.SendTime;
+            existingEntity.SendingProfileId = campaign.SendingProfile?.Id;
+            existingEntity.TemplateId = campaign.Template?.Id;
+            existingEntity.LandingPageId = campaign.LandingPage?.Id;
+
 
             var currentGroupIds = existingEntity.CampaignRecipientGroups
                 .Select(crg => crg.RecipientGroupId)
@@ -112,10 +120,42 @@ namespace PhishApp.WebApi.Services
                 Id = entity.Id,
                 Name = entity.Name,
                 Description = entity.Description,
+                SendTime = entity.SendTime,
+                SendingProfile = entity.SendingProfile != null ? new SendingProfile
+                {
+                    Id = entity.SendingProfile.Id,
+                    Name = entity.SendingProfile.Name,
+                    Protocol = entity.SendingProfile.Protocol,
+                    SenderName = entity.SendingProfile.SenderName,
+                    SenderEmail = entity.SendingProfile.SenderEmail,
+                    Host = entity.SendingProfile.Host,
+                    Port = entity.SendingProfile.Port,
+                    Username = entity.SendingProfile.Username,
+                    UseSsl = entity.SendingProfile.UseSsl,
+                    ReplyTo = entity.SendingProfile.ReplyTo,
+                    HasPassword = !string.IsNullOrEmpty(entity.SendingProfile.Password),
+                    TestEmail = entity.SendingProfile.TestEmail
+
+                } : null,
+                Template = entity.Template != null ? new Template
+                {
+                    Id = entity.Template.Id,
+                    Name = entity.Template.Name,
+                    Subject = entity.Template.Subject,
+                    Content = entity.Template.Content,
+                    DesignObject= entity.Template.DesignObject,
+                } : null,
+                LandingPage = entity.LandingPage != null ? new LandingPage
+                {
+                    Id = entity.LandingPage.Id,
+                    Name = entity.LandingPage.Name,
+                    Content = entity.LandingPage.Content,
+                } : null,
                 CampaignRecipientGroups = entity.CampaignRecipientGroups
                     .Select(crg => new RecipientGroup
                     {
-                        Id = crg.RecipientGroupId
+                        Id = crg.RecipientGroupId,
+                        Name = crg.RecipientGroup.Name,
                     })
                     .ToList()
             };

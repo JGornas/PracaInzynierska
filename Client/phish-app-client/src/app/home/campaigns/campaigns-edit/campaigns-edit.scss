@@ -1,0 +1,40 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campaign-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.campaign-field {
+  flex: 1 1 250px;
+  min-width: 250px;
+}
+
+.campaign-field.clickable {
+  cursor: pointer;
+}
+
+.campaign-field.clickable .mat-form-field-label,
+.campaign-field.clickable input[readonly] {
+  cursor: pointer;
+  user-select: none;
+  caret-color: transparent;
+}
+
+.campaign-field.clickable:focus,
+.campaign-field.clickable .mat-form-field-label:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
+}
+
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}

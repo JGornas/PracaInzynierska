@@ -29,7 +29,7 @@ namespace PhishApp.WebApi.Controllers
 
         [HttpDelete]
         [Route(Routes.DeleteCampaign)]
-        public async Task<RestResponse<bool>> DeleteTemplate(int id)
+        public async Task<RestResponse<bool>> DeleteCampaign(int id)
         {
             await _campaignService.DeleteCampaign(id);
 
@@ -38,7 +38,7 @@ namespace PhishApp.WebApi.Controllers
 
         [HttpGet]
         [Route(Routes.GetCampaign)]
-        public async Task<RestResponse<Campaign>> GetTemplate(int id)
+        public async Task<RestResponse<Campaign>> GetCampaign(int id)
         {
             var result = await _campaignService.GetCampaignById(id);
 

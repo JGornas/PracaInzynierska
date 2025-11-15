@@ -14,6 +14,17 @@ namespace PhishApp.WebApi.Models.Identity
         [MaxLength(200)]
         public string Description { get; set; } = string.Empty;
 
+        public int? SendingProfileId { get; set; }
+        public SendingProfileEntity? SendingProfile { get; set; }
+
+        public int? TemplateId { get; set; }
+        public TemplateEntity? Template { get; set; }
+
+        public int? LandingPageId { get; set; }
+        public LandingPageEntity? LandingPage { get; set; }
+
+        public DateTime? SendTime { get; set; }
+
         public ICollection<CampaignRecipientGroupEntity> CampaignRecipientGroups { get; set; } = new List<CampaignRecipientGroupEntity>();
     }
 }

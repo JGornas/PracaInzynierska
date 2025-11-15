@@ -29,6 +29,9 @@ public class CampaignRepository : ICampaignRepository
         return await _context.Campaigns
             .Include(c => c.CampaignRecipientGroups)
             .ThenInclude(crg => crg.RecipientGroup)
+            .Include(c => c.SendingProfile)
+            .Include(c => c.Template)
+            .Include(c => c.LandingPage)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 

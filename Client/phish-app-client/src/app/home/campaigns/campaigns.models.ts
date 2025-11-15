@@ -16,6 +16,7 @@ export class Campaign {
   id: number;
   name: string;
   description: string;
+  startDateTime: Date | null = null;
   campaignRecipientGroups: RecipientGroup[];
 
   constructor() {
