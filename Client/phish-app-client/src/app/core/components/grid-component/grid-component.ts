@@ -56,6 +56,7 @@ export class GridComponent implements OnChanges, AfterViewInit {
   @Input() actionTemplate: TemplateRef<GridElement> | null = null;
 
   @Output() rowDoubleClicked = new EventEmitter<GridElement>();
+  @Output() rowClicked = new EventEmitter<GridElement>();
   @Output() rowRemoved = new EventEmitter<GridElement>();
 
   dataSource: GridElement[] = [];
@@ -144,7 +145,9 @@ export class GridComponent implements OnChanges, AfterViewInit {
     if (!this.isSelectable) {
       return;
     }
+    
     this.selectedGridElement = element;
+    this.rowClicked.emit(element);  // dodane - emituj pojedyncze kliknięcie
   }
 
   onRowDoubleClick(element: GridElement, event: MouseEvent) {

@@ -18,11 +18,21 @@
     [columnsToDisplay]="columns"
     [filterable]="true"
     [isSelectable]="true"
-    [isRemovable]="true"
+    [isRemovable]="!isSelectMode"
     [actionTemplate]="actionsTemplate"
     (rowDoubleClicked)="handleRowDoubleClick($event)"
+    (rowClicked)="handleClick($event)"
     (rowRemoved)="handleRowRemoved($event)"
   ></app-grid>
+
+  @if (isSelectMode) {
+    <app-button-component
+      class="select-profile-button"
+      [label]="'Wybierz profil'"
+      [variant]="'blue-theme'"
+      [action]="selectProfile.bind(this)">
+    </app-button-component>
+  }
 
   @if (showCreateModal) {
     <div class="modal-backdrop" (click)="closeCreateModal()"></div>
@@ -230,4 +240,6 @@
       </form>
     </div>
   }
+
+
 </div>

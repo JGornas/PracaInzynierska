@@ -1,8 +1,8 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Campaign } from '../campaigns.models';
+import { Campaign, SendingProfile } from '../campaigns.models';
 import { CampaignsService } from '../campaigns.service';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { ButtonComponent } from '../../../core/components/button-component/button-component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
+import { SharedCampaignService } from '../shared-campaigns.service';
 
 @Component({
   selector: 'app-campaigns-edit',
@@ -25,16 +26,82 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './campaigns-edit.html',
   styleUrl: './campaigns-edit.scss'
 })
-export class CampaignsEdit {
+export class CampaignsEdit implements OnInit, OnDestroy {
   isEditMode: boolean = false;
   campaign: Campaign = new Campaign();
+  private _sharedSub?: Subscription;
 
   @ViewChild('datetimeInput', { static: false }) datetimeInput?: ElementRef<HTMLInputElement>;
 
   constructor(
     private router: Router,
-    private campaignService: CampaignsService
+    private route: ActivatedRoute,
+    private campaignService: CampaignsService,
+    private sharedCampaignService: SharedCampaignService
   ) {}
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    this.isEditMode = !!id;
+
+    if (this.isEditMode) {
+      const campaignId = Number(id);
+
+      // sprawdź czy w shared service jest kampania z tym samym ID
+      const sharedCampaign = this.sharedCampaignService.getCurrentValue();
+
+      if (sharedCampaign && sharedCampaign.id === campaignId) {
+        // kampania w shared service zgadza się z ID z URL -> użyj ją
+        this.campaign = sharedCampaign;
+      } else {
+        // nie ma kampanii w shared service lub ma inny ID - załaduj z API
+        this.loadCampaign(campaignId);
+      }
+    }
+
+    // subskrybuj zmiany z shared service (np. gdy wrócisz z wyboru sending profile)
+    this._sharedSub = this.sharedCampaignService.current$.subscribe(c => {
+      if (!c) return;
+      if (c.id === this.campaign.id) {
+        this.campaign = c;
+      }
+    });
+
+    console.log('CampaignsEdit initialized, campaign=', this.campaign);
+  }
+
+  ngOnDestroy() {
+    this._sharedSub?.unsubscribe();
+  }
+
+  private async loadCampaign(id: number) {
+    try {
+      const camp = await firstValueFrom(this.campaignService.getCampaign(id));
+      if (!camp) {
+        throw new Error('Brak kampanii o podanym ID');
+      }
+
+      this.campaign = camp;
+
+      // konwertuj sendTime na startDateTime (Date)
+      if (this.campaign.startDateTime && typeof this.campaign.startDateTime === 'string') {
+        const d = new Date(this.campaign.startDateTime as any);
+        this.campaign.startDateTime = isNaN(d.getTime()) ? null : d;
+      }
+
+      // zapisz w shared service aby mieć dostęp w innych komponentach
+      this.sharedCampaignService.setCurrent(this.campaign);
+
+    } catch (error) {
+      console.error('Błąd pobierania kampanii:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Błąd',
+        text: 'Nie udało się wczytać kampanii.'
+      });
+      await this.router.navigate(['/home/campaigns']);
+    }
+  }
 
   public get startedAtLocal(): string | null {
     const v = this.campaign.startDateTime;
@@ -69,14 +136,19 @@ export class CampaignsEdit {
   }
 
   public selectSendingProfile(): void {
-    this.router.navigate(['/home/sending-profiles']);
+    // zapisz obecną kampanię w shared service
+    this.sharedCampaignService.setCurrent(this.campaign);
+    // nawiguj do sending-profiles z selectMode i campaignId
+    this.router.navigate(['/home/sending-profiles'], {
+      queryParams: { selectMode: 'true', campaignId: this.campaign.id }
+    });
   }
 
   public async save() {
-   
+    // implementacja zapisywania kampanii
   }
 
   public async cancel() {
-    
+    await this.router.navigate(['/home/campaigns']);
   }
 }

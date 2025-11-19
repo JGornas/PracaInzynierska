@@ -6,6 +6,12 @@ import { GridComponent } from '../../core/components/grid-component/grid-compone
 import { SendingProfilesService } from './sending-profiles.service';
 import { SendingProfileDto, SendingProfilePayload } from './sending-profiles.models';
 import Swal from 'sweetalert2';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ButtonComponent } from '../../core/components/button-component/button-component';
+import { SharedCampaignService } from '../campaigns/shared-campaigns.service';
+import { SendingProfile } from '../campaigns/campaigns.models';
+
+
 
 interface SendingProfileGridRow extends GridElement {
   id: number;
@@ -21,7 +27,7 @@ interface SendingProfileGridRow extends GridElement {
   standalone: true,
   templateUrl: './sending-profiles.html',
   styleUrls: ['./sending-profiles.scss'],
-  imports: [CommonModule, ReactiveFormsModule, GridComponent]
+  imports: [CommonModule, ReactiveFormsModule, GridComponent, ButtonComponent]
 })
 export class SendingProfiles implements OnInit {
   profiles: SendingProfileDto[] = [];
@@ -47,10 +53,16 @@ export class SendingProfiles implements OnInit {
   isCreating = false;
   isDeletingId: number | null = null;
 
+  isSelectMode = false;
+
   readonly protocolOptions = ['SMTP'];
   private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  constructor(private fb: FormBuilder, private profilesService: SendingProfilesService) {
+  constructor(private fb: FormBuilder,
+    private profilesService: SendingProfilesService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private sharedCampaignService: SharedCampaignService) {
     this.editForm = this.buildForm(false);
     this.createForm = this.buildForm(true);
     this.resetEditForm();
@@ -58,6 +70,41 @@ export class SendingProfiles implements OnInit {
   }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const selectMode = params['selectMode'] === 'true';
+      const campaignId = params['campaignId'] ? Number(params['campaignId']) : null;
+
+      if (selectMode && campaignId) {
+        // ładuj kampanię z shared service
+        this.sharedCampaignService.loadById(campaignId).then(() => {
+          this.isSelectMode = true;
+          // jeśli jest już wybrany sending profile -> preselect w gridzie
+          const campaign = this.sharedCampaignService.getCurrentValue();
+          if (campaign?.sendingProfile) {
+            this.selectedProfileId = campaign.sendingProfile.id;
+          }
+        }).catch(err => {
+          console.error('Błąd ładowania kampanii:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Błąd',
+            text: 'Nie udało się załadować kampanii.'
+          }).then(() => this.router.navigate(['/home/campaigns']));
+        });
+      } else {
+        this.isSelectMode = false;
+      }
+    });
+
+    // jeśli ktoś wcześniej zapisał kampanię w shared service - też ustaw select mode i preselect
+    const pending = this.sharedCampaignService.getCurrentValue();
+    if (pending) {
+      this.isSelectMode = true;
+      if (pending.sendingProfile) {
+        this.selectedProfileId = pending.sendingProfile.id;
+      }
+    }
+
     this.loadProfiles();
   }
 
@@ -106,12 +153,68 @@ export class SendingProfiles implements OnInit {
   }
 
   handleRowDoubleClick(row: GridElement): void {
-    console.log('double click', row);
+    this.setSelectedRowId(row);
+
+    if(!this.isSelectMode){
+      if (this.selectedProfileId === null) {
+        return;
+      }
+      else{
+        this.openEditModalById(this.selectedProfileId);
+      }
+    }
+    
+    
+  }
+  handleClick(row: GridElement): void {
+    this.setSelectedRowId(row);
+  }
+
+  private setSelectedRowId(row: GridElement): void {
     const id = Number(row['id']);
     if (!Number.isFinite(id)) {
       return;
     }
-    this.openEditModalById(id);
+
+    this.selectedProfileId = id;
+  }
+
+  selectProfile(): void {
+    if (this.selectedProfileId === null) {
+      return;
+    }
+
+    const selectedDto = this.profiles.find(p => p.id === this.selectedProfileId);
+    if (!selectedDto) {
+      return;
+    }
+
+    const pendingCampaign = this.sharedCampaignService.getCurrentValue();
+    if (pendingCampaign) {
+      const sendingProfile = new SendingProfile();
+      sendingProfile.id = selectedDto.id;
+      sendingProfile.name = selectedDto.name;
+      sendingProfile.protocol = selectedDto.protocol;
+      sendingProfile.senderName = selectedDto.senderName;
+      sendingProfile.senderEmail = selectedDto.senderEmail;
+      sendingProfile.host = selectedDto.host;
+      sendingProfile.port = selectedDto.port;
+      sendingProfile.username = selectedDto.username;
+      sendingProfile.useSsl = selectedDto.useSsl;
+      sendingProfile.replyTo = selectedDto.replyTo ?? null;
+      sendingProfile.testEmail = selectedDto.testEmail ?? null;
+      sendingProfile.hasPassword = selectedDto.hasPassword;
+
+      pendingCampaign.sendingProfile = sendingProfile;
+
+      this.sharedCampaignService.setCurrent(pendingCampaign);
+      console.log('Selected sending profile set in pending campaign:', pendingCampaign);
+
+      this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+      return;
+    }
+
+    this.router.navigate(['/home/campaigns']);
   }
 
   sendTestEmail(row: GridElement, event: MouseEvent): void {

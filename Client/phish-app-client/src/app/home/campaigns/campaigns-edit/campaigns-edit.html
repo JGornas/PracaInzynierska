@@ -39,8 +39,8 @@
       <input
         matInput
         placeholder="Wybierz profil wysyłki"
-        readonly />
-
+        readonly
+        [value]="campaign.sendingProfile?.name || 'Wybierz profil wysyłki'" />
     </mat-form-field>
   </div>
 
