@@ -3,6 +3,7 @@
     <h2>Szablony email</h2>
 
     <app-button-component
+        *ngIf="!isSelectMode"
         [label]="'Stwórz nowy'"
         [variant]="'blue-theme'"
         [action]="createTemplate.bind(this)">
@@ -12,8 +13,18 @@
   <app-grid 
       apiUrl="/api/templates/grid"
       [columnsToDisplay]="columns"
-      [isRemovable]="true"
+      [isRemovable]="!isSelectMode"
+      (rowClicked)="handleRowClick($event)"
       (rowDoubleClicked)="handleRowDoubleClick($event)"
       (rowRemoved)="handleRowDeleted($event)">
   </app-grid>
+
+  <app-button-component
+      class="select-button"
+      *ngIf="isSelectMode"
+      [label]="'Wybierz szablon'"
+      [variant]="'blue-theme'"
+      [disabled]="selectedTemplateId === null"
+      [action]="selectTemplate.bind(this)">
+  </app-button-component>
 </div>

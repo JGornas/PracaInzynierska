@@ -1,3 +1,6 @@
+import { LandingPage } from "../landing-pages/landing-pages.models";
+import { Template } from "../templates/templates.models";
+
 export class RecipientGroup {
   id: number;
   name: string;
@@ -49,6 +52,8 @@ export class Campaign {
   startDateTime: Date | null = null;
   campaignRecipientGroups: RecipientGroup[];
   sendingProfile: SendingProfile | null = null;
+  template: Template | null = null;
+  landingPage: LandingPage | null = null;
 
   constructor() {
     this.id = 0;

@@ -3,17 +3,29 @@
     <h2>Strony docelowe</h2>
 
     <app-button-component
-        [label]="'Stwórz nowy'"
-        [variant]="'blue-theme'"
-        [action]="createLandingPage.bind(this)">
+      *ngIf="!isSelectMode"
+      [label]="'Stwórz nowy'"
+      [variant]="'blue-theme'"
+      [action]="createLandingPage.bind(this)">
     </app-button-component>
+
+    
   </div>
 
   <app-grid 
       apiUrl="/api/landingPages/grid"
       [columnsToDisplay]="columns"
-      [isRemovable]="true"
+      [isRemovable]="!isSelectMode"
+      (rowClicked)="handleRowClick($event)"
       (rowDoubleClicked)="handleRowDoubleClick($event)"
       (rowRemoved)="handleRowDeleted($event)">
   </app-grid>
+
+  <app-button-component
+    *ngIf="isSelectMode"
+    [label]="'Wybierz stronę'"
+    [variant]="'blue-theme'"
+    [disabled]="selectedLandingPageId === null"
+    [action]="selectLandingPage.bind(this)">
+  </app-button-component>
 </div>

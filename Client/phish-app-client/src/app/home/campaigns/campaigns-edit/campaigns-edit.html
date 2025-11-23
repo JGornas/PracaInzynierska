@@ -1,7 +1,7 @@
 <div class="container">
   <h2>Edytuj kampanię</h2>
 
-  <div class="campaign-inputs">
+  <div class="campaign-flex">
     <mat-form-field class="campaign-field" appearance="outline">
       <mat-label>Nazwa Kampanii</mat-label>
       <input matInput [(ngModel)]="campaign.name" placeholder="Wpisz nazwę kampanii" />
@@ -13,7 +13,7 @@
     </mat-form-field>
   </div>
 
-  <div class="campaign-inputs">
+  <div class="campaign-flex">
     <mat-form-field class="campaign-field" appearance="outline">
       <mat-label>Data i godzina rozpoczęcia</mat-label>
       <input
@@ -32,8 +32,7 @@
       appearance="outline"
       role="button"
       tabindex="0"
-      (click)="selectSendingProfile()"
-      (keydown.enter)="selectSendingProfile()">
+      (click)="selectSendingProfile()">
       <mat-label>Profil wysyłki</mat-label>
 
       <input
@@ -43,6 +42,47 @@
         [value]="campaign.sendingProfile?.name || 'Wybierz profil wysyłki'" />
     </mat-form-field>
   </div>
+
+  <div class="campaign-flex">
+     <mat-form-field
+      class="campaign-field clickable"
+      appearance="outline"
+      role="button"
+      tabindex="0"
+      (click)="selectTemplate()">
+      <mat-label>Szablon</mat-label>
+
+      <input
+        matInput
+        placeholder="Wybierz szablon"
+        readonly
+        [value]="campaign.template?.name || 'Wybierz szablon'"
+        />
+    </mat-form-field>
+
+    <mat-form-field
+      class="campaign-field clickable"
+      appearance="outline"
+      role="button"
+      tabindex="0"
+      (click)="selectLandingPage()">
+      <mat-label>StronaDocelowa</mat-label>
+
+      <input
+        matInput
+        placeholder="Wybierz profil wysyłki"
+        readonly
+        [value]="campaign.landingPage?.name || 'Wybierz stronę docelową'"
+         />
+    </mat-form-field>
+  </div>
+
+  <!-- <div class="campaign-flex">
+    <app-grid>
+
+    </app-grid>
+
+  </div> -->
 
   <div class="row">
     <app-button-component

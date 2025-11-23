@@ -13,3 +13,8 @@
 app-grid {
   width: 100%;
 }
+
+.landing-pages-container > app-button-component {
+  align-self: flex-end;
+  margin-top: 8px;
+}
