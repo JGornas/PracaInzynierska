@@ -32,9 +32,35 @@
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
 }
 
+.grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grid-section h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
 
 .row {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
+}
+
+.two-grids {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.two-grids .grid-wrapper {
+  flex: 1 1 420px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }

@@ -77,12 +77,23 @@
     </mat-form-field>
   </div>
 
-  <!-- <div class="campaign-flex">
-    <app-grid>
+  <div class="row">
+    <app-button-component
+      [label]="'Dodaj grupę odbiorców'"
+      [variant]="'white-outline-theme'"
+      [action]="addRecipientGroup.bind(this)">
+    </app-button-component>
+  </div>
 
+  <div class="grid-section">
+    <h3>Grupy odbiorców</h3>
+    <app-grid
+      [localData]="campaign.campaignRecipientGroups"
+      [columnsToDisplay]="recipientGroupColumns"
+      [isSelectable]="true"
+      (rowClicked)="handleRecipientGroupClick($event)">
     </app-grid>
-
-  </div> -->
+  </div>
 
   <div class="row">
     <app-button-component

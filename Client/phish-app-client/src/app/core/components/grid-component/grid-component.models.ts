@@ -23,8 +23,9 @@ export interface GridColumn {
 
 export interface GridRequest {
   sort: string;           
-    order: 'asc' | 'desc';
-    pageInfo: GridPageInfo;
-    filter: string;         
-    selectedItemId: number | null; 
+  order: 'asc' | 'desc';
+  pageInfo: GridPageInfo;
+  filter: string;         
+  selectedItemId: number | null; 
+  excludedItems: number[] ;
 }

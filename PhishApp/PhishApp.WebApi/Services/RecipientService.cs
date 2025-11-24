@@ -1,5 +1,7 @@
-﻿using PhishApp.WebApi.Models.Identity;
+﻿using PhishApp.WebApi.Models.Grid;
+using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Recipients;
+using PhishApp.WebApi.Models.Rows;
 using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
 
@@ -8,10 +10,17 @@ namespace PhishApp.WebApi.Services
     public class RecipientService : IRecipientService
     {
         private readonly IRecipientRepository _recipientRepository;
+        private readonly IGridService _gridService;
 
-        public RecipientService(IRecipientRepository recipientRepository)
+        public RecipientService(IRecipientRepository recipientRepository, IGridService gridService)
         {
             _recipientRepository = recipientRepository;
+            _gridService = gridService;
+        }
+
+        public async Task<GridData<RecipientGroupRow>> GetRecipientGroupGridData(GridRequest request)
+        {
+            return await _gridService.GetGridData<RecipientGroupRow>(request);
         }
 
         public async Task<IReadOnlyCollection<Recipient>> GetRecipientsAsync()

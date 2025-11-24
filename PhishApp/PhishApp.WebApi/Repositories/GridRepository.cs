@@ -20,6 +20,18 @@ namespace PhishApp.WebApi.Repositories
         {
             IQueryable<T> query = _context.Set<T>();
 
+            // Wykluczanie określonych elementów
+            if (request.ExcludedItems != null && request.ExcludedItems.Any())
+            {
+                var idProp = typeof(T).GetProperty("Id");
+
+                if (idProp != null)
+                {
+                    query = query.Where(e =>
+                        !request.ExcludedItems.Contains(EF.Property<int>(e, idProp.Name)));
+                }
+            }
+
             // Filtrowanie po wszystkich właściwościach jako string
             if (!string.IsNullOrWhiteSpace(request.Filter))
             {

@@ -10,5 +10,6 @@ namespace PhishApp.WebApi.Models.Grid
         public GridPageInfo PageInfo { get; set; } = new GridPageInfo();
         public string Filter { get; set; } = string.Empty;
         public int? SelectedItemId { get; set; } = null;
+        public List<int> ExcludedItems { get; set; } = new List<int>();
     }
 }

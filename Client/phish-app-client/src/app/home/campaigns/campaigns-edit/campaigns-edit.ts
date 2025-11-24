@@ -73,6 +73,13 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     this._sharedSub?.unsubscribe();
   }
 
+
+  recipientGroupColumns = [
+    { field: 'id', label: 'ID' },
+    { field: 'name', label: 'Grupa' },
+    { field: 'membersCount', label: 'Członków' }
+  ];
+
   private async loadCampaign(id: number) {
     try {
       const camp = await firstValueFrom(this.campaignService.getCampaign(id));
@@ -151,6 +158,17 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     this.router.navigate(['/home/landing-pages'], {
       queryParams: { selectMode: 'true', campaignId: this.campaign.id }
     });
+  }
+
+  public addRecipientGroup(): void {    
+    this.sharedCampaignService.setCurrent(this.campaign);
+    this.router.navigate([`/home/campaigns/${this.campaign.id}/edit/addReciepientGroup`]);
+
+  }
+
+  handleRecipientGroupClick(row: any): void {
+    // e.g. highlight/select or open group details — for now just set selected in grid
+    // console.log('Group clicked', row);
   }
 
   public async save() {

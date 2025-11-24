@@ -45,12 +45,20 @@ export class SendingProfile{
   }
 }
 
+export class CampaignRecipient {
+  firstName: string;
+  constructor(firstName: string = '') {
+    this.firstName = firstName;
+  }
+}
+
 export class Campaign {
   id: number;
   name: string;
   description: string;
   startDateTime: Date | null = null;
   campaignRecipientGroups: RecipientGroup[];
+  campaignRecipients: CampaignRecipient[];
   sendingProfile: SendingProfile | null = null;
   template: Template | null = null;
   landingPage: LandingPage | null = null;
@@ -60,5 +68,10 @@ export class Campaign {
     this.name = '';
     this.description = '';
     this.campaignRecipientGroups = [];
+    this.campaignRecipients = [];
+  }
+
+  get campaignRecipientGroupIds(): number[] {
+    return this.campaignRecipientGroups.map(g => g.id);
   }
 }

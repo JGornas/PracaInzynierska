@@ -50,10 +50,13 @@ export class GridComponent implements OnChanges, AfterViewInit {
   @Input() localData: GridElement[] | null = null;
   @Input() apiUrl: string | null = null;
   @Input() columnsToDisplay: GridColumn[] = [];
+  @Input() excludedItems: number[] = [];
   @Input() filterable: boolean = true;
   @Input() isSelectable: boolean = true;
   @Input() isRemovable: boolean = false;
   @Input() actionTemplate: TemplateRef<GridElement> | null = null;
+  @Input() selectMode: 'single' | 'multi' = 'single';
+
 
   @Output() rowDoubleClicked = new EventEmitter<GridElement>();
   @Output() rowClicked = new EventEmitter<GridElement>();
@@ -205,10 +208,11 @@ export class GridComponent implements OnChanges, AfterViewInit {
       pageInfo: {
         pageIndex: this.paginator?.pageIndex ?? 0,
         pageSize: this.paginator?.pageSize ?? 10,
-        totalCount: 0
+        totalCount: 0 
       },
       filter: this.currentFilter,
-      selectedItemId: null
+      selectedItemId: null,
+      excludedItems: this.excludedItems || []
     };
 
     return this.gridService.loadData<GridData>(this.apiUrl, request).pipe(

@@ -96,5 +96,6 @@ namespace PhishApp.WebApi.Infrastructure
 
         public DbSet<TemplateRow> TemplateRows { get; set; }
         public DbSet<CampaignRow> CampaignRows { get; set; }
+        public DbSet<RecipientGroupRow> RecipientGroupRows { get; set; }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhishApp.WebApi.Helpers;
+using PhishApp.WebApi.Models.Grid;
 using PhishApp.WebApi.Models.Recipients;
 using PhishApp.WebApi.Models.RestApi;
+using PhishApp.WebApi.Models.Rows;
+using PhishApp.WebApi.Services;
 using PhishApp.WebApi.Services.Interfaces;
 
 namespace PhishApp.WebApi.Controllers
@@ -56,6 +59,15 @@ namespace PhishApp.WebApi.Controllers
         {
             var groups = await _recipientService.GetGroupsAsync();
             return RestResponse<IReadOnlyCollection<RecipientGroup>>.CreateResponse(groups);
+        }
+
+        [HttpPost]
+        [Route(Routes.RecipientGroupsGrid)]
+        public async Task<RestResponse<GridData<RecipientGroupRow>>> GetGridData(GridRequest request)
+        {
+            var response = await _recipientService.GetRecipientGroupGridData(request);
+
+            return RestResponse<GridData<RecipientGroupRow>>.CreateResponse(response);
         }
 
         [HttpPost]

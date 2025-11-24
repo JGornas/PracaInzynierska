@@ -21,6 +21,7 @@
         public const string UpdateRecipient = "api/recipients/individuals/{id}";
         public const string DeleteRecipient = "api/recipients/individuals/{id}";
 
+        public const string RecipientGroupsGrid = "api/recipients/groups/grid";
         public const string GetRecipientGroups = "api/recipients/groups";
         public const string CreateRecipientGroup = "api/recipients/groups";
         public const string UpdateRecipientGroup = "api/recipients/groups/{id}";
