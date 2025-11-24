@@ -5,9 +5,11 @@
 
     <app-grid 
         apiUrl="/api/recipients/groups/grid"
+        [selectMode]="'multi'"
         [excludedItems] = "campaign.campaignRecipientGroupIds"
         [columnsToDisplay]="columns"
-        [isRemovable]="false">
+        [isRemovable]="false"
+        (selectionChange)="onGroupsSelected($event)">
     </app-grid>
 
     <div class="row">
@@ -18,7 +20,7 @@
         </app-button-component>
 
         <app-button-component
-        [label]="'Zapisz'"
+        [label]="'Dodaj wybrane grupy'"
         [variant]="'blue-theme'"
         [action]="save.bind(this)">
         </app-button-component>

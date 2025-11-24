@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { GridComponent } from '../../../../core/components/grid-component/grid-component';
 import { ButtonComponent } from '../../../../core/components/button-component/button-component';
 import { CommonModule } from '@angular/common';
-import { GridColumn } from '../../../../core/components/grid-component/grid-component.models';
+import { GridColumn, GridElement } from '../../../../core/components/grid-component/grid-component.models';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedCampaignService } from '../../shared-campaigns.service';
-import { Campaign } from '../../campaigns.models';
+import { Campaign, RecipientGroup } from '../../campaigns.models';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -18,6 +18,7 @@ export class CampaignsEditAddReciepientGroup implements OnInit{
 
   
   campaign: Campaign = new Campaign();
+  selectedGroups: GridElement[] = [];
 
   constructor(private route: ActivatedRoute,
     private router: Router,
@@ -47,13 +48,44 @@ export class CampaignsEditAddReciepientGroup implements OnInit{
     { field: 'name', label: 'Nazwa' }
   ];
 
-  async save(): Promise<void> {
-    // Implementation for saving recipient group
+  onGroupsSelected(selected: GridElement[]) {
+    this.selectedGroups = selected;
+    console.log('Zaznaczone:', selected);
   }
+
+  async save(): Promise<void> {
+    if (!this.campaign) {
+      return;
+    }
+
+    if (!this.campaign.campaignRecipientGroups) {
+      this.campaign.campaignRecipientGroups = [];
+    }
+
+    const existingIds = this.campaign.campaignRecipientGroups.map(g => g.id);
+
+    const groupsToAdd = this.selectedGroups
+      .filter(g => !existingIds.includes(g['id']))
+      .map(g => {
+        const newGroup = new RecipientGroup();
+        newGroup.id = g['id'];
+        newGroup.name = g['name'];
+        return newGroup;
+      });
+
+    this.campaign.campaignRecipientGroups.push(...groupsToAdd);
+
+    this.sharedCampaignService.setCurrent(this.campaign);
+
+    await this.router.navigate([`/home/campaigns/${this.campaign.id}/edit`]);
+  }
+
+
+
 
   async cancel(): Promise<void> {
     // Implementation for saving recipient group
   }
-
+  
 
 }

@@ -61,9 +61,15 @@ export class GridComponent implements OnChanges, AfterViewInit {
   @Output() rowDoubleClicked = new EventEmitter<GridElement>();
   @Output() rowClicked = new EventEmitter<GridElement>();
   @Output() rowRemoved = new EventEmitter<GridElement>();
+  @Output() selectionChange = new EventEmitter<GridElement[]>();
+
+
 
   dataSource: GridElement[] = [];
   tableDataSource = new MatTableDataSource<GridElement>([]);
+
+  selectedElements: GridElement[] = [];
+
 
   resultsLength = 0;
   isLoadingResults = false;
@@ -144,14 +150,29 @@ export class GridComponent implements OnChanges, AfterViewInit {
     if (this.isClickOnRemoveColumn(event)) {
       return;
     }
-
     if (!this.isSelectable) {
       return;
     }
-    
-    this.selectedGridElement = element;
-    this.rowClicked.emit(element);  // dodane - emituj pojedyncze kliknięcie
+
+    if (this.selectMode === 'single') {
+      this.selectedElements = [element];
+    } 
+    else if (this.selectMode === 'multi') {
+      const index = this.selectedElements.indexOf(element);
+
+      if (index >= 0) {
+        this.selectedElements.splice(index, 1);
+      } else {
+        this.selectedElements.push(element);
+      }
+    }
+
+    this.selectionChange.emit([...this.selectedElements]);
+
+    this.rowClicked.emit(element);
   }
+
+
 
   onRowDoubleClick(element: GridElement, event: MouseEvent) {
     if (this.isClickOnRemoveColumn(event)) {
