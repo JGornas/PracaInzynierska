@@ -39,7 +39,7 @@
         matInput
         placeholder="Wybierz profil wysyłki"
         readonly
-        [value]="campaign.sendingProfile?.name || 'Wybierz profil wysyłki'" />
+        [value]="sendingProfileName" />
     </mat-form-field>
   </div>
 
@@ -56,7 +56,7 @@
         matInput
         placeholder="Wybierz szablon"
         readonly
-        [value]="campaign.template?.name || 'Wybierz szablon'"
+        [value]="templateName"
         />
     </mat-form-field>
 
@@ -72,7 +72,7 @@
         matInput
         placeholder="Wybierz profil wysyłki"
         readonly
-        [value]="campaign.landingPage?.name || 'Wybierz stronę docelową'"
+        [value]="landingPageName"
          />
     </mat-form-field>
   </div>
@@ -91,7 +91,9 @@
       [localData]="campaign.campaignRecipientGroups"
       [columnsToDisplay]="recipientGroupColumns"
       [isSelectable]="true"
-      (rowClicked)="handleRecipientGroupClick($event)">
+      [isRemovable]="true"
+      (rowClicked)="handleRecipientGroupClick($event)"
+      (rowRemoved)="handleRecipientGroupRemoved($event)">
     </app-grid>
   </div>
 

@@ -51,11 +51,16 @@ export class CampaignsEdit implements OnInit, OnDestroy {
       
       const sharedCampaign = this.sharedCampaignService.getCurrentValue();
 
+
       if (sharedCampaign && sharedCampaign.id === campaignId) {
         this.campaign = sharedCampaign;
+        
       } else {
         this.loadCampaign(campaignId);
       }
+    }
+    else{
+      this.sharedCampaignService.setCurrent(this.campaign);
     }
 
     // subskrybuj zmiany z shared service (np. gdy wrócisz z wyboru sending profile)
@@ -66,7 +71,6 @@ export class CampaignsEdit implements OnInit, OnDestroy {
       }
     });
 
-    console.log('CampaignsEdit initialized, campaign=', this.campaign);
   }
 
   ngOnDestroy() {
@@ -89,15 +93,16 @@ export class CampaignsEdit implements OnInit, OnDestroy {
 
       this.campaign = camp;
 
-      if (this.campaign.startDateTime && typeof this.campaign.startDateTime === 'string') {
-        const d = new Date(this.campaign.startDateTime as any);
-        this.campaign.startDateTime = isNaN(d.getTime()) ? null : d;
+      if (this.campaign.sendTime && typeof this.campaign.sendTime === 'string') {
+        const d = new Date(this.campaign.sendTime as any);
+        this.campaign.sendTime = isNaN(d.getTime()) ? null : d;
       }
+
+      console.log('Wczytana kampania:', this.campaign);
 
       this.sharedCampaignService.setCurrent(this.campaign);
 
     } catch (error) {
-      console.error('Błąd pobierania kampanii:', error);
       await Swal.fire({
         icon: 'error',
         title: 'Błąd',
@@ -108,7 +113,7 @@ export class CampaignsEdit implements OnInit, OnDestroy {
   }
 
   public get startedAtLocal(): string | null {
-    const v = this.campaign.startDateTime;
+    const v = this.campaign.sendTime;
     if (!v) return null;
     const d = v instanceof Date ? v : new Date(v as any);
     if (isNaN(d.getTime())) return null;
@@ -122,11 +127,11 @@ export class CampaignsEdit implements OnInit, OnDestroy {
 
   public set startedAtLocal(val: string | null) {
     if (!val) {
-      this.campaign.startDateTime = null;
+      this.campaign.sendTime = null;
       return;
     }
     const d = new Date(val);
-    this.campaign.startDateTime = isNaN(d.getTime()) ? null : d;
+    this.campaign.sendTime = isNaN(d.getTime()) ? null : d;
   }
 
   public openDateTimePicker(): void {
@@ -139,6 +144,19 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     }
   }
 
+  public get sendingProfileName(): string {
+    return this.campaign.sendingProfile?.name || 'Wybierz profil wysyłki';
+  }
+
+  public get templateName(): string {
+    return this.campaign.template?.name || 'Wybierz szablon';
+  }
+
+  public get landingPageName(): string {
+    return this.campaign.landingPage?.name || 'Wybierz stronę docelową';
+  }
+
+
   public selectSendingProfile(): void {
     this.sharedCampaignService.setCurrent(this.campaign);
     this.router.navigate(['/home/sending-profiles'], {
@@ -147,6 +165,7 @@ export class CampaignsEdit implements OnInit, OnDestroy {
   }
 
   public selectTemplate(): void {
+    console.log('Przed przejsciem do szablonow', this.campaign);
     this.sharedCampaignService.setCurrent(this.campaign);
     this.router.navigate(['/home/templates'], {
       queryParams: { selectMode: 'true', campaignId: this.campaign.id }
@@ -162,19 +181,98 @@ export class CampaignsEdit implements OnInit, OnDestroy {
 
   public addRecipientGroup(): void {    
     this.sharedCampaignService.setCurrent(this.campaign);
+    console.log('Dodawanie grupy, kampania=', this.campaign);
     this.router.navigate([`/home/campaigns/${this.campaign.id}/edit/addReciepientGroup`]);
 
   }
 
   handleRecipientGroupClick(row: any): void {
-    // e.g. highlight/select or open group details — for now just set selected in grid
-    // console.log('Group clicked', row);
+    
   }
 
-  public async save() {
+  public handleRecipientGroupRemoved(row: any): void {
+    const groupId = row['id'];
+    this.campaign.campaignRecipientGroups = this.campaign.campaignRecipientGroups.filter(g => g.id !== groupId);
   }
 
-  public async cancel() {
-    await this.router.navigate(['/home/campaigns']);
+
+  public async save(): Promise<void> {
+    console.log('Zapisywana kampania:', this.campaign);
+
+    if (!this.campaign.campaignRecipientGroups?.length) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Brak grup odbiorców',
+        text: 'Kampania musi mieć przypisaną przynajmniej jedną grupę odbiorców.'
+      });
+      return;
+    }
+
+    if (!this.campaign.template) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Brak szablonu',
+        text: 'Kampania musi mieć przypisany szablon.'
+      });
+      return;
+    }
+
+    if (!this.campaign.sendingProfile) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Brak profilu wysyłki',
+        text: 'Kampania musi mieć przypisany profil wysyłki.'
+      });
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Zapisz zmiany?',
+      text: 'Czy na pewno chcesz zapisać zmiany w kampanii?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Tak, zapisz',
+      cancelButtonText: 'Nie, anuluj'
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    try {
+      const updatedCampaign = await firstValueFrom(
+        this.campaignService.updateCampaign(this.campaign)
+      );
+
+      this.campaign = updatedCampaign;
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Zapisano',
+        text: 'Kampania została zapisana pomyślnie.'
+      });
+    } catch (error: any) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Błąd zapisu',
+        text: error?.message || 'Nie udało się zapisać kampanii.'
+      });
+    }
   }
+
+  public async cancel(): Promise<void> {
+    const result = await Swal.fire({
+      title: 'Czy na pewno chcesz anulować?',
+      text: 'Wprowadzone zmiany nie zostaną zapisane.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Tak, anuluj',
+      cancelButtonText: 'Nie, wróć'
+    });
+
+    if (result.isConfirmed) {
+      await this.router.navigate(['/home/campaigns']);
+    }
+  }
+
 }

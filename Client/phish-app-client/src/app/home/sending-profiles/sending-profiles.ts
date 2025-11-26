@@ -72,41 +72,30 @@ export class SendingProfiles implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const selectMode = params['selectMode'] === 'true';
-      const campaignId = params['campaignId'] ? Number(params['campaignId']) : null;
+      const campaignId = params['campaignId'] !== undefined ? Number(params['campaignId']) : null;
 
-      if (selectMode && campaignId) {
-        // ładuj kampanię z shared service
-        this.sharedCampaignService.loadById(campaignId).then(() => {
-          this.isSelectMode = true;
-          // jeśli jest już wybrany sending profile -> preselect w gridzie
-          const campaign = this.sharedCampaignService.getCurrentValue();
-          if (campaign?.sendingProfile) {
-            this.selectedProfileId = campaign.sendingProfile.id;
-          }
-        }).catch(err => {
-          console.error('Błąd ładowania kampanii:', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Błąd',
-            text: 'Nie udało się załadować kampanii.'
-          }).then(() => this.router.navigate(['/home/campaigns']));
-        });
+      if (selectMode) {
+        const campaign = this.sharedCampaignService.getCurrentValue();
+
+        if (!campaign || campaign.id !== campaignId) {
+          this.router.navigate(['/home/campaigns']);
+          return;
+        }
+
+        this.isSelectMode = true;
+
+        if (campaign.sendingProfile) {
+          this.selectedProfileId = campaign.sendingProfile.id;
+        }
       } else {
         this.isSelectMode = false;
       }
     });
 
-    // jeśli ktoś wcześniej zapisał kampanię w shared service - też ustaw select mode i preselect
-    const pending = this.sharedCampaignService.getCurrentValue();
-    if (pending) {
-      this.isSelectMode = true;
-      if (pending.sendingProfile) {
-        this.selectedProfileId = pending.sendingProfile.id;
-      }
-    }
-
     this.loadProfiles();
   }
+
+
 
   openCreateModal(): void {
     this.resetCreateForm();
@@ -177,6 +166,13 @@ export class SendingProfiles implements OnInit {
     }
 
     this.selectedProfileId = id;
+  }
+
+  cancelProdfileSelection(): void {    
+    const pendingCampaign = this.sharedCampaignService.getCurrentValue();
+    if (pendingCampaign) {
+      this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+    }
   }
 
   selectProfile(): void {

@@ -30,7 +30,7 @@ export class CampaignsEditAddReciepientGroup implements OnInit{
     const id = this.route.snapshot.paramMap.get('id');
     
     const sharedCampaign = this.sharedCampaignService.getCurrentValue();
-
+    console.log('📌 Loaded shared campaign for adding recipient group:', sharedCampaign);
     if(sharedCampaign && sharedCampaign.id === Number(id)) {
       this.campaign = sharedCampaign;
     } else {

@@ -56,9 +56,8 @@ export class Campaign {
   id: number;
   name: string;
   description: string;
-  startDateTime: Date | null = null;
+  sendTime: Date | null = null;
   campaignRecipientGroups: RecipientGroup[];
-  campaignRecipients: CampaignRecipient[];
   sendingProfile: SendingProfile | null = null;
   template: Template | null = null;
   landingPage: LandingPage | null = null;
@@ -68,7 +67,6 @@ export class Campaign {
     this.name = '';
     this.description = '';
     this.campaignRecipientGroups = [];
-    this.campaignRecipients = [];
   }
 
   get campaignRecipientGroupIds(): number[] {

@@ -192,3 +192,9 @@ label {
   align-self: flex-end;
   margin-top: 16px;
 }
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}

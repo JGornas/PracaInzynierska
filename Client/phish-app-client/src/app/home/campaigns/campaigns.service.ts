@@ -3,6 +3,8 @@ import { RestService } from '../../core/services/rest.service';
 import { Campaign, RecipientGroup, SendingProfile } from './campaigns.models';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { LandingPage } from '../landing-pages/landing-pages.models';
+import { Template } from '../templates/templates.models';
 
 @Injectable({
   providedIn: 'root'
@@ -22,11 +24,10 @@ export class CampaignsService {
   }
 
 
-  public updateCampaign(id: number, payload: Partial<Campaign>): Observable<Campaign> {
-    return this.rest.post<any>(`/api/campaigns/${id}`, payload).pipe(
+  public updateCampaign( payload: Partial<Campaign>): Observable<Campaign> {
+    return this.rest.post<any>(`/api/campaigns/update`, payload).pipe(
       map(response => this.mapToCampaign(response)),
       catchError(err => {
-        console.error(`Błąd aktualizacji kampanii id=${id}`, err);
         return throwError(() => err);
       })
     );
@@ -53,9 +54,9 @@ export class CampaignsService {
 
     if (src.sendTime) {
       const dt = new Date(src.sendTime);
-      c.startDateTime = isNaN(dt.getTime()) ? null : dt;
+      c.sendTime = isNaN(dt.getTime()) ? null : dt;
     } else {
-      c.startDateTime = null;
+      c.sendTime = null;
     }
 
     if (src.sendingProfile) {
@@ -76,6 +77,30 @@ export class CampaignsService {
       c.sendingProfile = sp;
     } else {
       c.sendingProfile = null;
+    }
+
+    if (src.template) {
+      const tSrc = src.template;
+      const t = new Template();
+      t.id = Number(tSrc.id) || 0;
+      t.name = tSrc.name ?? '';
+      t.subject = tSrc.subject ?? '';
+      t.content = tSrc.content ?? '';
+      t.designObject = tSrc.designObject ?? null;
+      c.template = t;
+    } else {
+      c.template = null;
+    }
+
+    if (src.landingPage) {
+      const lpSrc = src.landingPage;
+      const lp = new LandingPage();
+      lp.id = Number(lpSrc.id) || 0;
+      lp.name = lpSrc.name ?? '';
+      lp.content = lpSrc.content ?? '';
+      c.landingPage = lp;
+    } else {
+      c.landingPage = null;
     }
 
     if (Array.isArray(src.campaignRecipientGroups)) {
@@ -106,4 +131,5 @@ export class CampaignsService {
 
     return c;
   }
+
 }

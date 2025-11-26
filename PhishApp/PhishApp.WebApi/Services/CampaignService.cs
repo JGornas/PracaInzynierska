@@ -52,7 +52,9 @@ namespace PhishApp.WebApi.Services
             {
                 var newEntity = BuildCampaignEntity(campaign);
                 await _campaignRepository.AddAsync(newEntity);
-                return BuildCampaign(newEntity);
+
+                var added = await _campaignRepository.GetByIdAsync(newEntity.Id);
+                return BuildCampaign(added!);
             }
 
             existingEntity.Name = campaign.Name;
@@ -61,7 +63,6 @@ namespace PhishApp.WebApi.Services
             existingEntity.SendingProfileId = campaign.SendingProfile?.Id;
             existingEntity.TemplateId = campaign.Template?.Id;
             existingEntity.LandingPageId = campaign.LandingPage?.Id;
-
 
             var currentGroupIds = existingEntity.CampaignRecipientGroups
                 .Select(crg => crg.RecipientGroupId)
@@ -92,8 +93,14 @@ namespace PhishApp.WebApi.Services
 
             await _campaignRepository.UpdateAsync(existingEntity);
 
-            return BuildCampaign(existingEntity);
+            var refreshed = await _campaignRepository.GetByIdAsync(existingEntity.Id);
+
+            if (refreshed == null)
+                throw new Exception("Wystąpił błąd. Nie znaleziono kampanii");
+
+            return BuildCampaign(refreshed);
         }
+
 
         private CampaignEntity BuildCampaignEntity(Campaign campaign)
         {
@@ -102,6 +109,9 @@ namespace PhishApp.WebApi.Services
                 Id = campaign.Id,
                 Name = campaign.Name,
                 Description = campaign.Description,
+                TemplateId = campaign.Template?.Id,
+                LandingPageId = campaign.LandingPage?.Id,
+                SendingProfileId = campaign.SendingProfile?.Id,
                 CampaignRecipientGroups = campaign.CampaignRecipientGroups
                     .Select(g => new CampaignRecipientGroupEntity
                     {

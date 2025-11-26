@@ -18,3 +18,9 @@ app-grid {
   align-self: flex-end;
   margin-top: 8px;
 }
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}

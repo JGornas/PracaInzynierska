@@ -1,5 +1,5 @@
 <div class="landing-pages-container">
-  <div class="header-row">
+  <div class="row">
     <h2>Strony docelowe</h2>
 
     <app-button-component
@@ -21,11 +21,20 @@
       (rowRemoved)="handleRowDeleted($event)">
   </app-grid>
 
-  <app-button-component
-    *ngIf="isSelectMode"
-    [label]="'Wybierz stronę'"
-    [variant]="'blue-theme'"
-    [disabled]="selectedLandingPageId === null"
-    [action]="selectLandingPage.bind(this)">
-  </app-button-component>
+  <div class="row" *ngIf="isSelectMode">
+    <app-button-component
+      class="select-button"
+      [label]="'Anuluj'"
+      [variant]="'white-outline-theme'"
+      [action]="cancelLandingPageSelection.bind(this)">
+    </app-button-component>
+
+    <app-button-component
+      [label]="'Wybierz stronę'"
+      [variant]="'blue-theme'"
+      [disabled]="selectedLandingPageId === null"
+      [action]="selectLandingPage.bind(this)">
+    </app-button-component>
+  </div>
+
 </div>

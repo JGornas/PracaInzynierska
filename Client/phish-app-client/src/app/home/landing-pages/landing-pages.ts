@@ -36,31 +36,39 @@ export class LandingPages implements OnInit {
   async ngOnInit(): Promise<void> {
     this.route.queryParams.subscribe(params => {
       const selectMode = params['selectMode'] === 'true';
-      const campaignId = params['campaignId'] ? Number(params['campaignId']) : null;
+      const campaignId = params['campaignId'] !== undefined ? Number(params['campaignId']) : null;
 
-      if (selectMode && campaignId) {
-        this.sharedCampaignService.loadById(campaignId).then(() => {
-          this.isSelectMode = true;
-          const campaign = this.sharedCampaignService.getCurrentValue();
-          if (campaign?.landingPage) {
-            this.selectedLandingPageId = campaign.landingPage.id;
-          }
-        }).catch(err => {
-          console.error('Błąd ładowania kampanii:', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Błąd',
-            text: 'Nie udało się załadować kampanii.'
-          }).then(() => this.router.navigate(['/home/campaigns']));
-        });
+      if (selectMode) {
+        const campaign = this.sharedCampaignService.getCurrentValue();
+
+        if (!campaign || campaign.id !== campaignId) {
+          this.router.navigate(['/home/campaigns']);
+          return;
+        }
+
+        this.isSelectMode = true;
+
+        if (campaign.landingPage) {
+          this.selectedLandingPageId = campaign.landingPage.id;
+        }
       } else {
         this.isSelectMode = false;
       }
     });
   }
 
+
+
   async handleRowDoubleClick(selected: GridElement): Promise<void> {
-    await this.router.navigate([selected['id'], 'edit'], { relativeTo: this.route });
+    this.setSelectedRowId(selected);
+    if(!this.isSelectMode) {
+      if(this.selectedLandingPageId === null) return;
+      else{
+        await this.router.navigate([selected['id'], 'edit'], { relativeTo: this.route });
+      }
+    
+    }
+
   }
 
   handleRowClick(row: GridElement): void {
@@ -73,6 +81,14 @@ export class LandingPages implements OnInit {
       return;
     }
     this.selectedLandingPageId = id;
+  }
+
+
+  cancelLandingPageSelection(): void {
+    const pendingCampaign = this.sharedCampaignService.getCurrentValue();
+    if (pendingCampaign) {
+      this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+    }
   }
 
   selectLandingPage(): void {

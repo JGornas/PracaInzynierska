@@ -26,12 +26,23 @@
   ></app-grid>
 
   @if (isSelectMode) {
-    <app-button-component
-      class="select-profile-button"
-      [label]="'Wybierz profil'"
-      [variant]="'blue-theme'"
-      [action]="selectProfile.bind(this)">
-    </app-button-component>
+    <div class="row">
+      <app-button-component
+        class="select-profile-button"
+        [label]="'Anuluj'"
+        [variant]="'white-outline-theme'"
+        [action]="cancelProdfileSelection.bind(this)">
+      </app-button-component>
+
+      <app-button-component
+        class="select-profile-button"
+        [label]="'Wybierz profil'"
+        [variant]="'blue-theme'"
+        [disabled]="selectedProfileId === null"
+        [action]="selectProfile.bind(this)">
+      </app-button-component>
+    </div>
+    
   }
 
   @if (showCreateModal) {

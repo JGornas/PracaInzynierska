@@ -35,30 +35,27 @@ export class Templates implements OnInit {
       const selectMode = params['selectMode'] === 'true';
       const campaignId = params['campaignId'] ? Number(params['campaignId']) : null;
 
-      console.log('Query Params:', selectMode, campaignId);
 
-      if (selectMode && campaignId) {
-        this.sharedCampaignService.loadById(campaignId).then(() => {
-        this.isSelectMode = true;
+      if (selectMode) {
         const campaign = this.sharedCampaignService.getCurrentValue();
-        if (campaign?.sendingProfile) {
-          this.selectedProfileId = campaign.sendingProfile.id;
-        }
-      }).catch(err => {
-        console.error('Błąd ładowania kampanii:', err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Błąd',
-          text: 'Nie udało się załadować kampanii.'
-        }).then(() => this.router.navigate(['/home/campaigns']));
-      });
-    } else {
-      this.isSelectMode = false;
-    }
-    });
 
-    
+        if (!campaign || campaign.id !== campaignId) {
+          this.router.navigate(['/home/campaigns']);
+          return;
+        }
+
+        this.isSelectMode = true;
+
+        if (campaign.template) {
+          this.selectedTemplateId = campaign.template.id;
+        }
+      } else {
+        this.isSelectMode = false;
+      }
+
+    });
   }
+
 
   columns: GridColumn[] = [
     { field: 'id', label: 'ID' },
@@ -94,6 +91,13 @@ export class Templates implements OnInit {
     }
 
     this.selectedTemplateId = id;
+  }
+
+  cancelTemplateSelection(): void {    
+    const pendingCampaign = this.sharedCampaignService.getCurrentValue();
+    if (pendingCampaign) {
+      this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+    }
   }
 
   selectTemplate(): void {

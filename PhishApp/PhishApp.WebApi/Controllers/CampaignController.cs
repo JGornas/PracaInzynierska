@@ -44,5 +44,13 @@ namespace PhishApp.WebApi.Controllers
 
             return RestResponse<Campaign>.CreateResponse(result);
         }
+
+        [HttpPost]
+        [Route(Routes.UpdateCampaign)]
+        public async Task<RestResponse<Campaign>> UpdateCampaign([FromBody] Campaign campaign)
+        {
+            var result = await _campaignService.UpdateCampaign(campaign);
+            return RestResponse<Campaign>.CreateResponse(result);
+        }
     }
 }

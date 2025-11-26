@@ -19,12 +19,21 @@
       (rowRemoved)="handleRowDeleted($event)">
   </app-grid>
 
-  <app-button-component
+  <div class="row" *ngIf="isSelectMode">
+    <app-button-component
       class="select-button"
-      *ngIf="isSelectMode"
-      [label]="'Wybierz szablon'"
-      [variant]="'blue-theme'"
-      [disabled]="selectedTemplateId === null"
-      [action]="selectTemplate.bind(this)">
-  </app-button-component>
+      [label]="'Anuluj'"
+      [variant]="'white-outline-theme'"
+      [action]="cancelTemplateSelection.bind(this)">
+    </app-button-component>
+
+    <app-button-component
+        class="select-button"
+        [label]="'Wybierz szablon'"
+        [variant]="'blue-theme'"
+        [disabled]="selectedTemplateId === null"
+        [action]="selectTemplate.bind(this)">
+    </app-button-component>
+  </div>
+
 </div>
