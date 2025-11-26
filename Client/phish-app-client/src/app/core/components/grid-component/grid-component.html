@@ -51,13 +51,12 @@
 
       <tr mat-header-row *matHeaderRowDef="finalDisplayedColumns"></tr>
 
-      <tr mat-row *matRowDef="let element; columns: finalDisplayedColumns"
+      <tr mat-row 
+      
+          *matRowDef="let element; columns: finalDisplayedColumns"
           (click)="onRowClick(element, $event)"
           (dblclick)="onRowDoubleClick(element, $event)"
-          [class.active-row]="
-              (selectMode === 'single' && selectedGridElement === element) ||
-              (selectMode === 'multi' && selectedElements.includes(element))
-          ">
+          [class.active-row]="selectedElements.includes(element)">
       </tr>
 
 

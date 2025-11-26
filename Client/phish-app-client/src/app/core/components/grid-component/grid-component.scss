@@ -120,6 +120,11 @@ tr.example-element-row:not(.example-expanded-row):active {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
+tr.mat-mdc-row:hover:not(.active-row) {
+  background-color: whitesmoke !important;
+}
+
+
 .mat-column-remove button:hover{
   background-color: rgb(224, 52, 52);
   color: white;  
