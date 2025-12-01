@@ -52,12 +52,7 @@ export class CampaignsService {
     c.name = src.name ?? '';
     c.description = src.description ?? '';
 
-    if (src.sendTime) {
-      const dt = new Date(src.sendTime);
-      c.sendTime = isNaN(dt.getTime()) ? null : dt;
-    } else {
-      c.sendTime = null;
-    }
+    c.sendTime = src.sendTime ?? null;
 
     if (src.sendingProfile) {
       const spSrc = src.sendingProfile;

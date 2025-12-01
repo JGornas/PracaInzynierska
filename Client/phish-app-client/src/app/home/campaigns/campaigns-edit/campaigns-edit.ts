@@ -87,51 +87,53 @@ export class CampaignsEdit implements OnInit, OnDestroy {
   private async loadCampaign(id: number) {
     try {
       const camp = await firstValueFrom(this.campaignService.getCampaign(id));
-      if (!camp) {
-        throw new Error('Brak kampanii o podanym ID');
-      }
+      if (!camp) throw new Error('Brak kampanii o podanym ID');
 
       this.campaign = camp;
-
-      if (this.campaign.sendTime && typeof this.campaign.sendTime === 'string') {
-        const d = new Date(this.campaign.sendTime as any);
-        this.campaign.sendTime = isNaN(d.getTime()) ? null : d;
-      }
-
       console.log('Wczytana kampania:', this.campaign);
 
       this.sharedCampaignService.setCurrent(this.campaign);
 
-    } catch (error) {
+    } catch {
       await Swal.fire({
         icon: 'error',
         title: 'Błąd',
         text: 'Nie udało się wczytać kampanii.'
       });
+
       await this.router.navigate(['/home/campaigns']);
     }
   }
 
+
+  // public get startedAtLocal(): string | null {
+  //   const v = this.campaign.sendTime;
+  //   if (!v) return null;
+  //   const d = v instanceof Date ? v : new Date(v as any);
+  //   if (isNaN(d.getTime())) return null;
+  //   const yyyy = d.getFullYear();
+  //   const mm = String(d.getMonth() + 1).padStart(2, '0');
+  //   const dd = String(d.getDate()).padStart(2, '0');
+  //   const hh = String(d.getHours()).padStart(2, '0');
+  //   const min = String(d.getMinutes()).padStart(2, '0');
+  //   return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  // }
+
+  // public set startedAtLocal(val: string | null) {
+  //   if (!val) {
+  //     this.campaign.sendTime = null;
+  //     return;
+  //   }
+  //   const d = new Date(val);
+  //   this.campaign.sendTime = isNaN(d.getTime()) ? null : d;
+  // }
+
   public get startedAtLocal(): string | null {
-    const v = this.campaign.sendTime;
-    if (!v) return null;
-    const d = v instanceof Date ? v : new Date(v as any);
-    if (isNaN(d.getTime())) return null;
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+    return this.campaign.sendTime ?? null; 
   }
 
   public set startedAtLocal(val: string | null) {
-    if (!val) {
-      this.campaign.sendTime = null;
-      return;
-    }
-    const d = new Date(val);
-    this.campaign.sendTime = isNaN(d.getTime()) ? null : d;
+      this.campaign.sendTime = val ?? null;
   }
 
   public openDateTimePicker(): void {

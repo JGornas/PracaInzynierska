@@ -1,4 +1,5 @@
-﻿using PhishApp.WebApi.Models.Campaigns;
+﻿using PhishApp.WebApi.Helpers;
+using PhishApp.WebApi.Models.Campaigns;
 using PhishApp.WebApi.Models.Grid;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.LandingPages;
@@ -9,6 +10,7 @@ using PhishApp.WebApi.Models.Templates;
 using PhishApp.WebApi.Repositories;
 using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
+using System.Globalization;
 
 namespace PhishApp.WebApi.Services
 {
@@ -59,7 +61,9 @@ namespace PhishApp.WebApi.Services
 
             existingEntity.Name = campaign.Name;
             existingEntity.Description = campaign.Description;
-            existingEntity.SendTime = campaign.SendTime;
+            existingEntity.SendTime = DateTimeHelper.FromLocalString(campaign.SendTime);
+
+
             existingEntity.SendingProfileId = campaign.SendingProfile?.Id;
             existingEntity.TemplateId = campaign.Template?.Id;
             existingEntity.LandingPageId = campaign.LandingPage?.Id;
@@ -112,6 +116,7 @@ namespace PhishApp.WebApi.Services
                 TemplateId = campaign.Template?.Id,
                 LandingPageId = campaign.LandingPage?.Id,
                 SendingProfileId = campaign.SendingProfile?.Id,
+                SendTime = DateTimeHelper.FromLocalString(campaign.SendTime),
                 CampaignRecipientGroups = campaign.CampaignRecipientGroups
                     .Select(g => new CampaignRecipientGroupEntity
                     {
@@ -130,7 +135,9 @@ namespace PhishApp.WebApi.Services
                 Id = entity.Id,
                 Name = entity.Name,
                 Description = entity.Description,
-                SendTime = entity.SendTime,
+                SendTime = DateTimeHelper.ToLocalString(entity.SendTime),
+
+
                 SendingProfile = entity.SendingProfile != null ? new SendingProfile
                 {
                     Id = entity.SendingProfile.Id,

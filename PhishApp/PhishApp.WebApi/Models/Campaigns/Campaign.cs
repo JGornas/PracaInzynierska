@@ -15,7 +15,7 @@ namespace PhishApp.WebApi.Models.Campaigns
 
         public string Description { get; set; } = string.Empty;
 
-        public DateTime? SendTime { get; set; }
+        public string? SendTime { get; set; }
 
         public SendingProfile? SendingProfile { get; set; }
         public Template? Template { get; set; }

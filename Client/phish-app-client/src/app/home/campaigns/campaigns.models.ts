@@ -56,7 +56,7 @@ export class Campaign {
   id: number;
   name: string;
   description: string;
-  sendTime: Date | null = null;
+  sendTime: string | null = null;
   campaignRecipientGroups: RecipientGroup[];
   sendingProfile: SendingProfile | null = null;
   template: Template | null = null;
