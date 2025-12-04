@@ -7,6 +7,7 @@ import { GridComponent } from '../../core/components/grid-component/grid-compone
 import { GridColumn, GridElement } from '../../core/components/grid-component/grid-component.models';
 import { RecipientsService } from './recipients.service';
 import { RecipientDto, RecipientGroupDto, RecipientGroupPayload, RecipientPayload } from './recipients.models';
+import { ButtonComponent } from '../../core/components/button-component/button-component';
 
 interface CsvPreview {
   headers: string[];
@@ -43,7 +44,7 @@ type MemberWorking = RecipientPayload & {
 @Component({
   selector: 'app-recipients',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, GridComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, GridComponent, ButtonComponent],
   templateUrl: 'recipients.html',
   styleUrls: ['recipients.scss']
 })
@@ -236,6 +237,19 @@ export class Recipients implements OnInit {
       this.isSavingRecipient = false;
     }
   }
+
+  toggleCsvImport(): void {
+    this.showCsvImport = !this.showCsvImport;
+  }
+
+  applyImport(): void {
+    this.performImport(true);
+  }
+
+  recalculateImport(): void {
+    this.performImport(false);
+  }
+
 
   async handleRecipientRemoved(row: GridElement): Promise<void> {
     const id = Number(row['id']);

@@ -12,7 +12,11 @@
         <h3>Pojedynczy odbiorcy</h3>
         <div class="section-hint">Podwójne kliknięcie otwiera edycję, kosz usuwa wpis.</div>
       </div>
-      <button class="btn btn-primary" (click)="openCreateRecipient()">Dodaj odbiorcę</button>
+      <app-button-component
+        [label]="'Dodaj odbiorcę'"
+        [variant]="'blue-theme'"
+        [action]="openCreateRecipient.bind(this)">
+      </app-button-component>
     </div>
 
     <app-grid
@@ -30,7 +34,13 @@
         <h3>Grupy odbiorców</h3>
         <div class="section-hint">Podwójne kliknięcie otwiera edycję grupy. W edycji dodasz członków ręcznie lub z CSV.</div>
       </div>
-      <button class="btn btn-primary" (click)="openCreateGroup()">Dodaj grupę</button>
+      <app-button-component
+        [label]="'Dodaj grupę'"
+        [variant]="'blue-theme'"
+        [action]="openCreateGroup.bind(this)">
+      </app-button-component>
+
+      <!-- <button class="btn btn-primary" (click)="openCreateGroup()">Dodaj grupę</button> -->
     </div>
 
     <app-grid
@@ -72,8 +82,18 @@
           </label>
         </div>
         <div class="modal-actions">
-          <button type="button" class="btn" (click)="cancelRecipientModal()">Anuluj</button>
-          <button type="submit" class="btn btn-primary" [disabled]="isSavingRecipient">Zapisz</button>
+          <app-button-component
+            [label]="'Anuluj'"
+            [variant]="'white-outline-theme'"
+            [action]="cancelRecipientModal.bind(this)">
+          </app-button-component>
+
+          <app-button-component
+            [label]="'Zapisz'"
+            [variant]="'blue-theme'"
+            [disabled]="isSavingRecipient"
+            [action]="saveRecipient.bind(this)">
+          </app-button-component>
         </div>
       </form>
     </div>
@@ -107,13 +127,22 @@
           <div class="search">
             <input class="form-control" [(ngModel)]="search" placeholder="Szukaj po imieniu, nazwisku, e-mailu..." />
           </div>
-          <div class="spacer"></div>
-          <button class="btn" (click)="toggleAddMember()">{{ showAddMember ? 'Anuluj' : 'Dodaj odbiorcę' }}</button>
-          <button class="btn btn-secondary" (click)="showCsvImport = !showCsvImport">{{ showCsvImport ? 'Zamknij import' : 'Import CSV' }}</button>
+          <div class="spacer"></div><app-button-component
+            [label]="showAddMember ? 'Anuluj' : 'Dodaj odbiorcę'"
+            [variant]="'blue-theme'"
+            [action]="toggleAddMember.bind(this)">
+          </app-button-component>
+
+          <app-button-component
+            [label]="showCsvImport ? 'Zamknij import' : 'Import CSV'"
+            [variant]="'white-outline-theme'"
+            [action]="toggleCsvImport.bind(this)">
+          </app-button-component>
+
         </div>
 
         @if (showAddMember) {
-          <form [formGroup]="memberForm" (ngSubmit)="addMemberFromForm()" class="member-form">
+          <div [formGroup]="memberForm" class="member-form">
             <label>
               Imię
               <input class="form-control" formControlName="firstName" />
@@ -134,10 +163,19 @@
               <input class="form-control" formControlName="position" />
             </label>
             <div class="modal-actions">
-              <button class="btn" type="button" (click)="toggleAddMember()">Anuluj</button>
-              <button class="btn btn-primary" type="submit">Dodaj</button>
+              <app-button-component
+                [label]="'Anuluj'"
+                [variant]="'white-outline-theme'"
+                [action]="toggleAddMember.bind(this)">
+              </app-button-component>
+
+              <app-button-component
+                [label]="'Dodaj'"
+                [variant]="'blue-theme'"
+                [action]="addMemberFromForm.bind(this)">
+              </app-button-component>
             </div>
-          </form>
+          </div>
         }
 
         @if (showCsvImport) {
@@ -192,8 +230,19 @@
                 </tbody>
               </table>
               <div class="import-actions">
-                <button class="btn" (click)="performImport(false)">Przelicz</button>
-                <button class="btn btn-primary" (click)="performImport(true)">Zastosuj import</button>
+                <app-button-component
+                  [label]="'Przelicz'"
+                  [variant]="'white-outline-theme'"
+                  [action]="recalculateImport.bind(this)">
+                </app-button-component>
+
+                <app-button-component
+                  [label]="'Zastosuj import'"
+                  [variant]="'blue-theme'"
+                  [action]="applyImport.bind(this)">
+                </app-button-component>
+
+
               </div>
               <div class="preview-wrap" style="margin-top:10px">
                 <table class="table table-sm preview-table">
@@ -274,12 +323,19 @@
         }
 
         <div class="modal-actions">
-          <button class="btn" (click)="cancelGroupModal()">Anuluj</button>
-          <button class="btn btn-primary"
-                  (click)="saveGroup()"
-                  [disabled]="isSavingGroup || !groupName?.trim() || membersWorking.length === 0">
-            Zapisz grupę
-          </button>
+          <app-button-component
+            [label]="'Anuluj'"
+            [variant]="'white-outline-theme'"
+            [action]="cancelGroupModal.bind(this)">
+          </app-button-component>
+
+          <app-button-component
+            [label]="'Zapisz grupę'"
+            [variant]="'blue-theme'"
+            [disabled]="isSavingGroup || !groupName?.trim() || membersWorking.length === 0"
+            [action]="saveGroup.bind(this)">
+          </app-button-component>
+
         </div>
       </div>
     </div>
