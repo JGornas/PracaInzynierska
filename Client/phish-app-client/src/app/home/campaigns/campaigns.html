@@ -9,11 +9,14 @@
     </app-button-component>
   </div>
 
-  <app-grid
-    apiUrl="/api/campaigns/grid"
-    [columnsToDisplay]="columns"
-    [isRemovable]="true"
-    (rowDoubleClicked)="handleRowDoubleClick($event)"
-    (rowRemoved)="handleRowDeleted($event)">
-  </app-grid>
+  <section>
+    <app-grid
+      apiUrl="/api/campaigns/grid"
+      [columnsToDisplay]="columns"
+      [isRemovable]="true"
+      (rowDoubleClicked)="handleRowDoubleClick($event)"
+      (rowRemoved)="handleRowDeleted($event)">
+    </app-grid>
+  </section>
+  
 </div>

@@ -1,113 +1,120 @@
 <div class="container">
-  <h2>Edytuj kampanię</h2>
+  <header>
+    <h2>Edytuj kampanię</h2>
+  </header>
 
-  <div class="campaign-flex">
-    <mat-form-field class="campaign-field" appearance="outline">
-      <mat-label>Nazwa Kampanii</mat-label>
-      <input matInput [(ngModel)]="campaign.name" placeholder="Wpisz nazwę kampanii" />
-    </mat-form-field>
+  <section>
+    <div class="campaign-flex">
+      <mat-form-field class="campaign-field" appearance="outline">
+        <mat-label>Nazwa Kampanii</mat-label>
+        <input matInput [(ngModel)]="campaign.name" placeholder="Wpisz nazwę kampanii" />
+      </mat-form-field>
 
-    <mat-form-field class="campaign-field" appearance="outline">
-      <mat-label>Opis</mat-label>
-      <input matInput [(ngModel)]="campaign.description" placeholder="Wpisz opis" />
-    </mat-form-field>
-  </div>
+      <mat-form-field class="campaign-field" appearance="outline">
+        <mat-label>Opis</mat-label>
+        <input matInput [(ngModel)]="campaign.description" placeholder="Wpisz opis" />
+      </mat-form-field>
+    </div>
+  
 
-  <div class="campaign-flex">
-    <mat-form-field class="campaign-field" appearance="outline">
-      <mat-label>Data i godzina rozpoczęcia</mat-label>
-      <input
-        #datetimeInput
-        matInput
-        type="datetime-local"
-        [(ngModel)]="startedAtLocal"
-        placeholder="Wybierz datę i godzinę" />
-      <button mat-icon-button matSuffix tabindex="-1" (click)="openDateTimePicker()" aria-hidden="true">
-        <mat-icon>event</mat-icon>
-      </button>
-    </mat-form-field>
+    <div class="campaign-flex">
+      <mat-form-field class="campaign-field" appearance="outline">
+        <mat-label>Data i godzina rozpoczęcia</mat-label>
+        <input
+          #datetimeInput
+          matInput
+          type="datetime-local"
+          [(ngModel)]="startedAtLocal"
+          placeholder="Wybierz datę i godzinę" />
+        <button mat-icon-button matSuffix tabindex="-1" (click)="openDateTimePicker()" aria-hidden="true">
+          <mat-icon>event</mat-icon>
+        </button>
+      </mat-form-field>
 
-    <mat-form-field
-      class="campaign-field clickable"
-      appearance="outline"
-      role="button"
-      tabindex="0"
-      (click)="selectSendingProfile()">
-      <mat-label>Profil wysyłki</mat-label>
+      <mat-form-field
+        class="campaign-field clickable"
+        appearance="outline"
+        role="button"
+        tabindex="0"
+        (click)="selectSendingProfile()">
+        <mat-label>Profil wysyłki</mat-label>
 
-      <input
-        matInput
-        placeholder="Wybierz profil wysyłki"
-        readonly
-        [value]="sendingProfileName" />
-    </mat-form-field>
-  </div>
+        <input
+          matInput
+          placeholder="Wybierz profil wysyłki"
+          readonly
+          [value]="sendingProfileName" />
+      </mat-form-field>
+    </div>
 
-  <div class="campaign-flex">
-     <mat-form-field
-      class="campaign-field clickable"
-      appearance="outline"
-      role="button"
-      tabindex="0"
-      (click)="selectTemplate()">
-      <mat-label>Szablon</mat-label>
+    <div class="campaign-flex">
+      <mat-form-field
+        class="campaign-field clickable"
+        appearance="outline"
+        role="button"
+        tabindex="0"
+        (click)="selectTemplate()">
+        <mat-label>Szablon</mat-label>
 
-      <input
-        matInput
-        placeholder="Wybierz szablon"
-        readonly
-        [value]="templateName"
-        />
-    </mat-form-field>
+        <input
+          matInput
+          placeholder="Wybierz szablon"
+          readonly
+          [value]="templateName"
+          />
+      </mat-form-field>
 
-    <mat-form-field
-      class="campaign-field clickable"
-      appearance="outline"
-      role="button"
-      tabindex="0"
-      (click)="selectLandingPage()">
-      <mat-label>Strona Docelowa</mat-label>
+      <mat-form-field
+        class="campaign-field clickable"
+        appearance="outline"
+        role="button"
+        tabindex="0"
+        (click)="selectLandingPage()">
+        <mat-label>Strona Docelowa</mat-label>
 
-      <input
-        matInput
-        placeholder="Wybierz profil wysyłki"
-        readonly
-        [value]="landingPageName"
-         />
-    </mat-form-field>
-  </div>
+        <input
+          matInput
+          placeholder="Wybierz profil wysyłki"
+          readonly
+          [value]="landingPageName"
+          />
+      </mat-form-field>
+    </div>
+  </section>
 
+  <section>
+    <div class="row">
+      <app-button-component
+        [label]="'Dodaj grupę odbiorców'"
+        [variant]="'white-outline-theme'"
+        [action]="addRecipientGroup.bind(this)">
+      </app-button-component>
+    </div>
+
+    <div class="grid-section">
+      <h3>Grupy odbiorców</h3>
+      <app-grid
+        [localData]="campaign.campaignRecipientGroups"
+        [columnsToDisplay]="recipientGroupColumns"
+        [isSelectable]="true"
+        [isRemovable]="true"
+        (rowClicked)="handleRecipientGroupClick($event)"
+        (rowRemoved)="handleRecipientGroupRemoved($event)">
+      </app-grid>
+    </div>
+  </section>
+  
   <div class="row">
-    <app-button-component
-      [label]="'Dodaj grupę odbiorców'"
-      [variant]="'white-outline-theme'"
-      [action]="addRecipientGroup.bind(this)">
-    </app-button-component>
-  </div>
+      <app-button-component
+        [label]="'Anuluj'"
+        [variant]="'white-outline-theme'"
+        [action]="cancel.bind(this)">
+      </app-button-component>
 
-  <div class="grid-section">
-    <h3>Grupy odbiorców</h3>
-    <app-grid
-      [localData]="campaign.campaignRecipientGroups"
-      [columnsToDisplay]="recipientGroupColumns"
-      [isSelectable]="true"
-      [isRemovable]="true"
-      (rowClicked)="handleRecipientGroupClick($event)"
-      (rowRemoved)="handleRecipientGroupRemoved($event)">
-    </app-grid>
-  </div>
-
-  <div class="row">
-    <app-button-component
-      [label]="'Anuluj'"
-      [variant]="'white-outline-theme'"
-      [action]="cancel.bind(this)">
-    </app-button-component>
-
-    <app-button-component
-      [label]="'Zapisz'"
-      [variant]="'blue-theme'"
-      [action]="save.bind(this)">
-    </app-button-component>
-  </div>
+      <app-button-component
+        [label]="'Zapisz'"
+        [variant]="'blue-theme'"
+        [action]="save.bind(this)">
+      </app-button-component>
+    </div>
 </div>

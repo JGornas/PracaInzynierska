@@ -1,19 +1,23 @@
 <div class="inputs">
-    <mat-form-field class="input-field" appearance="outline">
-      <mat-label>Nazwa szablonu</mat-label>
-      <input matInput [(ngModel)]="landingPage.name" placeholder="Wpisz nazwę szablonu" />
-    </mat-form-field>
-  </div>
+  <mat-form-field class="input-field" appearance="outline">
+    <mat-label>Nazwa szablonu</mat-label>
+    <input matInput [(ngModel)]="landingPage.name" placeholder="Wpisz nazwę szablonu" />
+  </mat-form-field>
+</div>
+
+
 
 <div class="row">
-<app-button-component
-    [label]="''"
-    [variant]="'blue-theme'"
-    [action]="toggleLayout.bind(this)"
-    [iconClass]="isVertical ? 'bx bx-swap-vertical' : 'bx bx-swap-horizontal'"
-    class="toggle-button"
-    >
-</app-button-component>
+
+  
+  <app-button-component
+      [label]="''"
+      [variant]="'blue-theme'"
+      [action]="toggleLayout.bind(this)"
+      [iconClass]="isVertical ? 'bx bx-swap-vertical' : 'bx bx-swap-horizontal'"
+      class="toggle-button"
+      >
+  </app-button-component>
 </div>
 
 

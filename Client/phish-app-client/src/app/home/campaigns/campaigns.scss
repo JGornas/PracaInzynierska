@@ -8,8 +8,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 15px 0px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 app-grid {
   width: 100%;
+}
+
+section{
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 8px;
 }

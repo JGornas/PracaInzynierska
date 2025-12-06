@@ -10,30 +10,31 @@
     </app-button-component>
   </div>
 
-  <app-grid 
-      apiUrl="/api/templates/grid"
-      [columnsToDisplay]="columns"
-      [isRemovable]="!isSelectMode"
-      (rowClicked)="handleRowClick($event)"
-      (rowDoubleClicked)="handleRowDoubleClick($event)"
-      (rowRemoved)="handleRowDeleted($event)">
-  </app-grid>
+  <section>
+    <app-grid 
+        apiUrl="/api/templates/grid"
+        [columnsToDisplay]="columns"
+        [isRemovable]="!isSelectMode"
+        (rowClicked)="handleRowClick($event)"
+        (rowDoubleClicked)="handleRowDoubleClick($event)"
+        (rowRemoved)="handleRowDeleted($event)">
+    </app-grid>
 
-  <div class="row" *ngIf="isSelectMode">
-    <app-button-component
-      class="select-button"
-      [label]="'Anuluj'"
-      [variant]="'white-outline-theme'"
-      [action]="cancelTemplateSelection.bind(this)">
-    </app-button-component>
-
-    <app-button-component
+    <div class="row" *ngIf="isSelectMode">
+      <app-button-component
         class="select-button"
-        [label]="'Wybierz szablon'"
-        [variant]="'blue-theme'"
-        [disabled]="selectedTemplateId === null"
-        [action]="selectTemplate.bind(this)">
-    </app-button-component>
-  </div>
+        [label]="'Anuluj'"
+        [variant]="'white-outline-theme'"
+        [action]="cancelTemplateSelection.bind(this)">
+      </app-button-component>
 
+      <app-button-component
+          class="select-button"
+          [label]="'Wybierz szablon'"
+          [variant]="'blue-theme'"
+          [disabled]="selectedTemplateId === null"
+          [action]="selectTemplate.bind(this)">
+      </app-button-component>
+    </div>
+  </section>
 </div>

@@ -81,9 +81,9 @@
 .member-form .form-control.ng-invalid.ng-touched { border-color: #dc2626; }
 .member-form .form-control.invalid { border-color: #dc2626; }
 .error { color: #dc2626; font-size: 12px; }
-.modal-actions { display: flex; gap: 8px; grid-column: 1 / -1; justify-content: flex-end; }
+.modal-actions { display: flex; gap: 8px; grid-column: 1 / -1; justify-content: flex-end; padding: 15px 0px;}
 
-.section-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+.section-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; padding: 15px 0px; }
 .section-header > div { flex: 1; min-width: 0; }
 .section-header h3 { margin: 0; }
 .section-hint { color: #6b7280; font-size: 12px; margin-top: 4px; }

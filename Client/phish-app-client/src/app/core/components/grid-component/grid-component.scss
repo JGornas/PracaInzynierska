@@ -143,5 +143,9 @@ tr.mat-mdc-row:hover:not(.active-row) {
   100% { transform: rotate(0deg); }
 }
 
+.example-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
 
 

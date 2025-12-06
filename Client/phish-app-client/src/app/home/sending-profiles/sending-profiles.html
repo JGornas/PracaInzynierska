@@ -18,17 +18,19 @@
     </div>
   </ng-template>
 
-  <app-grid
-    [localData]="gridRows"
-    [columnsToDisplay]="columns"
-    [filterable]="true"
-    [isSelectable]="true"
-    [isRemovable]="!isSelectMode"
-    [actionTemplate]="actionsTemplate"
-    (rowDoubleClicked)="handleRowDoubleClick($event)"
-    (rowClicked)="handleClick($event)"
-    (rowRemoved)="handleRowRemoved($event)"
-  ></app-grid>
+  <section>
+    <app-grid
+      [localData]="gridRows"
+      [columnsToDisplay]="columns"
+      [filterable]="true"
+      [isSelectable]="true"
+      [isRemovable]="!isSelectMode"
+      [actionTemplate]="actionsTemplate"
+      (rowDoubleClicked)="handleRowDoubleClick($event)"
+      (rowClicked)="handleClick($event)"
+      (rowRemoved)="handleRowRemoved($event)"
+    ></app-grid>
+  </section>
 
   @if (isSelectMode) {
     <div class="row">

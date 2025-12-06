@@ -1,32 +1,36 @@
 <div class="container">
-  <h2>Szablony email</h2>
+  <header>
+    <h2>Szablony email</h2>
+  </header>
 
-  <div class="template-inputs">
-    <mat-form-field class="template-field" appearance="outline">
-      <mat-label>Nazwa szablonu</mat-label>
-      <input matInput [(ngModel)]="template.name" placeholder="Wpisz nazwę szablonu" />
-    </mat-form-field>
+  <section>
+    <div class="template-inputs">
+      <mat-form-field class="template-field" appearance="outline">
+        <mat-label>Nazwa szablonu</mat-label>
+        <input matInput [(ngModel)]="template.name" placeholder="Wpisz nazwę szablonu" />
+      </mat-form-field>
 
-    <mat-form-field class="template-field" appearance="outline">
-      <mat-label>Temat email</mat-label>
-      <input matInput [(ngModel)]="template.subject" placeholder="Wpisz temat maila" />
-    </mat-form-field>
-  </div>
+      <mat-form-field class="template-field" appearance="outline">
+        <mat-label>Temat email</mat-label>
+        <input matInput [(ngModel)]="template.subject" placeholder="Wpisz temat maila" />
+      </mat-form-field>
+    </div>
 
-  <app-template-editor-component>
-  </app-template-editor-component>
+    <app-template-editor-component>
+    </app-template-editor-component>
 
-  <div class="row">
-    <app-button-component
-      [label]="'Anuluj'"
-      [variant]="'white-outline-theme'"
-      [action]="cancel.bind(this)"
-      >
-    </app-button-component>
-    <app-button-component
-      [label]="'Zapisz'"
-      [variant]="'blue-theme'"
-      [action] = "save.bind(this)">
-    </app-button-component>
-  </div>
+    <div class="row">
+      <app-button-component
+        [label]="'Anuluj'"
+        [variant]="'white-outline-theme'"
+        [action]="cancel.bind(this)"
+        >
+      </app-button-component>
+      <app-button-component
+        [label]="'Zapisz'"
+        [variant]="'blue-theme'"
+        [action] = "save.bind(this)">
+      </app-button-component>
+    </div>
+  </section>
 </div>
