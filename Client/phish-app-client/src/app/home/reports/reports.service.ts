@@ -1,7 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, from, of, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { RestService } from '../../core/services/rest.service';
 import {
   InteractionReportDto,
@@ -30,14 +30,33 @@ export class ReportsService {
 
   exportToPdf(payload: ReportsFilterPayload): Observable<Blob> {
     const headers = this.buildHeadersForExport();
-    return this.http.post(`${this.baseUrl}/export`, payload, {
+    const url = `${this.baseUrl}/export`;
+
+    console.log('%c[EXPORT PDF] Wysyłam request', 'color: #007bff; font-weight: bold;');
+    console.log('URL:', url);
+    console.log('Headers:', headers);
+    console.log('Payload:', payload);
+
+    return this.http.post(url, payload, {
       headers,
       withCredentials: true,
       responseType: 'blob'
     }).pipe(
-      catchError(error => this.resolveExportError(error))
+      tap((response: Blob) => {
+        console.log('%c[EXPORT PDF] Odebrano Blob', 'color: green; font-weight: bold;');
+        console.log('Blob:', response);
+        console.log('Blob size:', response.size, 'bytes');
+        console.log('Blob type:', response.type);
+      }),
+      catchError(error => {
+        console.error('%c[EXPORT PDF] BŁĄD', 'color: red; font-weight: bold;');
+        console.error('Error object:', error);
+
+        return this.resolveExportError(error);
+      })
     );
   }
+
 
   private buildHeadersForExport(): HttpHeaders {
     const headers: Record<string, string> = { Accept: 'application/pdf' };

@@ -14,6 +14,7 @@ import {
 } from './reports.models';
 import { ReportsService } from './reports.service';
 import Swal from 'sweetalert2';
+import { ButtonComponent } from '../../core/components/button-component/button-component';
 
 interface ReportGridRow extends GridElement {
   id: number;
@@ -58,7 +59,7 @@ interface PdfDocumentData {
   standalone: true,
   templateUrl: './reports.html',
   styleUrls: ['./reports.scss'],
-  imports: [CommonModule, ReactiveFormsModule, GridComponent]
+  imports: [CommonModule, ReactiveFormsModule, GridComponent, ButtonComponent]
 })
 export class Reports implements OnInit, AfterViewInit, OnDestroy {
   filtersForm: FormGroup;

@@ -4,7 +4,12 @@
       <h2>Profile wysylki</h2>
       <div class="hint">Konfiguruj nadawcow i parametry serwera pocztowego dla kampanii.</div>
     </div>
-    <button class="btn btn-primary" type="button" (click)="openCreateModal()">Nowy profil</button>
+    <app-button-component
+      [label]="'Nowy profil'"
+      [variant]="'blue-theme'"
+      [action]="openCreateModal.bind(this)">
+    </app-button-component>
+
   </header>
 
   <ng-template #actionsTemplate let-row>
@@ -52,7 +57,7 @@
         <h3>Nowy profil wysylki</h3>
         <button class="close" type="button" (click)="closeCreateModal()">x</button>
       </div>
-      <form class="modal-body" [formGroup]="createForm" (ngSubmit)="createProfile()">
+      <div class="modal-body" [formGroup]="createForm">
         <div class="form-grid">
           <label>
             Nazwa profilu *
@@ -129,7 +134,7 @@
           <label>
             Testowy email odbiorcy (opcjonalnie)
             <input class="form-control" formControlName="testEmail" placeholder="odbiorca@twoja-domena.pl" />
-            <div class="error" *ngIf="editForm.get('testEmail')?.invalid && editForm.get('testEmail')?.touched">
+            <div class="error" *ngIf="createForm.get('testEmail')?.invalid && createForm.get('testEmail')?.touched">
               Podaj poprawny adres e-mail.
             </div>
           </label>
@@ -141,12 +146,21 @@
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn" (click)="closeCreateModal()">Anuluj</button>
-          <button type="submit" class="btn btn-primary" [disabled]="isCreating">
-            {{ isCreating ? 'Zapisywanie...' : 'Zapisz profil' }}
-          </button>
+          <app-button-component
+            [label]="'Anuluj'"
+            [variant]="'white-outline-theme'"
+            [action]="closeCreateModal.bind(this)">
+          </app-button-component>
+
+          <app-button-component
+            [label]="isCreating ? 'Zapisywanie...' : 'Zapisz profil'"
+            [variant]="'blue-theme'"
+            [disabled]="isCreating"
+            [action]="createProfile.bind(this)">
+          </app-button-component>
         </div>
-      </form>
+      </div>
+
     </div>
   }
 

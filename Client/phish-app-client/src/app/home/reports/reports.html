@@ -5,12 +5,19 @@
       <div class="hint">Analizuj interakcje odbiorców i skuteczność kampanii phishingowych.</div>
     </div>
     <div class="actions">
-      <button class="btn" type="button" (click)="loadDemoData()" [disabled]="isLoading">
-        @if (demoLoaded) { Odśwież demo } @else { Dane przykładowe }
-      </button>
-      <button class="btn btn-primary" type="button" (click)="exportToPdf()" [disabled]="isExporting || isLoading || isLoadingFilters">
-        @if (isExporting) { Eksportowanie... } @else { Eksportuj do PDF }
-      </button>
+      <app-button-component
+        [label]="demoLoaded ? 'Odśwież demo' : 'Dane przykładowe'"
+        [variant]="'white-outline-theme'"
+        [disabled]="isLoading"
+        [action]="loadDemoData.bind(this)">
+      </app-button-component>
+
+      <app-button-component
+        [label]="isExporting ? 'Eksportowanie...' : 'Eksportuj do PDF'"
+        [variant]="'blue-theme'"
+        [disabled]="isExporting || isLoading || isLoadingFilters"
+        [action]="exportToPdf.bind(this)">
+      </app-button-component>
     </div>
   </header>
 
