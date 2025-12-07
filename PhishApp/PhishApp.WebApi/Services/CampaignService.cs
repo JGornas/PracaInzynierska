@@ -117,6 +117,7 @@ namespace PhishApp.WebApi.Services
                 LandingPageId = campaign.LandingPage?.Id,
                 SendingProfileId = campaign.SendingProfile?.Id,
                 SendTime = DateTimeHelper.FromLocalString(campaign.SendTime),
+                IsSentSuccessfully = campaign.IsSentSuccessfully,
                 CampaignRecipientGroups = campaign.CampaignRecipientGroups
                     .Select(g => new CampaignRecipientGroupEntity
                     {
@@ -136,7 +137,7 @@ namespace PhishApp.WebApi.Services
                 Name = entity.Name,
                 Description = entity.Description,
                 SendTime = DateTimeHelper.ToLocalString(entity.SendTime),
-
+                IsSentSuccessfully = entity.IsSentSuccessfully,
 
                 SendingProfile = entity.SendingProfile != null ? new SendingProfile
                 {

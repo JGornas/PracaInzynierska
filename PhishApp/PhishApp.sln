@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhishApp.WebApi", "PhishApp.WebApi\PhishApp.WebApi.csproj", "{5D0DDE00-48D2-470C-94D7-F0E28699A4FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhishApp.EmailSender", "PhishApp.EmailSender\PhishApp.EmailSender.csproj", "{01B3D96A-FED5-46EA-B2D5-DBCDD2E3A58B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5D0DDE00-48D2-470C-94D7-F0E28699A4FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D0DDE00-48D2-470C-94D7-F0E28699A4FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D0DDE00-48D2-470C-94D7-F0E28699A4FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01B3D96A-FED5-46EA-B2D5-DBCDD2E3A58B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01B3D96A-FED5-46EA-B2D5-DBCDD2E3A58B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01B3D96A-FED5-46EA-B2D5-DBCDD2E3A58B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01B3D96A-FED5-46EA-B2D5-DBCDD2E3A58B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

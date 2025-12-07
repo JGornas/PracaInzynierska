@@ -22,6 +22,7 @@ namespace PhishApp.WebApi.Models.Campaigns
 
         public LandingPage? LandingPage { get; set; }
 
+        public bool IsSentSuccessfully { get; set; }
 
         public List<RecipientGroup> CampaignRecipientGroups { get; set; } = new List<RecipientGroup>();
     }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Org.BouncyCastle.Asn1.Mozilla;
+using System.ComponentModel.DataAnnotations;
 
 namespace PhishApp.WebApi.Models.Identity
 {
@@ -24,6 +25,8 @@ namespace PhishApp.WebApi.Models.Identity
         public LandingPageEntity? LandingPage { get; set; }
 
         public DateTime? SendTime { get; set; }
+
+        public bool IsSentSuccessfully { get; set; } = false;
 
         public ICollection<CampaignRecipientGroupEntity> CampaignRecipientGroups { get; set; } = new List<CampaignRecipientGroupEntity>();
     }
