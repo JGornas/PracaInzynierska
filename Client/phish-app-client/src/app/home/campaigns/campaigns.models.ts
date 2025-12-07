@@ -57,6 +57,7 @@ export class Campaign {
   name: string;
   description: string;
   sendTime: string | null = null;
+  isSentSuccessfully: boolean = false;
   campaignRecipientGroups: RecipientGroup[];
   sendingProfile: SendingProfile | null = null;
   template: Template | null = null;

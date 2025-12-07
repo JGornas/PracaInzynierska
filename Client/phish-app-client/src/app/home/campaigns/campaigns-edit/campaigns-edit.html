@@ -85,6 +85,7 @@
   <section>
     <div class="row">
       <app-button-component
+        *ngIf="canEdit"
         [label]="'Dodaj grupę odbiorców'"
         [variant]="'white-outline-theme'"
         [action]="addRecipientGroup.bind(this)">
@@ -97,7 +98,7 @@
         [localData]="campaign.campaignRecipientGroups"
         [columnsToDisplay]="recipientGroupColumns"
         [isSelectable]="true"
-        [isRemovable]="true"
+        [isRemovable]="canEdit"
         (rowClicked)="handleRecipientGroupClick($event)"
         (rowRemoved)="handleRecipientGroupRemoved($event)">
       </app-grid>
@@ -112,6 +113,7 @@
       </app-button-component>
 
       <app-button-component
+        *ngIf="canEdit"
         [label]="'Zapisz'"
         [variant]="'blue-theme'"
         [action]="save.bind(this)">

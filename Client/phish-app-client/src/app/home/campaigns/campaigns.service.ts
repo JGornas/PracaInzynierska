@@ -53,6 +53,7 @@ export class CampaignsService {
     c.description = src.description ?? '';
 
     c.sendTime = src.sendTime ?? null;
+    c.isSentSuccessfully = src.isSentSuccessfully ?? false;
 
     if (src.sendingProfile) {
       const spSrc = src.sendingProfile;

@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { SharedCampaignService } from '../shared-campaigns.service';
 import { GridComponent } from '../../../core/components/grid-component/grid-component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-campaigns-edit',
@@ -23,13 +24,15 @@ import { GridComponent } from '../../../core/components/grid-component/grid-comp
     MatIconModule,
     MatButtonModule,
     FormsModule,
-    GridComponent
+    GridComponent,
+    CommonModule
   ],
   templateUrl: './campaigns-edit.html',
   styleUrl: './campaigns-edit.scss'
 })
 export class CampaignsEdit implements OnInit, OnDestroy {
   isEditMode: boolean = false;
+  canEdit: boolean = true;
   campaign: Campaign = new Campaign();
   private _sharedSub?: Subscription;
 
@@ -51,27 +54,31 @@ export class CampaignsEdit implements OnInit, OnDestroy {
       
       const sharedCampaign = this.sharedCampaignService.getCurrentValue();
 
-
       if (sharedCampaign && sharedCampaign.id === campaignId) {
         this.campaign = sharedCampaign;
-        
+
+        this.canEdit = !this.campaign.isSentSuccessfully;
+
       } else {
         this.loadCampaign(campaignId);
       }
-    }
-    else{
+
+    } else {
+      this.campaign = new Campaign();
       this.sharedCampaignService.setCurrent(this.campaign);
+
+      this.canEdit = true;
     }
 
-    // subskrybuj zmiany z shared service (np. gdy wrócisz z wyboru sending profile)
     this._sharedSub = this.sharedCampaignService.current$.subscribe(c => {
       if (!c) return;
       if (c.id === this.campaign.id) {
         this.campaign = c;
+        this.canEdit = !this.campaign.isSentSuccessfully;
       }
     });
-
   }
+
 
   ngOnDestroy() {
     this._sharedSub?.unsubscribe();
@@ -90,8 +97,7 @@ export class CampaignsEdit implements OnInit, OnDestroy {
       if (!camp) throw new Error('Brak kampanii o podanym ID');
 
       this.campaign = camp;
-      console.log('Wczytana kampania:', this.campaign);
-
+      
       this.sharedCampaignService.setCurrent(this.campaign);
 
     } catch {
@@ -105,28 +111,6 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     }
   }
 
-
-  // public get startedAtLocal(): string | null {
-  //   const v = this.campaign.sendTime;
-  //   if (!v) return null;
-  //   const d = v instanceof Date ? v : new Date(v as any);
-  //   if (isNaN(d.getTime())) return null;
-  //   const yyyy = d.getFullYear();
-  //   const mm = String(d.getMonth() + 1).padStart(2, '0');
-  //   const dd = String(d.getDate()).padStart(2, '0');
-  //   const hh = String(d.getHours()).padStart(2, '0');
-  //   const min = String(d.getMinutes()).padStart(2, '0');
-  //   return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-  // }
-
-  // public set startedAtLocal(val: string | null) {
-  //   if (!val) {
-  //     this.campaign.sendTime = null;
-  //     return;
-  //   }
-  //   const d = new Date(val);
-  //   this.campaign.sendTime = isNaN(d.getTime()) ? null : d;
-  // }
 
   public get startedAtLocal(): string | null {
     return this.campaign.sendTime ?? null; 
@@ -160,6 +144,9 @@ export class CampaignsEdit implements OnInit, OnDestroy {
 
 
   public selectSendingProfile(): void {
+    console.log('Wybieranie profilu wysyłki dla kampanii', this.canEdit);
+    if(!this.canEdit) return;
+
     this.sharedCampaignService.setCurrent(this.campaign);
     this.router.navigate(['/home/sending-profiles'], {
       queryParams: { selectMode: 'true', campaignId: this.campaign.id }
@@ -167,7 +154,8 @@ export class CampaignsEdit implements OnInit, OnDestroy {
   }
 
   public selectTemplate(): void {
-    console.log('Przed przejsciem do szablonow', this.campaign);
+    if(!this.canEdit) return;
+    
     this.sharedCampaignService.setCurrent(this.campaign);
     this.router.navigate(['/home/templates'], {
       queryParams: { selectMode: 'true', campaignId: this.campaign.id }
@@ -175,13 +163,17 @@ export class CampaignsEdit implements OnInit, OnDestroy {
   }
 
   public selectLandingPage(): void {
+    if(!this.canEdit) return;
+
     this.sharedCampaignService.setCurrent(this.campaign);
     this.router.navigate(['/home/landing-pages'], {
       queryParams: { selectMode: 'true', campaignId: this.campaign.id }
     });
   }
 
-  public addRecipientGroup(): void {    
+  public addRecipientGroup(): void {  
+    if(!this.canEdit) return;
+
     this.sharedCampaignService.setCurrent(this.campaign);
     console.log('Dodawanie grupy, kampania=', this.campaign);
     this.router.navigate([`/home/campaigns/${this.campaign.id}/edit/addReciepientGroup`]);
