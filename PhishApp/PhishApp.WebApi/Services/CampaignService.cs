@@ -45,6 +45,11 @@ namespace PhishApp.WebApi.Services
             return BuildCampaign(entity);
         }
 
+        public async Task<List<CampaignEntity>> GetNotSentAync()
+        {
+            return await _campaignRepository.GetNotSentAync();
+        }
+
 
         public async Task<Campaign> UpdateCampaign(Campaign campaign)
         {

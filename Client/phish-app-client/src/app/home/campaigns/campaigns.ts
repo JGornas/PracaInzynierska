@@ -19,9 +19,7 @@ export class Campaigns {
 
   columns: GridColumn[] = [
     { field: 'id', label: 'ID' },
-    { field: 'name', label: 'Nazwa' },
-    { field: 'status', label: 'Status' },
-    { field: 'startedAt', label: 'Data rozpoczęcia' }
+    { field: 'description', label: 'Opis' }
   ];
 
   constructor(

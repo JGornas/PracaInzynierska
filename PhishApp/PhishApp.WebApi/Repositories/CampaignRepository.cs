@@ -35,6 +35,17 @@ public class CampaignRepository : ICampaignRepository
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
+    public async Task<List<CampaignEntity>> GetNotSentAync()
+    {
+        return await _context.Campaigns
+            .Include(c => c.CampaignRecipientGroups)
+            .ThenInclude(crg => crg.RecipientGroup)
+            .Include(c => c.SendingProfile)
+            .Include(c => c.Template)
+            .Include(c => c.LandingPage)
+            .Where(c => c.IsSentSuccessfully != true).ToListAsync();
+    }
+
     public async Task DeleteWithRelationsAsync(int id)
     {
         var campaign = await _context.Campaigns

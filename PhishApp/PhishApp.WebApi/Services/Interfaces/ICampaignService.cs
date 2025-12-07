@@ -1,5 +1,6 @@
 ﻿using PhishApp.WebApi.Models.Campaigns;
 using PhishApp.WebApi.Models.Grid;
+using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Rows;
 
 namespace PhishApp.WebApi.Services.Interfaces
@@ -9,6 +10,7 @@ namespace PhishApp.WebApi.Services.Interfaces
         Task DeleteCampaign(int id);
         Task<Campaign?> GetCampaignById(int id);
         Task<GridData<CampaignRow>> GetCampaignsGridData(GridRequest request);
+        Task<List<CampaignEntity>> GetNotSentAync();
         Task<Campaign> UpdateCampaign(Campaign campaign);
     }
 }
