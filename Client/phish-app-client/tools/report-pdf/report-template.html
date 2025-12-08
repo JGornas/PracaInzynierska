@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>{{TITLE}}</title>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --panel: #f8fafc;
+      --accent: #2563eb;
+      --accent-soft: #e0ecff;
+      --card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #e5e7eb;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      padding: 26px;
+    }
+
+    .page {
+      max-width: 940px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 16px 60px rgba(15, 23, 42, 0.12);
+      padding: 28px 32px 36px;
+      border: 1px solid #dbeafe;
+    }
+
+    header.hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 8px 0 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 11px;
+      color: #1d4ed8;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .muted {
+      color: var(--muted);
+      margin: 6px 0 0;
+      font-size: 13px;
+    }
+
+    .badge {
+      align-self: center;
+      padding: 10px 14px;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      color: #312e81;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    section {
+      margin-top: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 8px;
+    }
+
+    .section-header h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .section-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      background: var(--panel);
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .filter {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .filter strong {
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #fdfefe, #f3f7ff);
+      border: 1px solid #dce7ff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: inset 0 1px 0 #fff, 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .card .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .card .value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .metric {
+      padding: 12px 14px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+
+    .metric .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .bar-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: #ffffff;
+    }
+
+    .bar-title {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 10px;
+    }
+
+    .bar-stack {
+      height: 164px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+      border: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: end;
+      padding: 10px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-stack::before,
+    .bar-stack::after {
+      content: '';
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    .bar-stack::before { top: 36%; }
+    .bar-stack::after { top: 68%; }
+
+    .bar-stack .pillar {
+      width: 54%;
+      justify-self: center;
+      border-radius: 10px 10px 6px 6px;
+      background: linear-gradient(145deg, var(--bar-start), var(--bar-end));
+      height: var(--height);
+      min-height: 6px;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+    }
+
+    .bar-value {
+      text-align: center;
+      margin-top: 8px;
+      font-weight: 800;
+      color: var(--ink);
+      font-size: 18px;
+    }
+
+    .bar-subtext {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .bar-legend {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .bar-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background: #eef2ff;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      color: #312e81;
+      border-bottom: 1px solid #c7d2fe;
+      font-weight: 700;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #f8fafc;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #0f172a;
+    }
+
+    .footnote {
+      margin-top: 12px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Raport phishing</div>
+        <h1>{{TITLE}}</h1>
+        <p class="muted">Wygenerowano: {{GENERATED_AT}}</p>
+      </div>
+      <div class="badge">HTML + Puppeteer</div>
+    </header>
+
+    <section>
+      <div class="section-header">
+        <div>
+          <h3>Filtry raportu</h3>
+          <p>Zapisany zestaw parametrów użyty do eksportu.</p>
+        </div>
+      </div>
+      <div class="filters">
+        <div class="filter">
+          <span>Kampania</span>
+          <strong>{{FILTER_CAMPAIGN}}</strong>
+        </div>
+        <div class="filter">
+          <span>Grupa</span>
+          <strong>{{FILTER_GROUP}}</strong>
+        </div>
+        <div class="filter">
+          <span>Zakres dat</span>
+          <strong>{{FILTER_RANGE}}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-header">
+        <div>
+          <h3>Podsumowanie</h3>
+          <p>Najważniejsze liczby kampanii.</p>
+        </div>
+      </div>
+      <div class="cards">
+        {{SUMMARY_CARDS}}
+      </div>
+      <div class="metrics">
+        {{METRIC_ITEMS}}
+      </div>
+    </section>
+
+    <section>
+      <div class="section-header">
+        <div>
+          <h3>Aktywność użytkowników</h3>
+          <p>Wysłane, otwarcia i kliknięcia (udział w najwyższej wartości oraz w wysłanych).</p>
+        </div>
+      </div>
+      <div class="bars">
+        {{BARS}}
+      </div>
+    </section>
+
+    <section>
+      <div class="section-header">
+        <div>
+          <h3>Tabela interakcji</h3>
+          <p>Szczegółowe zdarzenia odbiorców.</p>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Odbiorca</th>
+            <th>Status</th>
+            <th>Wysłane</th>
+            <th>Otwarcie</th>
+            <th>Kliknięcie</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ROWS}}
+        </tbody>
+      </table>
+    </section>
+
+    <div class="footnote">
+      Raport wygenerowany z HTML przez Puppeteer.
+    </div>
+  </div>
+</body>
+</html>

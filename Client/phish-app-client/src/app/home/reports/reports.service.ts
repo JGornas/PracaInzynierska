@@ -5,10 +5,12 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { RestService } from '../../core/services/rest.service';
 import {
   InteractionReportDto,
+  ReportsExportPayload,
   ReportsFilterPayload,
   ReportsFiltersDto,
   ReportsSummaryDto
 } from './reports.models';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
@@ -28,30 +30,58 @@ export class ReportsService {
     return this.rest.post<ReportsSummaryDto>(`${this.baseUrl}/summary`, payload);
   }
 
-  exportToPdf(payload: ReportsFilterPayload): Observable<Blob> {
+  exportToPdf(filters: ReportsFilterPayload, exportData: ReportsExportPayload): Observable<Blob> {
     const headers = this.buildHeadersForExport();
-    const url = `${this.baseUrl}/export`;
+    const urlHtml = `${this.baseUrl}/export/html`;
+    const urlSimple = `${this.baseUrl}/export`;
 
-    console.log('%c[EXPORT PDF] Wysyłam request', 'color: #007bff; font-weight: bold;');
-    console.log('URL:', url);
+    console.log('%c[EXPORT PDF] Próba HTML (Puppeteer backend)', 'color: #007bff; font-weight: bold;');
+    console.log('URL:', urlHtml);
     console.log('Headers:', headers);
-    console.log('Payload:', payload);
+    console.log('Payload:', exportData);
 
-    return this.http.post(url, payload, {
+    const requestHtml = this.http.post(urlHtml, exportData, {
       headers,
       withCredentials: true,
       responseType: 'blob'
     }).pipe(
       tap((response: Blob) => {
-        console.log('%c[EXPORT PDF] Odebrano Blob', 'color: green; font-weight: bold;');
-        console.log('Blob:', response);
+        console.log('%c[EXPORT PDF] Odebrano Blob (HTML)', 'color: green; font-weight: bold;');
         console.log('Blob size:', response.size, 'bytes');
         console.log('Blob type:', response.type);
-      }),
-      catchError(error => {
-        console.error('%c[EXPORT PDF] BŁĄD', 'color: red; font-weight: bold;');
-        console.error('Error object:', error);
+      })
+    );
 
+    const requestSimple = () => {
+      console.log('%c[EXPORT PDF] Próba fallback /export z samymi filtrami', 'color: #f59e0b; font-weight: bold;');
+      console.log('URL:', urlSimple);
+      console.log('Payload:', filters);
+      return this.http.post(urlSimple, filters, {
+        headers,
+        withCredentials: true,
+        responseType: 'blob'
+      }).pipe(
+        tap((response: Blob) => {
+          console.log('%c[EXPORT PDF] Odebrano Blob (fallback)', 'color: green; font-weight: bold;');
+          console.log('Blob size:', response.size, 'bytes');
+          console.log('Blob type:', response.type);
+        })
+      );
+    };
+
+    return requestHtml.pipe(
+      catchError(error => {
+        const httpErr = error as HttpErrorResponse;
+        const status = httpErr?.status;
+        console.warn('[EXPORT PDF] HTML endpoint nie zadziałał, status:', status);
+        if (status === 404 || status === 415) {
+          return requestSimple();
+        }
+        console.error('%c[EXPORT PDF] BŁĄD', 'color: red; font-weight: bold;');
+        console.error('Status:', status);
+        console.error('Status text:', httpErr?.statusText);
+        console.error('URL:', httpErr?.url);
+        console.error('Error object:', error);
         return this.resolveExportError(error);
       })
     );
@@ -59,7 +89,11 @@ export class ReportsService {
 
 
   private buildHeadersForExport(): HttpHeaders {
-    const headers: Record<string, string> = { Accept: 'application/pdf' };
+    const headers: Record<string, string> = {
+      Accept: 'application/pdf',
+      'Content-Type': 'application/json',
+      'X-Report-Engine': 'puppeteer'
+    };
     const token = localStorage.getItem('accessToken');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;

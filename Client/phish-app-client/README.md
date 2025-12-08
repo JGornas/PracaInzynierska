@@ -54,6 +54,13 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## Generowanie raportu PDF (Puppeteer)
+
+- Szablon HTML: `tools/report-pdf/report-template.html`, przykladowe dane: `tools/report-pdf/sample-data.json`.
+- Przykladowy raport wygenerujesz poleceniem: `npm run report:pdf` (plik zapisze sie w `docs/raport-puppeteer.pdf`).
+- Wlasne dane mozna podac: `node tools/report-pdf/generate-report-pdf.js --data my-data.json --out docs/moj-raport.pdf [--open]`.
+- Skrypt buduje HTML na podstawie danych i renderuje go przez Puppeteer (Chromium pobiera sie podczas instalacji pakietu).
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

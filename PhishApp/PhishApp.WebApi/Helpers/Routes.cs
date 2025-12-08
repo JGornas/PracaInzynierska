@@ -39,10 +39,13 @@
         public const string DeleteSendingProfile = "api/sending-profiles/{id}";
         public const string SendOneTimeEmail = "api/sending-profiles/sendOneTimeEmail";
 
-
         public const string CampaignsGrid = "api/campaigns/grid";
         public const string DeleteCampaign = "api/campaigns/{id}";
         public const string GetCampaign = "api/campaigns/{id}";
         public const string UpdateCampaign = "api/campaigns/update";
+
+        // Reports
+        public const string ReportsExport = "api/reports/export";
+        public const string ReportsExportHtml = "api/reports/export/html";
     }
 }

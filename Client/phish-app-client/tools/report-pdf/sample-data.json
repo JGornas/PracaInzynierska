@@ -1,0 +1,73 @@
+{
+  "title": "Raport kampanii: BezpiecznaBank",
+  "generatedAt": "2025-02-20 10:30",
+  "filters": {
+    "campaign": "Symulacja: BezpiecznaBank",
+    "group": "Zespół Sprzedaży",
+    "range": "2025-02-01 - 2025-02-20"
+  },
+  "summary": {
+    "sent": 420,
+    "opened": 288,
+    "clicked": 144
+  },
+  "metrics": {
+    "openRate": 68.6,
+    "clickRate": 34.3,
+    "clickToOpenRate": 50.0
+  },
+  "bars": [
+    {
+      "label": "Wysłane maile",
+      "value": 420,
+      "colorStart": "#0f172a",
+      "colorEnd": "#334155"
+    },
+    {
+      "label": "Otwarcia",
+      "value": 288,
+      "colorStart": "#1d4ed8",
+      "colorEnd": "#60a5fa"
+    },
+    {
+      "label": "Kliknięcia",
+      "value": 144,
+      "colorStart": "#0f766e",
+      "colorEnd": "#14b8a6"
+    }
+  ],
+  "rows": [
+    {
+      "recipient": "Anna Kowalska <anna.kowalska@firma.pl>",
+      "status": "Kliknięty",
+      "statusColor": "#16a34a",
+      "sent": "2025-02-10 08:05",
+      "opened": "2025-02-10 08:22",
+      "clicked": "2025-02-10 08:24"
+    },
+    {
+      "recipient": "Marek Nowak <marek.nowak@firma.pl>",
+      "status": "Otwarty",
+      "statusColor": "#0ea5e9",
+      "sent": "2025-02-10 08:07",
+      "opened": "2025-02-10 08:40",
+      "clicked": "--"
+    },
+    {
+      "recipient": "Ewa Zielińska <ewa.zielinska@firma.pl>",
+      "status": "Wysłany",
+      "statusColor": "#a3a3a3",
+      "sent": "2025-02-10 08:11",
+      "opened": "--",
+      "clicked": "--"
+    },
+    {
+      "recipient": "Piotr Lewandowski <piotr.lewandowski@firma.pl>",
+      "status": "Kliknięty",
+      "statusColor": "#16a34a",
+      "sent": "2025-02-14 09:15",
+      "opened": "2025-02-14 09:18",
+      "clicked": "2025-02-14 09:19"
+    }
+  ]
+}

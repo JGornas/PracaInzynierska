@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, AfterViewInit, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, Subject } from 'rxjs';
@@ -9,6 +9,9 @@ import {
   InteractionReportDto,
   ReportGroupOption,
   ReportSelectOption,
+  ReportsExportBarDto,
+  ReportsExportPayload,
+  ReportsExportRowDto,
   ReportsFilterPayload,
   ReportsSummaryDto
 } from './reports.models';
@@ -101,8 +104,8 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   private readonly demoGroups: ReportGroupOption[] = [
-    { id: 101, name: 'Zespół Sprzedaży', campaignId: 1 },
-    { id: 102, name: 'Zespół IT', campaignId: 1 },
+    { id: 101, name: 'ZespĂłĹ‚ SprzedaĹĽy', campaignId: 1 },
+    { id: 102, name: 'ZespĂłĹ‚ IT', campaignId: 1 },
     { id: 201, name: 'Nowi pracownicy', campaignId: 2 }
   ];
 
@@ -112,7 +115,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       campaignId: 1,
       campaignName: 'Symulacja: BezpiecznaBank',
       groupId: 101,
-      groupName: 'Zespół Sprzedaży',
+      groupName: 'ZespĂłĹ‚ SprzedaĹĽy',
       recipientEmail: 'anna.kowalska@firma.pl',
       recipientName: 'Anna Kowalska',
       sentAt: '2025-02-10T08:05:00Z',
@@ -126,7 +129,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       campaignId: 1,
       campaignName: 'Symulacja: BezpiecznaBank',
       groupId: 101,
-      groupName: 'Zespół Sprzedaży',
+      groupName: 'ZespĂłĹ‚ SprzedaĹĽy',
       recipientEmail: 'marek.nowak@firma.pl',
       recipientName: 'Marek Nowak',
       sentAt: '2025-02-10T08:07:00Z',
@@ -140,7 +143,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       campaignId: 1,
       campaignName: 'Symulacja: BezpiecznaBank',
       groupId: 102,
-      groupName: 'Zespół IT',
+      groupName: 'ZespĂłĹ‚ IT',
       recipientEmail: 'ewa.zielinska@firma.pl',
       recipientName: 'Ewa Zielinska',
       sentAt: '2025-02-10T08:11:00Z',
@@ -222,34 +225,32 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (this.demoLoaded) {
-      this.isExporting = true;
-      try {
-        this.generateDemoPdf();
-      } finally {
-        this.isExporting = false;
-      }
-      return;
-    }
-
     this.isExporting = true;
-    const payload = this.buildPayload();
+    const filtersPayload = this.buildPayload();
 
     this.reportsService
-      .exportToPdf(payload)
+      .exportToPdf(filtersPayload, this.buildExportPayload())
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: blob => {
           this.isExporting = false;
           this.triggerFileDownload(blob, this.buildExportFileName());
+          Swal.fire({
+            icon: 'success',
+            title: 'Eksport PDF',
+            text: 'Wygenerowano raport PDF z serwera.',
+            confirmButtonText: 'OK'
+          });
         },
         error: err => {
+          console.error('[EXPORT PDF] Błąd backendu', err);
           this.isExporting = false;
-          const message = err instanceof Error ? err.message : 'Nie udało się wyeksportować raportu.';
+          const status = (err as { status?: number })?.status;
+          const message = err instanceof Error ? err.message : 'Nie udało się wyeksportować raportu z serwera.';
           Swal.fire({
             icon: 'error',
             title: 'Eksport PDF',
-            text: message,
+            text: `${message}${status ? ` (status: ${status})` : ''}. Szczegóły w konsoli.`,
             confirmButtonText: 'Zamknij'
           });
         }
@@ -456,7 +457,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     ctx.clearRect(0, 0, width, height);
 
     if (!this.chartBars.length || this.chartMaxValue <= 0) {
-      this.drawCanvasMessage(ctx, width, height, 'Brak danych do wyswietlenia');
+      this.drawCanvasMessage(ctx, width, height, 'Brak danych do wyświetlenia');
       return;
     }
 
@@ -623,7 +624,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
 
     Swal.fire({
       icon: 'info',
-      title: 'Dane przykładowe',
+      title: 'Dane przykĹ‚adowe',
       text: 'Wyświetlamy przykładowy raport. Aby pobrać dane z serwera, wybierz filtry lub użyj eksportu.',
       confirmButtonText: 'OK'
     });
@@ -637,7 +638,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     Swal.fire({
       icon: 'success',
       title: 'Eksport PDF',
-      text: 'Wygenerowano przykładowy raport PDF.',
+      text: 'Wygenerowano przykĹ‚adowy raport PDF.',
       confirmButtonText: 'OK'
     });
   }
@@ -784,7 +785,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       this.addPdfText(commands, `${bar.value}`, valueX, barY + barHeight + 20, 10, '#0f172a');
     });
 
-    this.addPdfText(commands, 'Wydajność kampanii', chartX + 12, chartY + chartHeight + 26, 12, '#1e293b');
+    this.addPdfText(commands, 'WydajnoĹ›Ä‡ kampanii', chartX + 12, chartY + chartHeight + 26, 12, '#1e293b');
 
     // Interactions table
     const tableX = 54;
@@ -936,6 +937,50 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     URL.revokeObjectURL(url);
   }
 
+  private buildExportPayload(): ReportsExportPayload {
+    const filters = this.buildPayload();
+    const filtersLabel = {
+      campaign: this.findName(this.campaigns, filters.campaignId ?? null),
+      group: this.findName(this.groups, filters.groupId ?? null),
+      range: `${filters.dateFrom || '--'} - ${filters.dateTo || '--'}`
+    };
+
+    const title =
+      filtersLabel.campaign !== 'Wszystkie'
+        ? `Raport kampanii: ${filtersLabel.campaign}`
+        : 'Raport kampanii - zestawienie';
+
+    const bars: ReportsExportBarDto[] = this.chartBars.map(bar => ({
+      label: bar.label,
+      value: bar.value,
+      colorStart: bar.color,
+      colorEnd: this.lightenColor(bar.color, 0.45)
+    }));
+
+    const rows: ReportsExportRowDto[] = this.gridRows.map(row => ({
+      recipient: row.recipient,
+      status: row.statusLabel,
+      sent: row.sentAtLabel,
+      opened: row.openedAtLabel,
+      clicked: row.clickedAtLabel
+    }));
+
+    return {
+      filters: filtersLabel,
+      filtersRaw: filters,
+      title,
+      generatedAt: new Date().toLocaleString('pl-PL'),
+      summary: this.currentSummary,
+      metrics: {
+        openRate: this.metrics.openRate,
+        clickRate: this.metrics.clickRate,
+        clickToOpenRate: this.metrics.clickToOpenRate
+      },
+      bars,
+      rows
+    };
+  }
+
   private buildExportFileName(): string {
     const campaignId = this.filtersForm.get('campaignId')?.value;
     const campaign = this.campaigns.find(c => c.id === campaignId);
@@ -952,4 +997,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       .replace(/^-+|-+$/g, '')
       .toLowerCase();
   }
+
 }
+

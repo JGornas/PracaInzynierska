@@ -6,7 +6,8 @@
     "start": "ng serve --port 4203 --host 0.0.0.0 --proxy-config proxy.config.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "report:pdf": "node tools/report-pdf/generate-report-pdf.js --data tools/report-pdf/sample-data.json --out docs/raport-puppeteer.pdf"
   },
   "prettier": {
     "overrides": [
@@ -46,6 +47,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "puppeteer": "^24.32.1",
     "typescript": "~5.8.2"
   }
 }

@@ -39,3 +39,37 @@ export interface ReportsSummaryDto {
   opened: number;
   clicked: number;
 }
+
+export interface ReportsExportBarDto {
+  label: string;
+  value: number;
+  colorStart?: string;
+  colorEnd?: string;
+}
+
+export interface ReportsExportRowDto {
+  recipient: string;
+  status: string;
+  sent: string;
+  opened: string;
+  clicked: string;
+}
+
+export interface ReportsExportPayload {
+  filters: {
+    campaign: string;
+    group: string;
+    range: string;
+  };
+  filtersRaw: ReportsFilterPayload;
+  title: string;
+  generatedAt: string;
+  summary: ReportsSummaryDto;
+  metrics: {
+    openRate: number;
+    clickRate: number;
+    clickToOpenRate: number;
+  };
+  bars: ReportsExportBarDto[];
+  rows: ReportsExportRowDto[];
+}
