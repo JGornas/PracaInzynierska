@@ -24,7 +24,9 @@
           #datetimeInput
           matInput
           type="datetime-local"
+          [min]="minDateTime"
           [(ngModel)]="startedAtLocal"
+          (ngModelChange)="onDateTimeChange($event)"
           placeholder="Wybierz datę i godzinę" />
         <button mat-icon-button matSuffix tabindex="-1" (click)="openDateTimePicker()" aria-hidden="true">
           <mat-icon>event</mat-icon>

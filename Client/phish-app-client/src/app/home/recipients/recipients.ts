@@ -339,43 +339,117 @@ export class Recipients implements OnInit {
     this.editingIndex = null;
   }
 
-  async saveGroup(): Promise<void> {
-    this.groupNameTouched = true;
-    this.membersTouched = true;
-    const name = (this.groupName || '').trim();
-    if (!name) return;
-    if (this.membersWorking.length < 1) return;
+  // async saveGroup(): Promise<void> {
+  //   this.groupNameTouched = true;
+  //   this.membersTouched = true;
+  //   const name = (this.groupName || '').trim();
+  //   if (!name) return;
+  //   if (this.membersWorking.length < 1) return;
 
-    const payload: RecipientGroupPayload = {
-      name,
-      campaign: (this.campaign || '').trim() || null,
-      members: this.membersWorking.map(member => ({
+  //   const payload: RecipientGroupPayload = {
+  //     name,
+  //     campaign: (this.campaign || '').trim() || null,
+  //     members: this.membersWorking.map(member => ({
+  //       id: member.id ?? null,
+  //       email: member.email,
+  //       firstName: member.firstName || null,
+  //       lastName: member.lastName || null,
+  //       position: member.position || null,
+  //       externalId: member.externalId || null
+  //     }))
+  //   };
+
+  //   this.isSavingGroup = true;
+  //   try {
+  //     if (this.editingGroupId === null) {
+  //       await firstValueFrom(this.recipientsService.createGroup(payload));
+  //     } else {
+  //       await firstValueFrom(this.recipientsService.updateGroup(this.editingGroupId, payload));
+  //     }
+  //     this.showGroupModal = false;
+  //     this.editingGroupId = null;
+  //     this.editingIndex = null;
+  //     await Promise.all([this.loadGroups(), this.loadRecipients()]);
+  //   } catch (error) {
+  //     this.handleError(error, 'Nie udało się zapisać grupy.');
+  //   } finally {
+  //     this.isSavingGroup = false;
+  //   }
+  // }
+
+async saveGroup(): Promise<void> {
+  console.log('➡️ saveGroup() START');
+  console.log('groupName:', this.groupName);
+  console.log('membersWorking:', this.membersWorking);
+  console.log('editingGroupId:', this.editingGroupId);
+
+  this.groupNameTouched = true;
+  this.membersTouched = true;
+
+  const name = (this.groupName || '').trim();
+
+  if (!name) {
+    console.warn('❗ Przerwano: brak nazwy grupy');
+    return;
+  }
+
+  if (this.membersWorking.length < 1) {
+    console.warn('❗ Przerwano: brak członków grupy');
+    return;
+  }
+
+  const payload: RecipientGroupPayload = {
+    name,
+    campaign: (this.campaign || '').trim() || null,
+    members: this.membersWorking.map(member => {
+      const normalized = {
         id: member.id ?? null,
         email: member.email,
         firstName: member.firstName || null,
         lastName: member.lastName || null,
         position: member.position || null,
         externalId: member.externalId || null
-      }))
-    };
+      };
+      console.log('📌 Normalized member:', normalized);
+      return normalized;
+    })
+  };
 
-    this.isSavingGroup = true;
-    try {
-      if (this.editingGroupId === null) {
-        await firstValueFrom(this.recipientsService.createGroup(payload));
-      } else {
-        await firstValueFrom(this.recipientsService.updateGroup(this.editingGroupId, payload));
-      }
-      this.showGroupModal = false;
-      this.editingGroupId = null;
-      this.editingIndex = null;
-      await Promise.all([this.loadGroups(), this.loadRecipients()]);
-    } catch (error) {
-      this.handleError(error, 'Nie udało się zapisać grupy.');
-    } finally {
-      this.isSavingGroup = false;
+  console.log('📦 Payload zbudowany:', payload);
+
+  this.isSavingGroup = true;
+
+  try {
+    if (this.editingGroupId === null) {
+      console.log('🆕 Tworzenie nowej grupy...');
+      const res = await firstValueFrom(this.recipientsService.createGroup(payload));
+      console.log('✔️ createGroup OK:', res);
+    } else {
+      console.log('✏️ Aktualizacja istniejącej grupy, id=', this.editingGroupId);
+      const res = await firstValueFrom(this.recipientsService.updateGroup(this.editingGroupId, payload));
+      console.log('✔️ updateGroup OK:', res);
     }
+
+    console.log('🔄 Zamykam modal i resetuję edycję.');
+    this.showGroupModal = false;
+    this.editingGroupId = null;
+    this.editingIndex = null;
+
+    console.log('🔄 Ładowanie grup i członków...');
+    await Promise.all([
+      this.loadGroups().then(() => console.log('✔️ loadGroups OK')),
+      this.loadRecipients().then(() => console.log('✔️ loadRecipients OK'))
+    ]);
+
+  } catch (error) {
+    console.error('❌ Błąd w saveGroup():', error);
+    this.handleError(error, 'Nie udało się zapisać grupy.');
+  } finally {
+    console.log('➡️ saveGroup() END');
+    this.isSavingGroup = false;
   }
+}
+
 
   async handleGroupRemoved(row: GridElement): Promise<void> {
     const id = Number(row['id']);

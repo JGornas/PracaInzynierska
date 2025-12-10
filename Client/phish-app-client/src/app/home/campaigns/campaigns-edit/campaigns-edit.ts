@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { ActivatedRoute, Router } from '@angular/router';
 import { Campaign, SendingProfile } from '../campaigns.models';
 import { CampaignsService } from '../campaigns.service';
-import { firstValueFrom, Subscription } from 'rxjs';
+import { firstValueFrom, min, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { ButtonComponent } from '../../../core/components/button-component/button-component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -91,6 +91,44 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     { field: 'membersCount', label: 'Członków' }
   ];
 
+  public get minDateTime(): string {
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    const year = now.getFullYear();
+    const month = pad(now.getMonth() + 1);
+    const day = pad(now.getDate());
+    const hour = pad(now.getHours());
+    const minute = pad(now.getMinutes());
+
+    console.log('Min datetime:', `${year}-${month}-${day}T${hour}:${minute}`);
+
+    return `${year}-${month}-${day}T${hour}:${minute}`;
+  }
+
+
+  public onDateTimeChange(val: string | null): void {
+    if (!val) return;
+
+    const chosen = new Date(val);
+    const now = new Date();
+
+    // jeśli wybrano przeszły czas → wymuś minDateTime
+    if (chosen < now) {
+      const corrected = this.minDateTime;
+      this.campaign.sendTime = corrected;
+
+      // nadpisanie INPUTA — to rozwiązuje problem widoku
+      setTimeout(() => {
+        if (this.datetimeInput?.nativeElement) {
+          this.datetimeInput.nativeElement.value = corrected;
+        }
+      });
+    }
+  }
+
+
+
   private async loadCampaign(id: number) {
     try {
       const camp = await firstValueFrom(this.campaignService.getCampaign(id));
@@ -117,8 +155,21 @@ export class CampaignsEdit implements OnInit, OnDestroy {
   }
 
   public set startedAtLocal(val: string | null) {
-      this.campaign.sendTime = val ?? null;
+    if (!val) {
+      this.campaign.sendTime = null;
+      return;
+    }
+
+    const chosen = new Date(val);
+    const now = new Date();
+
+    if (chosen < now) {
+      this.campaign.sendTime = this.minDateTime;
+    } else {
+      this.campaign.sendTime = val;
+    }
   }
+
 
   public openDateTimePicker(): void {
     const el = this.datetimeInput?.nativeElement;
@@ -144,7 +195,6 @@ export class CampaignsEdit implements OnInit, OnDestroy {
 
 
   public selectSendingProfile(): void {
-    console.log('Wybieranie profilu wysyłki dla kampanii', this.canEdit);
     if(!this.canEdit) return;
 
     this.sharedCampaignService.setCurrent(this.campaign);
@@ -175,7 +225,6 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     if(!this.canEdit) return;
 
     this.sharedCampaignService.setCurrent(this.campaign);
-    console.log('Dodawanie grupy, kampania=', this.campaign);
     this.router.navigate([`/home/campaigns/${this.campaign.id}/edit/addReciepientGroup`]);
 
   }
@@ -191,7 +240,6 @@ export class CampaignsEdit implements OnInit, OnDestroy {
 
 
   public async save(): Promise<void> {
-    console.log('Zapisywana kampania:', this.campaign);
 
     if (!this.campaign.campaignRecipientGroups?.length) {
       await Swal.fire({

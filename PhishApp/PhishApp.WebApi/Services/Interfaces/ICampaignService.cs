@@ -10,7 +10,8 @@ namespace PhishApp.WebApi.Services.Interfaces
         Task DeleteCampaign(int id);
         Task<Campaign?> GetCampaignById(int id);
         Task<GridData<CampaignRow>> GetCampaignsGridData(GridRequest request);
-        Task<List<CampaignEntity>> GetNotSentAync();
+        Task<List<Campaign>> GetNotSent();
+        Task<List<Campaign>> GetNotSentAync();
         Task<Campaign> UpdateCampaign(Campaign campaign);
     }
 }

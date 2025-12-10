@@ -8,7 +8,7 @@ namespace PhishApp.EmailSender;
 
 internal class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         var configuration = new ConfigurationManager();
         configuration.SetBasePath(Directory.GetCurrentDirectory());
@@ -17,13 +17,14 @@ internal class Program
         var services = new ServiceCollection();
 
         InjectionModule.ConfigureServices(services, configuration);
-
         EmailSenderInjectionModule.ConfigureServices(services, configuration);
 
         var provider = services.BuildServiceProvider();
 
-        var emailSender = provider.GetRequiredService<IEmailSenderService>();
+        using var scope = provider.CreateScope();
+        var scopedProvider = scope.ServiceProvider;
 
-        emailSender.Start();
+        var emailSender = scopedProvider.GetRequiredService<IEmailSenderService>();
+        await emailSender.Start();
     }
 }

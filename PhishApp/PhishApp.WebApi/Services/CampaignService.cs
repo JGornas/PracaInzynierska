@@ -45,11 +45,27 @@ namespace PhishApp.WebApi.Services
             return BuildCampaign(entity);
         }
 
-        public async Task<List<CampaignEntity>> GetNotSentAync()
+        public async Task<List<Campaign>> GetNotSentAync()
         {
-            return await _campaignRepository.GetNotSentAync();
+            List<Campaign> campaigns = new List<Campaign>();
+            var campaignEntities = await _campaignRepository.GetNotSentAync();
+            foreach(var entity in campaignEntities)
+            {
+                campaigns.Add(BuildCampaign(entity));
+            }
+            return campaigns;
         }
 
+        public async Task<List<Campaign>> GetNotSent()
+        {
+            var campaigns = new List<Campaign>();
+            var campaignEntities = await _campaignRepository.GetNotSentAync();
+            foreach (var entity in campaignEntities)
+            {
+                campaigns.Add(BuildCampaign(entity));
+            }
+            return campaigns;
+        }
 
         public async Task<Campaign> UpdateCampaign(Campaign campaign)
         {
@@ -151,6 +167,7 @@ namespace PhishApp.WebApi.Services
                     Protocol = entity.SendingProfile.Protocol,
                     SenderName = entity.SendingProfile.SenderName,
                     SenderEmail = entity.SendingProfile.SenderEmail,
+                    Password = entity.SendingProfile.Password,
                     Host = entity.SendingProfile.Host,
                     Port = entity.SendingProfile.Port,
                     Username = entity.SendingProfile.Username,
@@ -160,29 +177,48 @@ namespace PhishApp.WebApi.Services
                     TestEmail = entity.SendingProfile.TestEmail
 
                 } : null,
+
                 Template = entity.Template != null ? new Template
                 {
                     Id = entity.Template.Id,
                     Name = entity.Template.Name,
                     Subject = entity.Template.Subject,
                     Content = entity.Template.Content,
-                    DesignObject= entity.Template.DesignObject,
+                    DesignObject = entity.Template.DesignObject,
                 } : null,
+
                 LandingPage = entity.LandingPage != null ? new LandingPage
                 {
                     Id = entity.LandingPage.Id,
                     Name = entity.LandingPage.Name,
                     Content = entity.LandingPage.Content,
                 } : null,
+
                 CampaignRecipientGroups = entity.CampaignRecipientGroups
                     .Select(crg => new RecipientGroup
                     {
                         Id = crg.RecipientGroupId,
                         Name = crg.RecipientGroup.Name,
+                        Campaign = crg.RecipientGroup.Campaign,
+                        CreatedAt = crg.RecipientGroup.CreatedAt,
+                        Members = crg.RecipientGroup.Members
+                            .Select(m => new Recipient
+                            {
+                                Id = m.Recipient.Id,
+                                Email = m.Recipient.Email,
+                                FirstName = m.Recipient.FirstName,
+                                LastName = m.Recipient.LastName,
+                                Position = m.Recipient.Position,
+                                ExternalId = m.Recipient.ExternalId,
+                                CreatedAt = m.Recipient.CreatedAt
+                            })
+                            .ToList()
                     })
                     .ToList()
             };
+
             return campaign;
         }
+
     }
 }

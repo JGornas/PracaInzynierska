@@ -38,8 +38,11 @@ public class CampaignRepository : ICampaignRepository
     public async Task<List<CampaignEntity>> GetNotSentAync()
     {
         return await _context.Campaigns
+            .AsNoTracking()
             .Include(c => c.CampaignRecipientGroups)
             .ThenInclude(crg => crg.RecipientGroup)
+            .ThenInclude(rg => rg.Members)
+            .ThenInclude(m => m.Recipient)
             .Include(c => c.SendingProfile)
             .Include(c => c.Template)
             .Include(c => c.LandingPage)

@@ -28,10 +28,13 @@ export class RecipientsService {
   }
 
   createGroup(payload: RecipientGroupPayload): Observable<RecipientGroupDto> {
+    console.log(JSON.stringify( payload));
     return this.rest.post<RecipientGroupDto>('/api/recipients/groups', payload);
   }
 
   updateGroup(id: number, payload: RecipientGroupPayload): Observable<RecipientGroupDto> {
+    console.log('Updating group with id:', id);
+    console.log(JSON.stringify( payload));
     return this.rest.put<RecipientGroupDto>(`/api/recipients/groups/${id}`, payload);
   }
 
