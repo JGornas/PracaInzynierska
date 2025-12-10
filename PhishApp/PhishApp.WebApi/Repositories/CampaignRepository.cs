@@ -35,6 +35,37 @@ public class CampaignRepository : ICampaignRepository
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
+    public async Task MarkAsSentAsync(int campaignId, bool isSentSuccessfully)
+    {
+        var campaign = await _context.Campaigns
+            .FirstOrDefaultAsync(c => c.Id == campaignId);
+
+        if (campaign == null)
+        {
+            throw new InvalidOperationException($"Nie znaleziono kampanii o Id {campaignId}");
+        }
+
+        campaign.IsSentSuccessfully = isSentSuccessfully;
+        campaign.SendTime = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, string message = "")
+    {
+        var entity = new CampaignGroupMemberEmailInfoEntity
+        {
+            CampaignId = campaignId,
+            RecipientMemberId = recipientMemberId,
+            IsSent = isSent,
+            SentAt = DateTime.UtcNow,
+            Message = message
+        };
+
+        await _context.CampaignGroupMemberEmailInfos.AddAsync(entity);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<List<CampaignEntity>> GetNotSentAync()
     {
         return await _context.Campaigns

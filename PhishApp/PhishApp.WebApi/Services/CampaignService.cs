@@ -126,6 +126,15 @@ namespace PhishApp.WebApi.Services
             return BuildCampaign(refreshed);
         }
 
+        public async Task MarkCampaignAsSentAsync(int campaignId, bool isSentSuccessfully)
+        {
+            await _campaignRepository.MarkAsSentAsync(campaignId, isSentSuccessfully);
+        }
+
+        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, string message = "")
+        {
+            await _campaignRepository.AddEmailInfoAsync(campaignId, recipientMemberId, isSent, message);
+        }
 
         private CampaignEntity BuildCampaignEntity(Campaign campaign)
         {
@@ -205,6 +214,7 @@ namespace PhishApp.WebApi.Services
                             .Select(m => new Recipient
                             {
                                 Id = m.Recipient.Id,
+                                GroupMemberId = m.Id,
                                 Email = m.Recipient.Email,
                                 FirstName = m.Recipient.FirstName,
                                 LastName = m.Recipient.LastName,

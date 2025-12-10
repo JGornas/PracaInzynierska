@@ -1,6 +1,7 @@
 ﻿using PhishApp.EmailSender.Services.Interfaces;
 using PhishApp.WebApi.Models.Campaigns;
 using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Models.Recipients;
 using PhishApp.WebApi.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -59,29 +60,35 @@ namespace PhishApp.EmailSender.Services
             {
                 foreach(var reciepient in group.Members)
                 {
-                    _logService.Info($"Próba wysłania maila do odbiorcy {reciepient.Email}: {reciepient.FirstName} {reciepient.LastName}, Szablon: {campaign.Template?.Id ?? 0}");
-
-                    try
-                    {
-                        await _emailSendingService.SendMailAsync(
-                        campaign.SendingProfile!,
-                        reciepient.Email,
-                        campaign.Template?.Subject ?? string.Empty,
-                        campaign.Template?.Content ?? string.Empty);
-
-                        //udalo sie wyslac
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                        throw;
-                        //nie udalo sie wyslac
-                    }
-
-                    
-
-
+                    await HandleCampaignRecipientSending(campaign, reciepient);
                 }
+            }
+
+            await _campaignService.MarkCampaignAsSentAsync(campaign.Id, true);
+        }
+
+        private async Task HandleCampaignRecipientSending(Campaign campaign, Recipient reciepient)
+        {
+            _logService.Info($"Próba wysłania maila do odbiorcy {reciepient.Email}: {reciepient.FirstName} {reciepient.LastName}, Szablon: {campaign.Template?.Id ?? 0}");
+
+            try
+            {
+                if(reciepient.Email == "michalski469@gmail.com") throw new Exception("Testowy błąd wysyłki");
+
+                await _emailSendingService.SendMailAsync(
+                campaign.SendingProfile!,
+                reciepient.Email,
+                campaign.Template?.Subject ?? string.Empty,
+                campaign.Template?.Content ?? string.Empty);
+
+                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true);
+                //udalo sie wyslac
+            }
+            catch (Exception e)
+            {
+                string message = $"Błąd podczas wysyłania maila do {reciepient.Email}: {e.Message}";
+                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, message);
+                //nie udalo sie wyslac
             }
         }
     }

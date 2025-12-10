@@ -29,5 +29,7 @@ namespace PhishApp.WebApi.Models.Identity
         public bool IsSentSuccessfully { get; set; } = false;
 
         public ICollection<CampaignRecipientGroupEntity> CampaignRecipientGroups { get; set; } = new List<CampaignRecipientGroupEntity>();
+
+        public ICollection<CampaignGroupMemberEmailInfoEntity> CampaignGroupMemberEmailInfos { get; set; } = new List<CampaignGroupMemberEmailInfoEntity>();
     }
 }
