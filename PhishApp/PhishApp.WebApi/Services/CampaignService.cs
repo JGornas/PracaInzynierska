@@ -17,12 +17,14 @@ namespace PhishApp.WebApi.Services
     public class CampaignService : ICampaignService
     {
         private readonly ICampaignRepository _campaignRepository;
+        private readonly ICampaignEmailInfoRepository _campaignEmailInfoRepository;
         private readonly IGridService _gridService;
 
-        public CampaignService(ICampaignRepository campaignRepository, IGridService gridService)
+        public CampaignService(ICampaignRepository campaignRepository, IGridService gridService, ICampaignEmailInfoRepository campaignEmailInfoRepository)
         {
             _campaignRepository = campaignRepository;
             _gridService = gridService;
+            _campaignEmailInfoRepository = campaignEmailInfoRepository;
         }
 
         public async Task<GridData<CampaignRow>> GetCampaignsGridData(GridRequest request)
@@ -131,9 +133,9 @@ namespace PhishApp.WebApi.Services
             await _campaignRepository.MarkAsSentAsync(campaignId, isSentSuccessfully);
         }
 
-        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, string message = "")
+        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, string message = "")
         {
-            await _campaignRepository.AddEmailInfoAsync(campaignId, recipientMemberId, isSent, message);
+            await _campaignEmailInfoRepository.AddEmailInfoAsync(campaignId, recipientMemberId, isSent, pixelId, message);
         }
 
         private CampaignEntity BuildCampaignEntity(Campaign campaign)

@@ -71,23 +71,23 @@ namespace PhishApp.EmailSender.Services
         {
             _logService.Info($"Próba wysłania maila do odbiorcy {reciepient.Email}: {reciepient.FirstName} {reciepient.LastName}, Szablon: {campaign.Template?.Id ?? 0}");
 
+            Guid pixelId = Guid.NewGuid();
+
             try
             {
-                if(reciepient.Email == "michalski469@gmail.com") throw new Exception("Testowy błąd wysyłki");
-
                 await _emailSendingService.SendMailAsync(
                 campaign.SendingProfile!,
                 reciepient.Email,
                 campaign.Template?.Subject ?? string.Empty,
                 campaign.Template?.Content ?? string.Empty);
 
-                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true);
+                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId);
                 //udalo sie wyslac
             }
             catch (Exception e)
             {
                 string message = $"Błąd podczas wysyłania maila do {reciepient.Email}: {e.Message}";
-                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, message);
+                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, pixelId, message);
                 //nie udalo sie wyslac
             }
         }

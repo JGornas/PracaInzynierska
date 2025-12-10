@@ -51,20 +51,6 @@ public class CampaignRepository : ICampaignRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, string message = "")
-    {
-        var entity = new CampaignGroupMemberEmailInfoEntity
-        {
-            CampaignId = campaignId,
-            RecipientMemberId = recipientMemberId,
-            IsSent = isSent,
-            SentAt = DateTime.UtcNow,
-            Message = message
-        };
-
-        await _context.CampaignGroupMemberEmailInfos.AddAsync(entity);
-        await _context.SaveChangesAsync();
-    }
 
     public async Task<List<CampaignEntity>> GetNotSentAync()
     {
