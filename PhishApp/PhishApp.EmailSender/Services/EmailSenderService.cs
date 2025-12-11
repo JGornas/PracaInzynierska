@@ -74,7 +74,7 @@ namespace PhishApp.EmailSender.Services
 
             Guid pixelId = Guid.NewGuid();
 
-            var content = GetEmailContentWithPixel(campaign, pixelId);
+            var contentWithPixel = GetEmailContentWithPixel(campaign.Template?.Content, pixelId);
 
             try
             {
@@ -82,7 +82,7 @@ namespace PhishApp.EmailSender.Services
                 campaign.SendingProfile!,
                 reciepient.Email,
                 campaign.Template?.Subject ?? string.Empty,
-                content);
+                contentWithPixel);
 
                 await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId);
                 //udalo sie wyslac
@@ -95,15 +95,12 @@ namespace PhishApp.EmailSender.Services
             }
         }
 
-        private string GetEmailContentWithPixel(Campaign campaign, Guid pixelId)
+        private string GetEmailContentWithPixel(string? templateContent, Guid pixelId)
         {
-            if (campaign.Template is null)
-                return string.Empty;
-
             string pixelUrl = $"api/pixel/{pixelId}.png";
             string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"1\" height=\"1\" style=\"display:none\" alt=\"\" />";
 
-            string content = campaign.Template.Content ?? string.Empty;
+            string content = templateContent ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -120,6 +117,7 @@ namespace PhishApp.EmailSender.Services
 
             return content + "\n" + pixelHtml;
         }
+
 
     }
 }
