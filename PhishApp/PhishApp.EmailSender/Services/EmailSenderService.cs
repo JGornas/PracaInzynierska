@@ -118,6 +118,5 @@ namespace PhishApp.EmailSender.Services
             return content + "\n" + pixelHtml;
         }
 
-
     }
 }
