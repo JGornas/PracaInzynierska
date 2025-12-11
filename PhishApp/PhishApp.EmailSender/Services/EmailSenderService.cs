@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using PhishApp.EmailSender.Services.Interfaces;
+using PhishApp.WebApi.Helpers;
 using PhishApp.WebApi.Models.Campaigns;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Recipients;
@@ -97,7 +98,7 @@ namespace PhishApp.EmailSender.Services
 
         private string GetEmailContentWithPixel(string? templateContent, Guid pixelId)
         {
-            string pixelUrl = $"https://noreen-electrometric-aleida.ngrok-free.dev/api/pixel/{pixelId}.png";
+            string pixelUrl = $"{Constants.NGrokUrl}/api/pixel/{pixelId}.png";
 
             string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"100\" height=\"50\" style=\"background:#fff;border:1px solid #ccc;display:block;\" alt=\"Test ładowania\" />";
 
