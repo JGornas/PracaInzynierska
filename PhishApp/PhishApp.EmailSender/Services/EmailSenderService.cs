@@ -1,4 +1,5 @@
-﻿using PhishApp.EmailSender.Services.Interfaces;
+﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using PhishApp.EmailSender.Services.Interfaces;
 using PhishApp.WebApi.Models.Campaigns;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Recipients;
@@ -73,6 +74,8 @@ namespace PhishApp.EmailSender.Services
 
             Guid pixelId = Guid.NewGuid();
 
+            InsertPixelToEmailContent(campaign, pixelId);
+
             try
             {
                 await _emailSendingService.SendMailAsync(
@@ -90,6 +93,37 @@ namespace PhishApp.EmailSender.Services
                 await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, pixelId, message);
                 //nie udalo sie wyslac
             }
+        }
+
+        private void InsertPixelToEmailContent(Campaign campaign, Guid pixelId)
+        {
+            if (campaign.Template is null) return;
+
+            string pixelUrl = $"api/pixel/{pixelId}.png";
+
+            string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"1\" height=\"1\" style=\"display:none\" alt=\"\" />";
+
+            string content = campaign.Template.Content ?? string.Empty;
+
+            string bodyClosingTag = "</body>";
+
+            int index = content.IndexOf(bodyClosingTag, StringComparison.OrdinalIgnoreCase);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                campaign.Template.Content =
+                    $"<html><body>{pixelHtml}</body></html>";
+                return;
+            }
+
+            if (index >= 0)
+            {
+                campaign.Template.Content =
+                    content.Insert(index, pixelHtml + "\n");
+                return;
+            }
+
+            campaign.Template.Content = content + "\n" + pixelHtml;
         }
     }
 }

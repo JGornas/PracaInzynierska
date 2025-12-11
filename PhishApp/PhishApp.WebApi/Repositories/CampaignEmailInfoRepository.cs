@@ -1,4 +1,5 @@
-﻿using PhishApp.WebApi.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore;
+using PhishApp.WebApi.Infrastructure;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Repositories.Interfaces;
 
@@ -21,11 +22,24 @@ namespace PhishApp.WebApi.Repositories
                 IsSent = isSent,
                 SentAt = DateTime.UtcNow,
                 Message = message,
-                PixelId = pixelId
+                PixelId = pixelId,
+                IsEmailOpened = false,
             };
 
             await _context.CampaignGroupMemberEmailInfos.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateEmailOpenedAsync(Guid pixelId)
+        {
+            await _context.CampaignGroupMemberEmailInfos
+                .Where(x => x.PixelId == pixelId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(r => r.IsEmailOpened, true)
+                    .SetProperty(r => r.OpenedTime, DateTime.UtcNow)
+                );
+        }
+
+
     }
 }

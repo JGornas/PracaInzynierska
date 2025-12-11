@@ -24,5 +24,8 @@ namespace PhishApp.WebApi.Models.Identity
         public string Message { get; set; } = string.Empty;
 
         public Guid PixelId { get; set; }
+
+        public bool IsEmailOpened { get; set; } = false;
+        public DateTime? OpenedTime { get; set; } = null;
     }
 }

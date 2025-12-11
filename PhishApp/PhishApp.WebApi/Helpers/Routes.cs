@@ -47,5 +47,8 @@
         // Reports
         public const string ReportsExport = "api/reports/export";
         public const string ReportsExportHtml = "api/reports/export/html";
+
+        //Tracking
+        public const string GetPixel = "api/pixel/{messageId}.png";
     }
 }
