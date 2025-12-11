@@ -74,7 +74,7 @@ namespace PhishApp.EmailSender.Services
 
             Guid pixelId = Guid.NewGuid();
 
-            InsertPixelToEmailContent(campaign, pixelId);
+            var content = GetEmailContentWithPixel(campaign, pixelId);
 
             try
             {
@@ -82,7 +82,7 @@ namespace PhishApp.EmailSender.Services
                 campaign.SendingProfile!,
                 reciepient.Email,
                 campaign.Template?.Subject ?? string.Empty,
-                campaign.Template?.Content ?? string.Empty);
+                content);
 
                 await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId);
                 //udalo sie wyslac
@@ -95,35 +95,31 @@ namespace PhishApp.EmailSender.Services
             }
         }
 
-        private void InsertPixelToEmailContent(Campaign campaign, Guid pixelId)
+        private string GetEmailContentWithPixel(Campaign campaign, Guid pixelId)
         {
-            if (campaign.Template is null) return;
+            if (campaign.Template is null)
+                return string.Empty;
 
             string pixelUrl = $"api/pixel/{pixelId}.png";
-
             string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"1\" height=\"1\" style=\"display:none\" alt=\"\" />";
 
             string content = campaign.Template.Content ?? string.Empty;
 
-            string bodyClosingTag = "</body>";
-
-            int index = content.IndexOf(bodyClosingTag, StringComparison.OrdinalIgnoreCase);
-
             if (string.IsNullOrWhiteSpace(content))
             {
-                campaign.Template.Content =
-                    $"<html><body>{pixelHtml}</body></html>";
-                return;
+                return $"<html><body>{pixelHtml}</body></html>";
             }
+
+            const string bodyClosingTag = "</body>";
+            int index = content.IndexOf(bodyClosingTag, StringComparison.OrdinalIgnoreCase);
 
             if (index >= 0)
             {
-                campaign.Template.Content =
-                    content.Insert(index, pixelHtml + "\n");
-                return;
+                return content.Insert(index, pixelHtml + "\n");
             }
 
-            campaign.Template.Content = content + "\n" + pixelHtml;
+            return content + "\n" + pixelHtml;
         }
+
     }
 }
