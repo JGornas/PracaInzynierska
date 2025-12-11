@@ -97,7 +97,7 @@ namespace PhishApp.EmailSender.Services
 
         private string GetEmailContentWithPixel(string? templateContent, Guid pixelId)
         {
-            string pixelUrl = $"api/pixel/{pixelId}.png";
+            string pixelUrl = $"https://noreen-electrometric-aleida.ngrok-free.dev/api/pixel/{pixelId}.png";
             string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"1\" height=\"1\" style=\"display:none\" alt=\"\" />";
 
             string content = templateContent ?? string.Empty;
