@@ -19,7 +19,7 @@ namespace PhishApp.WebApi.Controllers
             _trackingService = trackingService;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route(Routes.GetPixel)]
         [AllowAnonymous]
         public async Task<IActionResult> GetPixel([FromRoute] Guid messageId)
