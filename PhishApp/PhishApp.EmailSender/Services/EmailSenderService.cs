@@ -74,7 +74,7 @@ namespace PhishApp.EmailSender.Services
 
             Guid pixelId = Guid.NewGuid();
 
-            var content = GetEmailContentWithPixel(campaign, pixelId);
+            InsertPixelToEmailContent(campaign, pixelId);
 
             try
             {
@@ -82,7 +82,7 @@ namespace PhishApp.EmailSender.Services
                 campaign.SendingProfile!,
                 reciepient.Email,
                 campaign.Template?.Subject ?? string.Empty,
-                content);
+                campaign.Template?.Content ?? string.Empty);
 
                 await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId);
                 //udalo sie wyslac
@@ -95,31 +95,35 @@ namespace PhishApp.EmailSender.Services
             }
         }
 
-        private string GetEmailContentWithPixel(Campaign campaign, Guid pixelId)
+        private void InsertPixelToEmailContent(Campaign campaign, Guid pixelId)
         {
-            if (campaign.Template is null)
-                return string.Empty;
+            if (campaign.Template is null) return;
 
-            string pixelUrl = $"api/pixel/{pixelId}.png";
-            string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"1\" height=\"1\" style=\"display:none\" alt=\"\" />";
+            string pixelUrl = $"https://noreen-electrometric-aleida.ngrok-free.dev/api/pixel/{pixelId}.png";
+
+            string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"100\" height=\"50\" style=\"background:#fff;border:1px solid #ccc;display:block;\" alt=\"Test ładowania\" />"; ;
 
             string content = campaign.Template.Content ?? string.Empty;
 
+            string bodyClosingTag = "</body>";
+
+            int index = content.IndexOf(bodyClosingTag, StringComparison.OrdinalIgnoreCase);
+
             if (string.IsNullOrWhiteSpace(content))
             {
-                return $"<html><body>{pixelHtml}</body></html>";
+                campaign.Template.Content =
+                    $"<html><body>{pixelHtml}</body></html>";
+                return;
             }
-
-            const string bodyClosingTag = "</body>";
-            int index = content.IndexOf(bodyClosingTag, StringComparison.OrdinalIgnoreCase);
 
             if (index >= 0)
             {
-                return content.Insert(index, pixelHtml + "\n");
+                campaign.Template.Content =
+                    content.Insert(index, pixelHtml + "\n");
+                return;
             }
 
-            return content + "\n" + pixelHtml;
+            campaign.Template.Content = content + "\n" + pixelHtml;
         }
-
     }
 }
