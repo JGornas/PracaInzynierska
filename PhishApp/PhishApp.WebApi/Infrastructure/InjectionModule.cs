@@ -44,8 +44,14 @@ namespace PhishApp.WebApi.Infrastructure
 
             services.AddDbContext<DataContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions =>
+                    {
+                        sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                    });
             });
+
 
             services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
             {
