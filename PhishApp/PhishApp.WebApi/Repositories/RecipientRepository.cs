@@ -71,7 +71,7 @@ namespace PhishApp.WebApi.Repositories
             }
 
             _context.Entry(existing).CurrentValues.SetValues(recipient);
-            existing.UpdatedAt = DateTime.UtcNow;
+            existing.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -149,7 +149,7 @@ namespace PhishApp.WebApi.Repositories
 
             existing.Name = group.Name;
             existing.Campaign = group.Campaign;
-            existing.UpdatedAt = DateTime.UtcNow;
+            existing.UpdatedAt = DateTime.Now;
 
             var desiredIds = memberRecipientIds?.Distinct().ToList() ?? new List<int>();
 

@@ -44,7 +44,7 @@ namespace PhishApp.WebApi.Controllers
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddDays(Constants.RefreshTokenValidityPeriod)
+                Expires = DateTime.Now.AddDays(Constants.RefreshTokenValidityPeriod)
             });
             return RestResponse<string>.CreateResponse(response.AccessToken);
         }
@@ -60,7 +60,7 @@ namespace PhishApp.WebApi.Controllers
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddDays(Constants.RefreshTokenValidityPeriod)
+                Expires = DateTime.Now.AddDays(Constants.RefreshTokenValidityPeriod)
             });
 
             return RestResponse<string>.CreateResponse(response.AccessToken);
@@ -80,7 +80,7 @@ namespace PhishApp.WebApi.Controllers
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddDays(Constants.RefreshTokenValidityPeriod)
+                Expires = DateTime.Now.AddDays(Constants.RefreshTokenValidityPeriod)
             });
             return RestResponse<string>.CreateResponse(response.AccessToken);
         }

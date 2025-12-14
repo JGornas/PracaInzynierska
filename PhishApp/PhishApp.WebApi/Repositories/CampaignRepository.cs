@@ -46,7 +46,6 @@ public class CampaignRepository : ICampaignRepository
         }
 
         campaign.IsSentSuccessfully = isSentSuccessfully;
-        campaign.SendTime = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
     }
@@ -63,7 +62,7 @@ public class CampaignRepository : ICampaignRepository
             .Include(c => c.SendingProfile)
             .Include(c => c.Template)
             .Include(c => c.LandingPage)
-            .Where(c => c.IsSentSuccessfully != true).ToListAsync();
+            .Where(c => c.IsSentSuccessfully != true && c.SendTime < DateTime.Now).ToListAsync();
     }
 
     public async Task DeleteWithRelationsAsync(int id)

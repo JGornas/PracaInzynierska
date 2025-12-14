@@ -130,7 +130,7 @@ namespace PhishApp.WebApi.Services
             destination.Username = model.Username;
             destination.UseSsl = model.UseSsl;
             destination.ReplyTo = model.ReplyTo;
-            destination.UpdatedAt = DateTime.UtcNow;
+            destination.UpdatedAt = DateTime.Now;
             destination.TestEmail = model.TestEmail;
             return destination;
         }

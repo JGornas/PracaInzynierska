@@ -112,7 +112,7 @@ namespace PhishApp.WebApi.Services
 
             var tokenEntity = await _tokenRepository.GetRefreshTokenByValueAsync(refreshToken);
 
-            if (tokenEntity == null || tokenEntity.ExpirationTime < DateTime.UtcNow)
+            if (tokenEntity == null || tokenEntity.ExpirationTime < DateTime.Now)
                 throw new SecurityTokenException("Sesja wygasła");
 
             var user = await _userManager.FindByIdAsync(tokenEntity.UserId.ToString());
@@ -184,7 +184,7 @@ namespace PhishApp.WebApi.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
+                expires: DateTime.Now.AddMinutes(expirationMinutes),
                 signingCredentials: creds
             );
 
@@ -195,7 +195,7 @@ namespace PhishApp.WebApi.Services
         private async Task<ApplicationUserToken> GenerateRefreshToken(ApplicationUser user)
         {
             var refreshTokenNewValue = Guid.NewGuid().ToString("N");
-            var refreshTokenExpiration = DateTime.UtcNow.AddDays(Constants.RefreshTokenValidityPeriod);
+            var refreshTokenExpiration = DateTime.Now.AddDays(Constants.RefreshTokenValidityPeriod);
             var refreshToken = await _tokenRepository.SetRefreshTokenAsync(user, refreshTokenNewValue, refreshTokenExpiration);
             return refreshToken;
         }        

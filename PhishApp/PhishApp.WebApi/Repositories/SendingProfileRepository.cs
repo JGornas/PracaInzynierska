@@ -53,7 +53,7 @@ namespace PhishApp.WebApi.Repositories
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            entity.CreatedAt = DateTime.UtcNow;
+            entity.CreatedAt = DateTime.Now;
             _context.SendingProfiles.Add(entity);
             await _context.SaveChangesAsync();
             return entity;
@@ -66,7 +66,7 @@ namespace PhishApp.WebApi.Repositories
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            entity.UpdatedAt = DateTime.UtcNow;
+            entity.UpdatedAt = DateTime.Now;
             _context.SendingProfiles.Update(entity);
             await _context.SaveChangesAsync();
             return entity;

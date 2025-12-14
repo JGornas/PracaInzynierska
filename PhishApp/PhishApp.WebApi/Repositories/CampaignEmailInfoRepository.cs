@@ -20,7 +20,7 @@ namespace PhishApp.WebApi.Repositories
                 CampaignId = campaignId,
                 RecipientMemberId = recipientMemberId,
                 IsSent = isSent,
-                SentAt = DateTime.UtcNow,
+                SentAt = DateTime.Now,
                 Message = message,
                 PixelId = pixelId,
                 IsEmailOpened = false,
@@ -36,7 +36,7 @@ namespace PhishApp.WebApi.Repositories
                 .Where(x => x.PixelId == pixelId)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(r => r.IsEmailOpened, true)
-                    .SetProperty(r => r.OpenedTime, DateTime.UtcNow)
+                    .SetProperty(r => r.OpenedTime, DateTime.Now)
                 );
         }
 

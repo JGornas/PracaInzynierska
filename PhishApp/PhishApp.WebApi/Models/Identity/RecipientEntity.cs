@@ -25,7 +25,7 @@ namespace PhishApp.WebApi.Models.Identity
         [MaxLength(200)]
         public string? ExternalId { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public DateTime? UpdatedAt { get; set; }
 

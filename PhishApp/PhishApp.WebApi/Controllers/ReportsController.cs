@@ -222,7 +222,7 @@ namespace PhishApp.WebApi.Controllers
             var invalidChars = Path.GetInvalidFileNameChars();
             var normalized = string.IsNullOrWhiteSpace(title) ? "raport" : title.Trim().ToLowerInvariant();
             var safeTitle = string.Concat(normalized.Select(ch => invalidChars.Contains(ch) ? '-' : ch)).Replace(' ', '-');
-            var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
+            var date = DateTime.Now.ToString("yyyy-MM-dd");
             return $"{safeTitle}-{date}.pdf";
         }
 
