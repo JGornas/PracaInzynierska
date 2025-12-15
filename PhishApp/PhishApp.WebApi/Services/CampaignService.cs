@@ -32,6 +32,15 @@ namespace PhishApp.WebApi.Services
             return await _gridService.GetGridData<CampaignRow>(request);
         }
 
+        public async Task<Campaign?> GetCampaignByLandingId(Guid id)
+        {
+            var campaignEntity = await _campaignRepository.GetCampaignByLandingId(id);
+            if (campaignEntity == null)
+                return null;
+
+            return BuildCampaign(campaignEntity);
+        }
+
         public async Task DeleteCampaign(int id)
         {
             await _campaignRepository.DeleteWithRelationsAsync(id);
@@ -133,9 +142,9 @@ namespace PhishApp.WebApi.Services
             await _campaignRepository.MarkAsSentAsync(campaignId, isSentSuccessfully);
         }
 
-        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, string message = "")
+        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, Guid? landingId, string message = "")
         {
-            await _campaignEmailInfoRepository.AddEmailInfoAsync(campaignId, recipientMemberId, isSent, pixelId, message);
+            await _campaignEmailInfoRepository.AddEmailInfoAsync(campaignId, recipientMemberId, isSent, pixelId, landingId, message);
         }
 
         private CampaignEntity BuildCampaignEntity(Campaign campaign)

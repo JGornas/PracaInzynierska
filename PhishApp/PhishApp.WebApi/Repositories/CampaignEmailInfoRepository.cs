@@ -13,7 +13,7 @@ namespace PhishApp.WebApi.Repositories
         {
             _context = context;
         }
-        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, string message = "")
+        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, Guid? LandingId, string message = "")
         {
             var entity = new CampaignGroupMemberEmailInfoEntity
             {
@@ -23,6 +23,7 @@ namespace PhishApp.WebApi.Repositories
                 SentAt = DateTime.Now,
                 Message = message,
                 PixelId = pixelId,
+                LandingId= LandingId,
                 IsEmailOpened = false,
             };
 

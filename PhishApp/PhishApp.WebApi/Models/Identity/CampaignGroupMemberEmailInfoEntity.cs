@@ -27,5 +27,11 @@ namespace PhishApp.WebApi.Models.Identity
 
         public bool IsEmailOpened { get; set; } = false;
         public DateTime? OpenedTime { get; set; } = null;
+
+        public Guid? LandingId { get; set; } = null;
+
+        public bool IsRedirectedToLandingPage { get; set; } = false;
+        public DateTime? RedirectedToLandingPageTime { get; set; } = null;
+
     }
 }

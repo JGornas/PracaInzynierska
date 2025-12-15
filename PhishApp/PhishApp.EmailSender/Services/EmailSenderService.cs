@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
+﻿using HtmlAgilityPack;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using PhishApp.EmailSender.Services.Interfaces;
 using PhishApp.WebApi.Helpers;
 using PhishApp.WebApi.Models.Campaigns;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace PhishApp.EmailSender.Services
 {
@@ -72,10 +74,13 @@ namespace PhishApp.EmailSender.Services
         private async Task HandleCampaignRecipientSending(Campaign campaign, Recipient reciepient)
         {
             _logService.Info($"Próba wysłania maila do odbiorcy {reciepient.Email}: {reciepient.FirstName} {reciepient.LastName}, Szablon: {campaign.Template?.Id ?? 0}");
+            Guid pixelId;
+            Guid? landingId;
+            string modifiedContent;
 
-            Guid pixelId = Guid.NewGuid();
+            AddTrackingPixel(campaign, out pixelId, out modifiedContent);
 
-            var contentWithPixel = GetEmailContentWithPixel(campaign.Template?.Content, pixelId);
+            AddLandingPageRedirections(campaign, out landingId, ref modifiedContent);
 
             try
             {
@@ -83,17 +88,87 @@ namespace PhishApp.EmailSender.Services
                 campaign.SendingProfile!,
                 reciepient.Email,
                 campaign.Template?.Subject ?? string.Empty,
-                contentWithPixel);
+                modifiedContent);
 
-                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId);
+                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId, landingId);
                 //udalo sie wyslac
             }
             catch (Exception e)
             {
                 string message = $"Błąd podczas wysyłania maila do {reciepient.Email}: {e.Message}";
-                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, pixelId, message);
+                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, pixelId, landingId, message);
                 //nie udalo sie wyslac
             }
+        }
+
+        private void AddLandingPageRedirections(Campaign campaign, out Guid? landingId, ref string contentWithPixel)
+        {
+
+            if (campaign.LandingPage != null && !string.IsNullOrWhiteSpace(contentWithPixel))
+            {
+                landingId = Guid.NewGuid();
+                contentWithPixel = AddLandingRedirects(contentWithPixel, (Guid)landingId);
+            }
+            else
+            {
+                landingId = null;
+            }
+        }
+
+
+
+        private string AddLandingRedirects(string htmlContent, Guid landingId)
+        {
+            if (string.IsNullOrWhiteSpace(htmlContent))
+                return htmlContent;
+
+            string landingBaseUrl = $"{Constants.NGrokUrl}/landing/{landingId}";
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(htmlContent);
+
+            var aNodes = doc.DocumentNode.SelectNodes("//a[@href]");
+            if (aNodes != null)
+            {
+                foreach (var a in aNodes)
+                {
+                    string originalHref = a.GetAttributeValue("href", "#");
+                    string targetUrl = HttpUtility.UrlEncode(originalHref);
+                    a.SetAttributeValue("href", landingBaseUrl);
+
+                }
+            }
+
+            var buttonNodes = doc.DocumentNode.SelectNodes("//button[@onclick]");
+            if (buttonNodes != null)
+            {
+                foreach (var button in buttonNodes)
+                {
+                    string onclick = button.GetAttributeValue("onclick", "");
+                    var start = onclick.IndexOf("window.location='", StringComparison.OrdinalIgnoreCase);
+                    if (start >= 0)
+                    {
+                        start += "window.location='".Length;
+                        var end = onclick.IndexOf("'", start);
+                        if (end > start)
+                        {
+                            string originalUrl = onclick.Substring(start, end - start);
+                            string targetUrl = HttpUtility.UrlEncode(originalUrl);
+                            button.SetAttributeValue("onclick", $"window.location='{landingBaseUrl}?target={targetUrl}'");
+                        }
+                    }
+                }
+            }
+
+            return doc.DocumentNode.OuterHtml;
+        }
+
+
+
+        private void AddTrackingPixel(Campaign campaign, out Guid pixelId, out string contentWithPixel)
+        {
+            pixelId = Guid.NewGuid();
+            contentWithPixel = GetEmailContentWithPixel(campaign.Template?.Content, pixelId);
         }
 
         private string GetEmailContentWithPixel(string? templateContent, Guid pixelId)

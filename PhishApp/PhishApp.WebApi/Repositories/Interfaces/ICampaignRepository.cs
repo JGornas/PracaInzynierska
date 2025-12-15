@@ -10,5 +10,6 @@ namespace PhishApp.WebApi.Repositories.Interfaces
         Task DeleteWithRelationsAsync(int id);
         Task<List<CampaignEntity>> GetNotSentAync();
         Task MarkAsSentAsync(int campaignId, bool isSentSuccessfully);
+        Task<CampaignEntity?> GetCampaignByLandingId(Guid landingId);
     }
 }

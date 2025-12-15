@@ -13,6 +13,7 @@ namespace PhishApp.WebApi
             // Add services to the container.
             InjectionModule.ConfigureServices(builder.Services, builder.Configuration);
 
+            builder.Services.AddRazorPages();
             builder.Services.AddControllers();
             builder.Services.AddAuthorization(options =>
             {
@@ -24,6 +25,8 @@ namespace PhishApp.WebApi
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            app.UseRouting();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -41,6 +44,7 @@ namespace PhishApp.WebApi
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapRazorPages();
 
             app.Run();
         }
