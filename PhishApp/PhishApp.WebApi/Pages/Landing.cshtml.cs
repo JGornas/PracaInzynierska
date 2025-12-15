@@ -9,10 +9,12 @@ namespace PhishApp.WebApi.Pages
     public class LandingModel : PageModel
     {
         private readonly ICampaignService _campaignService;
+        private readonly ITrackingService _trackingService;
 
-        public LandingModel(ICampaignService campaignService)
+        public LandingModel(ICampaignService campaignService, ITrackingService trackingService)
         {
             _campaignService = campaignService;
+            _trackingService = trackingService;
         }
 
         public string LandingHtml { get; set; } = string.Empty;
@@ -26,6 +28,8 @@ namespace PhishApp.WebApi.Pages
 
             if (campaign == null)
                 return NotFound("Campaign not found");
+
+            await _trackingService.SetLandingPageOpened(id);
 
             LandingHtml = campaign.LandingPage?.Content ?? "<h1>Landing page not available</h1>";
 

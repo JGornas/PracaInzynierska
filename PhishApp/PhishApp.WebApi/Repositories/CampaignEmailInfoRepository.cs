@@ -40,6 +40,15 @@ namespace PhishApp.WebApi.Repositories
                     .SetProperty(r => r.OpenedTime, DateTime.Now)
                 );
         }
+        public async Task UpdateLandingPageOpenedAsync(Guid landingId)
+        {
+            await _context.CampaignGroupMemberEmailInfos
+                .Where(x => x.LandingId == landingId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(r => r.IsRedirectedToLandingPage, true)
+                    .SetProperty(r => r.RedirectedToLandingPageTime, DateTime.Now)
+                );
+        }
 
 
     }

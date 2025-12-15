@@ -16,5 +16,9 @@ namespace PhishApp.WebApi.Services
         {
             await _campaignEmailInfoRepository.UpdateEmailOpenedAsync(messageId);
         }
+        public async Task SetLandingPageOpened(Guid landingId)
+        {
+            await _campaignEmailInfoRepository.UpdateLandingPageOpenedAsync(landingId);
+        }
     }
 }
