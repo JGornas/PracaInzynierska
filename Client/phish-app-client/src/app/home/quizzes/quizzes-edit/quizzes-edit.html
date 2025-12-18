@@ -1,1 +1,129 @@
-<p>{{ title }}</p>
+﻿<div class="quizzes-edit-container" *ngIf="!loading; else loadingTpl">
+  <header class="page-header">
+    <div>
+      <h2>{{ isEditMode ? 'Edytuj quiz' : 'Nowy quiz' }}</h2>
+      <p class="hint">Uzupelnij dane quizu oraz pytania.</p>
+    </div>
+    <div class="actions">
+      <app-button-component
+        [label]="'Anuluj'"
+        [variant]="'white-outline-theme'"
+        [action]="cancel.bind(this)">
+      </app-button-component>
+      <app-button-component
+        [label]="'Zapisz'"
+        [variant]="'blue-theme'"
+        [disabled]="saving"
+        [action]="save.bind(this)">
+      </app-button-component>
+    </div>
+  </header>
+
+  <section class="card">
+    <form [formGroup]="quizForm" class="quiz-form">
+      <label>
+        Nazwa
+        <input class="form-control" formControlName="name" placeholder="Nazwa quizu" />
+        @if (quizForm.get('name')?.invalid && quizForm.get('name')?.touched) {
+          <div class="error">Nazwa jest wymagana (min. 3 znaki).</div>
+        }
+      </label>
+      <label>
+        Opis (opcjonalnie)
+        <textarea class="form-control" rows="3" formControlName="description" placeholder="Krotki opis"></textarea>
+      </label>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h3>Pytania</h3>
+        <p class="hint">Zaznacz pytanie aby je edytowac albo dodaj nowe.</p>
+      </div>
+      <app-button-component
+        [label]="'Dodaj pytanie'"
+        [variant]="'blue-theme'"
+        [action]="startNewQuestion.bind(this)">
+      </app-button-component>
+    </div>
+
+    <app-grid
+      #questionsGridRef
+      [localData]="questionGridData"
+      [columnsToDisplay]="questionColumns"
+      [isRemovable]="true"
+      [selectMode]="'single'"
+      (selectionChange)="onQuestionSelection($event)"
+      (rowRemoved)="handleQuestionRemoved($event)">
+    </app-grid>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h3>{{ editingQuestionIndex === null ? 'Dodaj pytanie' : 'Edytuj pytanie' }}</h3>
+        <p class="hint">Uzupelnij tresc i odpowiedzi.</p>
+      </div>
+      <button class="btn-link" (click)="resetQuestionForm()">Wyczysc</button>
+    </div>
+
+    <form [formGroup]="questionForm" class="question-form">
+      <label>
+        Tresc pytania
+        <input class="form-control" formControlName="text" placeholder="Tresc pytania" />
+        @if (questionForm.get('text')?.invalid && questionForm.get('text')?.touched) {
+          <div class="error">Pytanie jest wymagane (min. 3 znaki).</div>
+        }
+      </label>
+
+      <div class="type-switch">
+        <label>
+          Typ pytania
+          <select class="form-control" formControlName="type" (change)="onTypeChange()">
+            <option value="ABCD">ABCD</option>
+            <option value="TRUE_FALSE">Prawda/Falsz</option>
+          </select>
+        </label>
+      </div>
+
+      @if (questionForm.get('type')?.value === 'TRUE_FALSE') {
+        <div class="tf-grid">
+          <label class="option-row">
+            <input type="radio" formControlName="correctAnswerValue" [value]="true" />
+            <span>Prawda</span>
+          </label>
+          <label class="option-row">
+            <input type="radio" formControlName="correctAnswerValue" [value]="false" />
+            <span>Falsz</span>
+          </label>
+        </div>
+      } @else {
+        <div class="abcd-grid">
+          @for (key of ['A','B','C','D']; track key) {
+            <div class="option-row">
+              <label class="option-label">{{ key }})</label>
+              <input class="form-control" [formControlName]="'option' + key" placeholder="Odpowiedz {{ key }}" />
+              <label class="option-correct">
+                <input type="radio" formControlName="correctAnswer" [value]="key" />
+                <span>Poprawna</span>
+              </label>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="actions">
+        <app-button-component
+          [label]="editingQuestionIndex === null ? 'Dodaj pytanie' : 'Zapisz pytanie'"
+          [variant]="'blue-theme'"
+          [action]="addOrUpdateQuestion.bind(this)">
+        </app-button-component>
+      </div>
+    </form>
+  </section>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading">Ladowanie...</div>
+</ng-template>
