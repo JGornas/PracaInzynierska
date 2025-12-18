@@ -1,0 +1,23 @@
+<div class="quizzes-container">
+  <header>
+    <div class="row">
+      <h2>Quizy</h2>
+
+      <app-button-component
+        [label]="'Stwórz nowy'"
+        [variant]="'blue-theme'"
+        [action]="createQuiz.bind(this)">
+      </app-button-component>      
+    </div>
+  </header>
+
+  <section>
+    <app-grid 
+        apiUrl="/api/quizzes/grid"
+        [columnsToDisplay]="columns"
+        [isRemovable]="true"
+        (rowDoubleClicked)="handleRowDoubleClick($event)"
+        (rowRemoved)="handleRowDeleted($event)">
+    </app-grid>
+  </section>  
+</div>

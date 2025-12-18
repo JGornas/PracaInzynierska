@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Rows;
+using System.Reflection.Emit;
 
 namespace PhishApp.WebApi.Infrastructure
 {
@@ -82,6 +83,25 @@ namespace PhishApp.WebApi.Infrastructure
                 entity.HasKey(crg => crg.Id);
                 entity.ToTable("CampaignRecipientGroups");
             });
+
+            builder.Entity<QuizEntity>()
+                .HasMany(q => q.Questions)
+                .WithOne(q => q.Quiz)
+                .HasForeignKey(q => q.QuizId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<QuestionEntity>()
+                .HasMany(q => q.Answers)
+                .WithOne(a => a.Question)
+                .HasForeignKey(a => a.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<QuestionEntity>()
+                .HasOne(q => q.CorrectAnswer)
+                .WithMany() // brak kolekcji w AnswerEntity
+                .HasForeignKey(q => q.CorrectAnswerId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
         }
 
         public DbSet<TemplateEntity> Templates { get; set; }
@@ -93,10 +113,14 @@ namespace PhishApp.WebApi.Infrastructure
         public DbSet<SendingProfileEntity> SendingProfiles { get; set; }
         public DbSet<CampaignEntity> Campaigns { get; set; }
         public DbSet<CampaignRecipientGroupEntity> CampaignRecipientGroups { get; set; }
+        public DbSet<QuizEntity> Quizzes { get; set; }
+        public DbSet<QuestionEntity> Questions { get; set; }
+        public DbSet<AnswerEntity> Answers { get; set; }
 
 
         public DbSet<TemplateRow> TemplateRows { get; set; }
         public DbSet<CampaignRow> CampaignRows { get; set; }
         public DbSet<RecipientGroupRow> RecipientGroupRows { get; set; }
+        public DbSet<QuizRow> QuizRows { get; set; }
     }
 }

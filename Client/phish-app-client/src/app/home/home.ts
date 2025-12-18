@@ -54,5 +54,8 @@ export class Home {
   navigateToSendingProfiles() {
     this.router.navigate(['/home', 'sending-profiles']);
   }
+  navigateToQuizzes() {
+    this.router.navigate(['/home', 'quizzes']);
+  }
 }
 

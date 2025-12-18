@@ -1,0 +1,31 @@
+.quizzes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+app-grid {
+  width: 100%;
+}
+
+.quizzes-container > app-button-component {
+  align-self: flex-end;
+  margin-top: 8px;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+section{
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+header{
+  border-bottom: 1px solid #e5e7eb;
+  padding: 15px 0px;
+}

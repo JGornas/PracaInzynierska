@@ -48,6 +48,10 @@
         public const string ReportsExport = "api/reports/export";
         public const string ReportsExportHtml = "api/reports/export/html";
 
+        //Quizzes
+        public const string QuizzesGrid = "api/quizzes/grid";
+        public const string DeleteQuizz= "api/quizzes/{id}";
+
         //Tracking
         public const string GetPixel = "api/pixel/{messageId}.png";
     }

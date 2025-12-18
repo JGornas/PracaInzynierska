@@ -9,6 +9,7 @@ import { Templates } from "./templates/templates";
 import { templatesRoutes } from "./templates/templates.routing";
 import { landingPagesRoutes } from "./landing-pages/landing-pages.routing";
 import { campaignsRoutes } from "./campaigns/campaigns.routing";
+import { quizesRoutes } from "./quizzes/quizzes.routing";
 
 export const homeRoutes: Routes = [
   {
@@ -24,6 +25,7 @@ export const homeRoutes: Routes = [
       ...templatesRoutes,
       ...landingPagesRoutes,
       ...campaignsRoutes,
+      ...quizesRoutes,
       { path: '**', redirectTo: 'dashboard' }
     ]
   }

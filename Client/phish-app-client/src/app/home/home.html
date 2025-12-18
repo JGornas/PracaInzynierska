@@ -27,6 +27,12 @@
                 <span *ngIf="isSidebarExpanded" class="text nav-text">Kampanie</span>
             </div>
             </li>
+            <li class="item-link" (click)="navigateToQuizzes()">
+            <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
+                <i class='bx  bx-message-circle-question-mark'></i> 
+                <span *ngIf="isSidebarExpanded" class="text nav-text">Quizy</span>
+            </div>
+            </li>
             <li class="item-link" (click)="navigateToRecipients()">
             <div   [ngClass]="isSidebarExpanded ? 'link-button-padding-expanded' : ''">
                 <i class='bx bx-group'></i>

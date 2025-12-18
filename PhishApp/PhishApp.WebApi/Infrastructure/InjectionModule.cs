@@ -41,6 +41,8 @@ namespace PhishApp.WebApi.Infrastructure
             services.AddTransient<IEmailSendingService, EmailSendingService>();
             services.AddTransient<ICampaignEmailInfoRepository, CampaignEmailInfoRepository>();
             services.AddTransient<ITrackingService, TrackingService>();
+            services.AddTransient<IQuizService, QuizService>();
+            services.AddTransient<IQuizzRepository, QuizzRepository>();
 
             services.AddDbContext<DataContext>(options =>
             {

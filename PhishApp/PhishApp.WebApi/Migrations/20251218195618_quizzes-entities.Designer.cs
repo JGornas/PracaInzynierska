@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhishApp.WebApi.Infrastructure;
 
@@ -11,9 +12,11 @@ using PhishApp.WebApi.Infrastructure;
 namespace PhishApp.WebApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20251218195618_quizzes-entities")]
+    partial class quizzesentities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -679,27 +682,6 @@ namespace PhishApp.WebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CampaignRows");
-                });
-
-            modelBuilder.Entity("PhishApp.WebApi.Models.Rows.QuizRow", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("QuizRows");
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Rows.RecipientGroupRow", b =>
