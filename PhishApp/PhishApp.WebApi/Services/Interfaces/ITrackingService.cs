@@ -5,5 +5,6 @@ namespace PhishApp.WebApi.Services.Interfaces
     {
         Task SetEmailOpened(Guid messageId);
         Task SetLandingPageOpened(Guid landingId);
+        Task SetFormSubmittedAsync(Guid formSubmitId);
     }
 }

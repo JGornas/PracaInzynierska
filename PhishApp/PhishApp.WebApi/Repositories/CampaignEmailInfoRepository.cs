@@ -13,7 +13,7 @@ namespace PhishApp.WebApi.Repositories
         {
             _context = context;
         }
-        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, Guid? LandingId, string message = "")
+        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, Guid? LandingId, Guid? FormSubmitId, string message = "")
         {
             var entity = new CampaignGroupMemberEmailInfoEntity
             {
@@ -25,6 +25,8 @@ namespace PhishApp.WebApi.Repositories
                 PixelId = pixelId,
                 LandingId= LandingId,
                 IsEmailOpened = false,
+                FormSubmitId = FormSubmitId,
+                IsFormSubmitted = false
             };
 
             await _context.CampaignGroupMemberEmailInfos.AddAsync(entity);
@@ -47,6 +49,21 @@ namespace PhishApp.WebApi.Repositories
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(r => r.IsRedirectedToLandingPage, true)
                     .SetProperty(r => r.RedirectedToLandingPageTime, DateTime.Now)
+                    .SetProperty(r => r.IsEmailOpened, true)
+                    .SetProperty(r => r.OpenedTime, DateTime.Now)
+                );
+        }
+        public async Task UpdateFormSubmittedAsync(Guid formSubmitId)
+        {
+            await _context.CampaignGroupMemberEmailInfos
+                .Where(x => x.FormSubmitId == formSubmitId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(r => r.IsRedirectedToLandingPage, true)
+                    .SetProperty(r => r.RedirectedToLandingPageTime, DateTime.Now)
+                    .SetProperty(r => r.IsEmailOpened, true)
+                    .SetProperty(r => r.OpenedTime, DateTime.Now)
+                    .SetProperty(r => r.IsFormSubmitted, true)
+                    .SetProperty(r => r.FormSubmittedTime, DateTime.Now)
                 );
         }
 

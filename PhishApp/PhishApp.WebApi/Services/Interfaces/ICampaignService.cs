@@ -7,7 +7,7 @@ namespace PhishApp.WebApi.Services.Interfaces
 {
     public interface ICampaignService
     {
-        Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, Guid? landingId, string message = "");
+        Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, Guid? landingId, Guid? formSubmitId, string message = "");
         Task DeleteCampaign(int id);
         Task<Campaign?> GetCampaignById(int id);
         Task<Campaign?> GetCampaignByLandingId(Guid id);

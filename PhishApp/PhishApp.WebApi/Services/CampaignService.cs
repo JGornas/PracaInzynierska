@@ -38,7 +38,9 @@ namespace PhishApp.WebApi.Services
             if (campaignEntity == null)
                 return null;
 
-            return BuildCampaign(campaignEntity);
+            Guid? submitButtonId = campaignEntity.CampaignGroupMemberEmailInfos.FirstOrDefault(x => x.LandingId == id)?.FormSubmitId;
+
+            return BuildCampaign(campaignEntity, submitButtonId);
         }
 
         public async Task DeleteCampaign(int id)
@@ -142,9 +144,9 @@ namespace PhishApp.WebApi.Services
             await _campaignRepository.MarkAsSentAsync(campaignId, isSentSuccessfully);
         }
 
-        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, Guid? landingId, string message = "")
+        public async Task AddEmailInfoAsync(int campaignId, int recipientMemberId, bool isSent, Guid pixelId, Guid? landingId, Guid? formSubmitId, string message = "")
         {
-            await _campaignEmailInfoRepository.AddEmailInfoAsync(campaignId, recipientMemberId, isSent, pixelId, landingId, message);
+            await _campaignEmailInfoRepository.AddEmailInfoAsync(campaignId, recipientMemberId, isSent, pixelId, landingId, formSubmitId,  message);
         }
 
         private CampaignEntity BuildCampaignEntity(Campaign campaign)
@@ -170,7 +172,7 @@ namespace PhishApp.WebApi.Services
             return entity;
         }
 
-        private Campaign BuildCampaign(CampaignEntity entity)
+        private Campaign BuildCampaign(CampaignEntity entity, Guid? formSubmitId = null)
         {
             var campaign = new Campaign
             {
@@ -212,6 +214,7 @@ namespace PhishApp.WebApi.Services
                     Id = entity.LandingPage.Id,
                     Name = entity.LandingPage.Name,
                     Content = entity.LandingPage.Content,
+                    FormSubmitId = formSubmitId,
                 } : null,
 
                 CampaignRecipientGroups = entity.CampaignRecipientGroups

@@ -1,0 +1,92 @@
+﻿@page
+@model PhishApp.WebApi.Pages.ResultModel
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <title>Informacja o kampanii</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 80px auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #d93025;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .info {
+            background-color: #f1f3f4;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>To była kampania phishingowa</h1>
+
+        <p>
+            Otwarty przez Ciebie e-mail oraz formularz,
+            z którym miałeś/aś kontakt, były częścią
+            <strong>kontrolowanej kampanii phishingowej</strong>.
+        </p>
+
+        <p>
+            Celem tej kampanii było sprawdzenie reakcji użytkowników
+            na potencjalnie niebezpieczne wiadomości oraz
+            podniesienie świadomości w zakresie cyberbezpieczeństwa.
+        </p>
+
+        <div class="info">
+            <p>
+                <strong>Co dalej?</strong>
+            </p>
+            <p>
+                W najbliższym czasie możesz otrzymać
+                <strong>krótki quiz edukacyjny</strong>,
+                który pomoże lepiej rozpoznawać próby phishingu
+                w przyszłości.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>
+                Dziękujemy za udział w projekcie edukacyjnym.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

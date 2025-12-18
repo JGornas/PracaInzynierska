@@ -29,9 +29,12 @@ namespace PhishApp.WebApi.Models.Identity
         public DateTime? OpenedTime { get; set; } = null;
 
         public Guid? LandingId { get; set; } = null;
-
         public bool IsRedirectedToLandingPage { get; set; } = false;
         public DateTime? RedirectedToLandingPageTime { get; set; } = null;
+
+        public Guid? FormSubmitId { get; set; } = null;
+        public bool IsFormSubmitted { get; set; } = false;
+        public DateTime? FormSubmittedTime { get; set; } = null;
 
     }
 }

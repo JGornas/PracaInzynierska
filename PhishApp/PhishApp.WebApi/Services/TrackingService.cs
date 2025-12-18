@@ -1,4 +1,6 @@
-﻿using PhishApp.WebApi.Repositories.Interfaces;
+﻿using HtmlAgilityPack;
+using PhishApp.WebApi.Helpers;
+using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
 
 namespace PhishApp.WebApi.Services
@@ -19,6 +21,10 @@ namespace PhishApp.WebApi.Services
         public async Task SetLandingPageOpened(Guid landingId)
         {
             await _campaignEmailInfoRepository.UpdateLandingPageOpenedAsync(landingId);
+        }
+        public async Task SetFormSubmittedAsync(Guid formSubmitId)
+        {
+            await _campaignEmailInfoRepository.UpdateFormSubmittedAsync(formSubmitId);
         }
     }
 }

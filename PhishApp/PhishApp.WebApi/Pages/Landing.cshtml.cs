@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using PhishApp.WebApi.Helpers;
 using PhishApp.WebApi.Services.Interfaces;
 
 namespace PhishApp.WebApi.Pages
@@ -32,6 +33,13 @@ namespace PhishApp.WebApi.Pages
             await _trackingService.SetLandingPageOpened(id);
 
             LandingHtml = campaign.LandingPage?.Content ?? "<h1>Landing page not available</h1>";
+
+            var submitId = campaign.LandingPage?.FormSubmitId;
+
+            if (submitId is not null)
+            {
+                LandingHtml = HtmlHelper.AddSubmitRedirects(LandingHtml, (Guid)submitId);
+            }
 
             return Page();
         }

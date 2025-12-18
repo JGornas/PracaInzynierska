@@ -75,12 +75,14 @@ namespace PhishApp.EmailSender.Services
         {
             _logService.Info($"Próba wysłania maila do odbiorcy {reciepient.Email}: {reciepient.FirstName} {reciepient.LastName}, Szablon: {campaign.Template?.Id ?? 0}");
             Guid pixelId;
-            Guid? landingId;
+            Guid? landingId, formSubmitId;
             string modifiedContent;
 
             AddTrackingPixel(campaign, out pixelId, out modifiedContent);
 
             AddLandingPageRedirections(campaign, out landingId, ref modifiedContent);
+
+            AddFormSubmitId(campaign, out formSubmitId);
 
             try
             {
@@ -90,15 +92,33 @@ namespace PhishApp.EmailSender.Services
                 campaign.Template?.Subject ?? string.Empty,
                 modifiedContent);
 
-                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId, landingId);
+                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId, landingId, formSubmitId);
                 //udalo sie wyslac
             }
             catch (Exception e)
             {
                 string message = $"Błąd podczas wysyłania maila do {reciepient.Email}: {e.Message}";
-                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, pixelId, landingId, message);
+                await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, pixelId, landingId, formSubmitId, message);
                 //nie udalo sie wyslac
             }
+        }
+
+        private void AddFormSubmitId(Campaign campaign, out Guid? formSubmitId)
+        {
+            formSubmitId = null;
+
+            if(campaign.LandingPage is not null)
+            {
+                string landingPageContent = campaign.LandingPage.Content;
+
+                bool hasClickableElements = HtmlHelper.ContainsClickableElements(landingPageContent);
+
+                if(hasClickableElements)
+                {
+                    formSubmitId = Guid.NewGuid();
+                }
+            }
+
         }
 
         private void AddLandingPageRedirections(Campaign campaign, out Guid? landingId, ref string contentWithPixel)
@@ -107,7 +127,7 @@ namespace PhishApp.EmailSender.Services
             if (campaign.LandingPage != null && !string.IsNullOrWhiteSpace(contentWithPixel))
             {
                 landingId = Guid.NewGuid();
-                contentWithPixel = AddLandingRedirects(contentWithPixel, (Guid)landingId);
+                contentWithPixel = HtmlHelper.AddLandingRedirects(contentWithPixel, (Guid)landingId);
             }
             else
             {
@@ -116,85 +136,12 @@ namespace PhishApp.EmailSender.Services
         }
 
 
-
-        private string AddLandingRedirects(string htmlContent, Guid landingId)
-        {
-            if (string.IsNullOrWhiteSpace(htmlContent))
-                return htmlContent;
-
-            string landingBaseUrl = $"{Constants.NGrokUrl}/landing/{landingId}";
-
-            var doc = new HtmlDocument();
-            doc.LoadHtml(htmlContent);
-
-            var aNodes = doc.DocumentNode.SelectNodes("//a[@href]");
-            if (aNodes != null)
-            {
-                foreach (var a in aNodes)
-                {
-                    string originalHref = a.GetAttributeValue("href", "#");
-                    string targetUrl = HttpUtility.UrlEncode(originalHref);
-                    a.SetAttributeValue("href", landingBaseUrl);
-
-                }
-            }
-
-            var buttonNodes = doc.DocumentNode.SelectNodes("//button[@onclick]");
-            if (buttonNodes != null)
-            {
-                foreach (var button in buttonNodes)
-                {
-                    string onclick = button.GetAttributeValue("onclick", "");
-                    var start = onclick.IndexOf("window.location='", StringComparison.OrdinalIgnoreCase);
-                    if (start >= 0)
-                    {
-                        start += "window.location='".Length;
-                        var end = onclick.IndexOf("'", start);
-                        if (end > start)
-                        {
-                            string originalUrl = onclick.Substring(start, end - start);
-                            string targetUrl = HttpUtility.UrlEncode(originalUrl);
-                            button.SetAttributeValue("onclick", $"window.location='{landingBaseUrl}?target={targetUrl}'");
-                        }
-                    }
-                }
-            }
-
-            return doc.DocumentNode.OuterHtml;
-        }
-
-
-
         private void AddTrackingPixel(Campaign campaign, out Guid pixelId, out string contentWithPixel)
         {
             pixelId = Guid.NewGuid();
-            contentWithPixel = GetEmailContentWithPixel(campaign.Template?.Content, pixelId);
+            contentWithPixel = HtmlHelper.GetEmailContentWithPixel(campaign.Template?.Content, pixelId);
         }
 
-        private string GetEmailContentWithPixel(string? templateContent, Guid pixelId)
-        {
-            string pixelUrl = $"{Constants.NGrokUrl}/api/pixel/{pixelId}.png";
-
-            string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"100\" height=\"50\" style=\"background:#fff;border:1px solid #ccc;display:block;\" alt=\"Test ładowania\" />";
-
-
-            string content = templateContent ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                return $"<html><body>{pixelHtml}</body></html>";
-            }
-
-            const string bodyClosingTag = "</body>";
-            int index = content.IndexOf(bodyClosingTag, StringComparison.OrdinalIgnoreCase);
-
-            if (index >= 0)
-            {
-                return content.Insert(index, pixelHtml + "\n");
-            }
-
-            return content + "\n" + pixelHtml;
-        }
 
     }
 }
