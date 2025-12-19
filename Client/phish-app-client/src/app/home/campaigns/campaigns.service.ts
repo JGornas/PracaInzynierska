@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { RestService } from '../../core/services/rest.service';
-import { Campaign, RecipientGroup, SendingProfile } from './campaigns.models';
+import { Campaign, RecipientGroup } from './campaigns.models';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { LandingPage } from '../landing-pages/landing-pages.models';
 import { Template } from '../templates/templates.models';
+import { SendingProfile } from '../sending-profiles/sending-profiles.models';
 
 @Injectable({
   providedIn: 'root'

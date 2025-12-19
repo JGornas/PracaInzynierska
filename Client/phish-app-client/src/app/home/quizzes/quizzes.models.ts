@@ -1,4 +1,6 @@
-﻿export type QuizQuestionType = 'TRUE_FALSE' | 'ABCD';
+﻿import { SendingProfile } from "../sending-profiles/sending-profiles.models";
+
+export type QuizQuestionType = 'TRUE_FALSE' | 'ABCD';
 
 export interface QuizOptionDto {
   key: string; // for ABCD (A-D)
@@ -37,3 +39,49 @@ export const createEmptyQuiz = (): QuizDto => ({
   description: null,
   questions: []
 });
+
+
+export class Quizz {
+  id: number;
+  name: string | null;
+  title: string | null;
+  description: string | null;
+
+  constructor() {
+    this.id = 0;
+    this.name = null;
+    this.title = null;
+    this.description = null;
+  }
+}
+
+export class QuizzSendingInfo {
+  id: number = 0;
+  quizz: Quizz;
+  sendingProfile: SendingProfile | null = null;
+  recipientGroups: RecipientGroup[];
+
+  constructor() {
+    this.quizz = new Quizz();
+    this.recipientGroups = [];
+  }
+
+  get recipientGroupIds(): number[] {
+    return this.recipientGroups.map(g => g.id);
+  }
+}
+
+
+export class RecipientGroup {
+  id: number;
+  name: string;
+  campaign?: string | null;
+  createdAt?: string;
+
+  constructor() {
+    this.id = 0;
+    this.name = '';
+    this.campaign = null;
+    this.createdAt = undefined;
+  }
+}

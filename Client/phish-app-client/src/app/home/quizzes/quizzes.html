@@ -3,11 +3,19 @@
     <div class="row">
       <h2>Quizy</h2>
 
-      <app-button-component
-        [label]="'Stworz nowy'"
-        [variant]="'blue-theme'"
-        [action]="createQuiz.bind(this)">
-      </app-button-component>      
+      <div class="actions">
+        <app-button-component
+          [label]="'Wyslij quiz'"
+          [variant]="'white-outline-theme'"
+          [action]="sendQuiz.bind(this)">
+        </app-button-component>  
+        <app-button-component
+          [label]="'Stworz nowy'"
+          [variant]="'blue-theme'"
+          [action]="createQuiz.bind(this)">
+        </app-button-component>  
+      </div>
+          
     </div>
   </header>
 
@@ -16,6 +24,7 @@
         apiUrl="/api/quizzes/grid"
         [columnsToDisplay]="columns"
         [isRemovable]="true"
+        (rowClicked)="handleRowClick($event)"
         (rowDoubleClicked)="handleRowDoubleClick($event)"
         (rowRemoved)="handleRowDeleted($event)">
     </app-grid>

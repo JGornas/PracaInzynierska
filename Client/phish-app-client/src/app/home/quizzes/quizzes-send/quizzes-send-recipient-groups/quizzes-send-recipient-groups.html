@@ -1,0 +1,28 @@
+<div class="campaigns-container">
+    <div class="header-row">
+        <h2>Dodaj grupy odbiorców</h2>
+    </div>
+
+    <app-grid 
+        apiUrl="/api/recipients/groups/grid"
+        [selectMode]="'multi'"
+        [excludedItems] = "quizzSendingInfo.recipientGroupIds"
+        [columnsToDisplay]="columns"
+        [isRemovable]="false"
+        (selectionChange)="onGroupsSelected($event)">
+    </app-grid>
+
+    <div class="row">
+        <app-button-component
+        [label]="'Anuluj'"
+        [variant]="'white-outline-theme'"
+        [action]="cancel.bind(this)">
+        </app-button-component>
+
+        <app-button-component
+        [label]="'Dodaj wybrane grupy'"
+        [variant]="'blue-theme'"
+        [action]="save.bind(this)">
+        </app-button-component>
+    </div>
+</div>

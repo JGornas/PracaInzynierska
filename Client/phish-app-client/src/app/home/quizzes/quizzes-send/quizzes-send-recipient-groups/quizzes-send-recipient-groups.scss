@@ -1,0 +1,11 @@
+.campaigns-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}

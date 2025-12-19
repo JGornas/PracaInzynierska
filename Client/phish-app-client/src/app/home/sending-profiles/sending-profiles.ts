@@ -4,12 +4,12 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validatio
 import { GridColumn, GridElement } from '../../core/components/grid-component/grid-component.models';
 import { GridComponent } from '../../core/components/grid-component/grid-component';
 import { SendingProfilesService } from './sending-profiles.service';
-import { SendingProfileDto, SendingProfilePayload } from './sending-profiles.models';
+import { SendingProfile, SendingProfileDto, SendingProfilePayload } from './sending-profiles.models';
 import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonComponent } from '../../core/components/button-component/button-component';
 import { SharedCampaignService } from '../campaigns/shared-campaigns.service';
-import { SendingProfile } from '../campaigns/campaigns.models';
+import { SharedQuizzesService } from '../quizzes/shared-quizzes.service';
 
 
 
@@ -54,6 +54,8 @@ export class SendingProfiles implements OnInit {
   isDeletingId: number | null = null;
 
   isSelectMode = false;
+  isSelectModeFromCampaign = false;
+  isSelectModeFromQuizzSending = false;
 
   readonly protocolOptions = ['SMTP'];
   private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -62,7 +64,8 @@ export class SendingProfiles implements OnInit {
     private profilesService: SendingProfilesService,
     private route: ActivatedRoute,
     private router: Router,
-    private sharedCampaignService: SharedCampaignService) {
+    private sharedCampaignService: SharedCampaignService,
+    private sharedQuizzSendingInfoService: SharedQuizzesService) {
     this.editForm = this.buildForm(false);
     this.createForm = this.buildForm(true);
     this.resetEditForm();
@@ -72,9 +75,23 @@ export class SendingProfiles implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const selectMode = params['selectMode'] === 'true';
-      const campaignId = params['campaignId'] !== undefined ? Number(params['campaignId']) : null;
 
-      if (selectMode) {
+      const campaignId = params['campaignId'] !== undefined
+        ? Number(params['campaignId'])
+        : null;
+
+      const quizSendingId = params['quizSendingId'] !== undefined
+        ? Number(params['quizSendingId'])
+        : null;
+
+      if (!selectMode) {
+        this.isSelectMode = false;
+        return;
+      }
+
+      this.isSelectMode = true;
+
+      if (campaignId !== null) {
         const campaign = this.sharedCampaignService.getCurrentValue();
 
         if (!campaign || campaign.id !== campaignId) {
@@ -82,18 +99,40 @@ export class SendingProfiles implements OnInit {
           return;
         }
 
-        this.isSelectMode = true;
+        this.isSelectModeFromCampaign = true;
+        this.isSelectModeFromQuizzSending = false;
 
         if (campaign.sendingProfile) {
           this.selectedProfileId = campaign.sendingProfile.id;
         }
-      } else {
-        this.isSelectMode = false;
+
+        return;
       }
+
+      if (quizSendingId !== null) {
+        const quizzInfo = this.sharedQuizzSendingInfoService.getCurrentValue();
+
+        if (!quizzInfo) {
+          this.router.navigate(['/home/quizzes']);
+          return;
+        }
+
+        this.isSelectModeFromCampaign = false;
+        this.isSelectModeFromQuizzSending = true;
+
+        if (quizzInfo.sendingProfile) {
+          this.selectedProfileId = quizzInfo.sendingProfile.id;
+        }
+
+        return;
+      }
+
+      this.router.navigate(['/home']);
     });
 
     this.loadProfiles();
   }
+
 
 
 
@@ -168,12 +207,23 @@ export class SendingProfiles implements OnInit {
     this.selectedProfileId = id;
   }
 
-  cancelProdfileSelection(): void {    
-    const pendingCampaign = this.sharedCampaignService.getCurrentValue();
-    if (pendingCampaign) {
-      this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+  cancelProdfileSelection(): void {
+    if (this.isSelectModeFromCampaign) {
+      const pendingCampaign = this.sharedCampaignService.getCurrentValue();
+      if (pendingCampaign) {
+        this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+      }
+      return;
     }
+
+    if (this.isSelectModeFromQuizzSending) {
+      this.router.navigate(['/home/quizzes/send']);
+      return;
+    }
+
+    this.router.navigate(['/home']);
   }
+
 
   selectProfile(): void {
     if (this.selectedProfileId === null) {
@@ -185,33 +235,47 @@ export class SendingProfiles implements OnInit {
       return;
     }
 
-    const pendingCampaign = this.sharedCampaignService.getCurrentValue();
-    if (pendingCampaign) {
-      const sendingProfile = new SendingProfile();
-      sendingProfile.id = selectedDto.id;
-      sendingProfile.name = selectedDto.name;
-      sendingProfile.protocol = selectedDto.protocol;
-      sendingProfile.senderName = selectedDto.senderName;
-      sendingProfile.senderEmail = selectedDto.senderEmail;
-      sendingProfile.host = selectedDto.host;
-      sendingProfile.port = selectedDto.port;
-      sendingProfile.username = selectedDto.username;
-      sendingProfile.useSsl = selectedDto.useSsl;
-      sendingProfile.replyTo = selectedDto.replyTo ?? null;
-      sendingProfile.testEmail = selectedDto.testEmail ?? null;
-      sendingProfile.hasPassword = selectedDto.hasPassword;
+    const sendingProfile = new SendingProfile();
+    sendingProfile.id = selectedDto.id;
+    sendingProfile.name = selectedDto.name;
+    sendingProfile.protocol = selectedDto.protocol;
+    sendingProfile.senderName = selectedDto.senderName;
+    sendingProfile.senderEmail = selectedDto.senderEmail;
+    sendingProfile.host = selectedDto.host;
+    sendingProfile.port = selectedDto.port;
+    sendingProfile.username = selectedDto.username;
+    sendingProfile.useSsl = selectedDto.useSsl;
+    sendingProfile.replyTo = selectedDto.replyTo ?? null;
+    sendingProfile.testEmail = selectedDto.testEmail ?? null;
+    sendingProfile.hasPassword = selectedDto.hasPassword;
 
-      pendingCampaign.sendingProfile = sendingProfile;
+    if (this.isSelectModeFromCampaign) {
+      const pendingCampaign = this.sharedCampaignService.getCurrentValue();
+      if (pendingCampaign) {
+        pendingCampaign.sendingProfile = sendingProfile;
+        this.sharedCampaignService.setCurrent(pendingCampaign);
+        console.log('Selected sending profile set in pending campaign:', pendingCampaign);
 
-      this.sharedCampaignService.setCurrent(pendingCampaign);
-      console.log('Selected sending profile set in pending campaign:', pendingCampaign);
-
-      this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
-      return;
+        this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+        return;
+      }
     }
 
-    this.router.navigate(['/home/campaigns']);
+    if (this.isSelectModeFromQuizzSending) {
+      const quizzInfo = this.sharedQuizzSendingInfoService.getCurrentValue();
+      if (quizzInfo) {
+        quizzInfo.sendingProfile = sendingProfile;
+        this.sharedQuizzSendingInfoService.setCurrent(quizzInfo);
+        console.log('Selected sending profile set in QuizzSendingInfo:', quizzInfo);
+
+        this.router.navigate(['/home/quizzes/send']);
+        return;
+      }
+    }
+
+    this.router.navigate(['/home']);
   }
+
 
   sendTestEmail(row: GridElement, event: MouseEvent): void {
     const id = Number(row['id']);

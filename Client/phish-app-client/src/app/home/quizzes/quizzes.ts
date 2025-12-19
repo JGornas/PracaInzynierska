@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 import { firstValueFrom } from 'rxjs';
 import { GridComponent } from '../../core/components/grid-component/grid-component';
 import { ButtonComponent } from '../../core/components/button-component/button-component';
+import { QuizDto, QuizzSendingInfo } from './quizzes.models';
+import { SharedQuizzesService } from './shared-quizzes.service';
 
 @Component({
   selector: 'app-quizzes',
@@ -17,10 +19,13 @@ import { ButtonComponent } from '../../core/components/button-component/button-c
 export class Quizzes {
   @ViewChild(GridComponent) grid!: GridComponent;
 
+  selectedQuizz: QuizDto | null = null;
+
   constructor(
     private quizzesService: QuizzesService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private sharedQuizzesService: SharedQuizzesService
   ) {}
 
   columns: GridColumn[] = [
@@ -32,10 +37,36 @@ export class Quizzes {
   async handleRowDoubleClick(selected: GridElement): Promise<void> {
     await this.router.navigate([selected['id'], 'edit'], { relativeTo: this.route });
   }
+  async handleRowClick(selected: GridElement): Promise<void> {
+    this.selectedQuizz = {
+      id: selected['id'],
+      title: selected['title'],
+      description: selected['description'],
+      questions: []
+    };
+  }
   
   async createQuiz(): Promise<void> {
     await this.router.navigate(['create'], { relativeTo: this.route });
   }
+
+  async sendQuiz(): Promise<void> {
+    if (!this.selectedQuizz) {
+      return;
+    }
+
+    const info = new QuizzSendingInfo();
+
+    info.quizz.id = this.selectedQuizz.id;
+    info.quizz.name = this.selectedQuizz.name ?? null;
+    info.quizz.title = this.selectedQuizz.title ?? null;
+    info.quizz.description = this.selectedQuizz.description ?? null;
+
+    this.sharedQuizzesService.setCurrent(info);
+
+    await this.router.navigate(['send'], { relativeTo: this.route });
+  }
+
 
   async handleRowDeleted(selected: GridElement) {
     const result = await Swal.fire({

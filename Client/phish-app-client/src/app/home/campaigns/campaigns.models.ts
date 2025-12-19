@@ -1,4 +1,5 @@
 import { LandingPage } from "../landing-pages/landing-pages.models";
+import { SendingProfile } from "../sending-profiles/sending-profiles.models";
 import { Template } from "../templates/templates.models";
 
 export class RecipientGroup {
@@ -12,36 +13,6 @@ export class RecipientGroup {
     this.name = '';
     this.campaign = null;
     this.createdAt = undefined;
-  }
-}
-
-export class SendingProfile{
-  id: number;
-  name: string;
-  protocol: string;
-  senderName: string;
-  senderEmail: string;
-  host: string;
-  port: number;
-  username: string;
-  useSsl: boolean;
-  replyTo: string | null;
-  testEmail: string | null;
-  hasPassword: boolean;
-
-  constructor() {
-    this.id = 0;
-    this.name = '';
-    this.protocol = '';
-    this.senderName = '';
-    this.senderEmail = '';
-    this.host = '';
-    this.port = 0;
-    this.username = '';
-    this.useSsl = false;
-    this.replyTo = null;
-    this.testEmail = null;
-    this.hasPassword = false;
   }
 }
 

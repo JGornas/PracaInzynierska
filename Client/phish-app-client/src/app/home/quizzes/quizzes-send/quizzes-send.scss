@@ -1,0 +1,78 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campaign-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.campaign-field {
+  flex: 1 1 250px;
+  min-width: 250px;
+}
+
+.campaign-field.clickable {
+  cursor: pointer;
+}
+
+.campaign-field.clickable .mat-form-field-label,
+.campaign-field.clickable input[readonly] {
+  cursor: pointer;
+  user-select: none;
+  caret-color: transparent;
+}
+
+.campaign-field.clickable:focus,
+.campaign-field.clickable .mat-form-field-label:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
+}
+
+.grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grid-section h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 24px 0px;
+}
+
+.two-grids {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.two-grids .grid-wrapper {
+  flex: 1 1 420px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+section{
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+header{
+  border-bottom: 1px solid #e5e7eb;
+}

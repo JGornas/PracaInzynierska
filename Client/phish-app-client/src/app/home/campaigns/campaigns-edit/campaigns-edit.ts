@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Campaign, SendingProfile } from '../campaigns.models';
+import { Campaign } from '../campaigns.models';
 import { CampaignsService } from '../campaigns.service';
 import { firstValueFrom, min, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';

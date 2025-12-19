@@ -15,7 +15,12 @@ app-grid {
 }
 .row {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+}
+
+.actions {
+  margin-left: auto; /* wypycha przyciski w prawo */
+  display: flex;
   gap: 8px;
 }
 

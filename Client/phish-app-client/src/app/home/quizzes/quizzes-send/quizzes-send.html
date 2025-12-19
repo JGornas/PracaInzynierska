@@ -1,0 +1,60 @@
+<div class="container">
+  <header>
+    <h2>Wyślij quiz</h2>
+  </header>
+
+
+  <section>
+    <div class="campaign-flex">
+      <mat-form-field
+        class="campaign-field clickable"
+        appearance="outline"
+        role="button"
+        tabindex="0"
+        (click)="selectSendingProfile()">
+        <mat-label>Profil wysyłki</mat-label>
+
+        <input
+          matInput
+          placeholder="Wybierz profil wysyłki"
+          readonly
+          [value]="sendingProfileName" />
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <app-button-component
+        [label]="'Dodaj grupę odbiorców'"
+        [variant]="'white-outline-theme'"
+        [action]="addRecipientGroup.bind(this)">
+      </app-button-component>
+    </div>
+
+    <div class="grid-section">
+      <h3>Grupy odbiorców</h3>
+      <app-grid
+        [localData]="quizzSendingInfo.recipientGroups"
+        [columnsToDisplay]="recipientGroupColumns"
+        [isSelectable]="true"
+        [isRemovable]="true"
+        (rowClicked)="handleRecipientGroupClick($event)"
+        (rowRemoved)="handleRecipientGroupRemoved($event)">
+      </app-grid>
+    </div>
+  </section>
+
+  <div class="row">
+    <app-button-component
+    [label]="'Anuluj'"
+    [variant]="'white-outline-theme'"
+    [action]="cancel.bind(this)">
+    </app-button-component>
+
+    <app-button-component
+    [label]="'Wyślij quiz'"
+    [variant]="'blue-theme'"
+    [action]="send.bind(this)">
+    </app-button-component>
+  </div>
+
+</div>
