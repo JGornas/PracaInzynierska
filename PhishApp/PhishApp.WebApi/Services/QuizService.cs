@@ -33,7 +33,7 @@ namespace PhishApp.WebApi.Services
             var quiz = await _quizzRepository.GetQuizAsync(id);
             if (quiz == null)
             {
-                throw new KeyNotFoundException($"Quiz o Id {id} nie został znaleziony.");
+                throw new KeyNotFoundException($"Quiz o Id {id} nie zostal znaleziony.");
             }
             return MapToDto(quiz);
         }
@@ -42,33 +42,39 @@ namespace PhishApp.WebApi.Services
         {
             if (string.IsNullOrWhiteSpace(payload.Name) && string.IsNullOrWhiteSpace(payload.Title))
             {
-                throw new ArgumentException("Quiz wymaga nazwy/tytułu.");
+                throw new ArgumentException("Quiz wymaga nazwy/tytulu.");
             }
 
             var title = payload.Name?.Trim() ?? payload.Title?.Trim() ?? string.Empty;
 
-            var entity = payload.Id.HasValue
-                ? await _quizzRepository.GetQuizAsync(payload.Id.Value) ?? new QuizEntity()
+            var isUpdate = payload.Id.HasValue && payload.Id > 0;
+            var existing = isUpdate
+                ? await _quizzRepository.GetQuizAsync(payload.Id!.Value) ?? throw new KeyNotFoundException($"Quiz o Id {payload.Id} nie zostal znaleziony.")
                 : new QuizEntity();
 
-            entity.Title = title;
-            entity.Description = payload.Description?.Trim() ?? string.Empty;
-
-            entity.Questions = MapQuestions(payload.Questions, entity);
-
-            if (payload.Id.HasValue && entity.Id > 0)
+            var mappedQuiz = new QuizEntity
             {
-                entity = await _quizzRepository.UpdateQuizAsync(entity);
-            }
-            else
-            {
-                entity = await _quizzRepository.AddQuizAsync(entity);
-            }
+                Id = existing.Id,
+                Title = title,
+                Description = payload.Description?.Trim() ?? string.Empty
+            };
 
-            return MapToDto(entity);
+            var correctAnswers = new Dictionary<QuestionEntity, string?>();
+            mappedQuiz.Questions = MapQuestions(payload.Questions, mappedQuiz, correctAnswers);
+
+            var persisted = isUpdate
+                ? await _quizzRepository.UpdateQuizAsync(mappedQuiz)
+                : await _quizzRepository.AddQuizAsync(mappedQuiz);
+
+            await _quizzRepository.SaveChangesAsync();
+
+            ApplyCorrectAnswers(persisted, correctAnswers);
+            await _quizzRepository.SaveChangesAsync();
+
+            return MapToDto(persisted);
         }
 
-        private List<QuestionEntity> MapQuestions(IEnumerable<QuestionDto> questions, QuizEntity quiz)
+        private List<QuestionEntity> MapQuestions(IEnumerable<QuestionDto> questions, QuizEntity quiz, Dictionary<QuestionEntity, string?> correctAnswerMap)
         {
             var result = new List<QuestionEntity>();
             foreach (var q in questions)
@@ -88,6 +94,7 @@ namespace PhishApp.WebApi.Services
                     question.CorrectAnswerValue = q.CorrectAnswerValue;
                     question.CorrectAnswerId = null;
                     question.Answers = new List<AnswerEntity>();
+                    correctAnswerMap[question] = null;
                 }
                 else
                 {
@@ -103,17 +110,48 @@ namespace PhishApp.WebApi.Services
                     }).ToList();
 
                     question.Answers = answers;
-                    var correctKey = (q.CorrectAnswer ?? string.Empty).ToUpperInvariant();
-                    var index = Array.IndexOf(orderedKeys, correctKey);
-                    if (index >= 0 && index < answers.Count)
-                    {
-                        question.CorrectAnswer = answers[index];
-                    }
                     question.CorrectAnswerValue = null;
+                    correctAnswerMap[question] = (q.CorrectAnswer ?? string.Empty).ToUpperInvariant();
                 }
                 result.Add(question);
             }
             return result;
+        }
+
+        private void ApplyCorrectAnswers(QuizEntity quiz, Dictionary<QuestionEntity, string?> correctAnswerMap)
+        {
+            if (!correctAnswerMap.Any()) return;
+
+            var trackedQuestions = quiz.Questions?.ToList() ?? new List<QuestionEntity>();
+
+            foreach (var kvp in correctAnswerMap)
+            {
+                var sourceQuestion = kvp.Key;
+                var correctKey = kvp.Value;
+
+                var target = sourceQuestion.Id > 0
+                    ? trackedQuestions.FirstOrDefault(q => q.Id == sourceQuestion.Id)
+                    : trackedQuestions.FirstOrDefault(q => ReferenceEquals(q, sourceQuestion)) ?? sourceQuestion;
+
+                if (target == null) continue;
+
+                if (target.Type == QuestionType.TrueFalse)
+                {
+                    target.CorrectAnswer = null;
+                    target.CorrectAnswerId = null;
+                    continue;
+                }
+
+                var answers = target.Answers?.ToList() ?? new List<AnswerEntity>();
+                var orderedKeys = new[] { "A", "B", "C", "D" };
+                var index = Array.IndexOf(orderedKeys, correctKey);
+                if (index >= 0 && index < answers.Count)
+                {
+                    var answer = answers[index];
+                    target.CorrectAnswerId = answer.Id;
+                    target.CorrectAnswer = answer;
+                }
+            }
         }
 
         private QuizDto MapToDto(QuizEntity entity)
@@ -164,3 +202,5 @@ namespace PhishApp.WebApi.Services
         }
     }
 }
+
+

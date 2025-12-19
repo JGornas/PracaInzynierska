@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Infrastructure;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Repositories.Interfaces;
@@ -23,11 +23,10 @@ namespace PhishApp.WebApi.Repositories
 
             if (quiz == null)
             {
-                throw new KeyNotFoundException($"Quiz o Id {quizId} nie zosta³ znaleziony.");
+                throw new KeyNotFoundException($"Quiz o Id {quizId} nie zostal znaleziony.");
             }
 
             _context.Quizzes.Remove(quiz);
-
             await _context.SaveChangesAsync();
         }
 
@@ -39,11 +38,10 @@ namespace PhishApp.WebApi.Repositories
                 .FirstOrDefaultAsync(q => q.Id == quizId);
         }
 
-        public async Task<QuizEntity> AddQuizAsync(QuizEntity quiz)
+        public Task<QuizEntity> AddQuizAsync(QuizEntity quiz)
         {
             _context.Quizzes.Add(quiz);
-            await _context.SaveChangesAsync();
-            return quiz;
+            return Task.FromResult(quiz);
         }
 
         public async Task<QuizEntity> UpdateQuizAsync(QuizEntity quiz)
@@ -55,13 +53,12 @@ namespace PhishApp.WebApi.Repositories
 
             if (existing == null)
             {
-                throw new KeyNotFoundException($"Quiz o Id {quiz.Id} nie zosta³ znaleziony.");
+                throw new KeyNotFoundException($"Quiz o Id {quiz.Id} nie zostal znaleziony.");
             }
 
             existing.Title = quiz.Title;
             existing.Description = quiz.Description;
 
-            // Usuñ pytania, których nie ma w nowym payloadzie
             var incomingIds = quiz.Questions.Where(q => q.Id > 0).Select(q => q.Id).ToHashSet();
             var toRemove = existing.Questions.Where(q => !incomingIds.Contains(q.Id)).ToList();
             _context.Questions.RemoveRange(toRemove);
@@ -74,28 +71,36 @@ namespace PhishApp.WebApi.Repositories
                     target.Text = newQuestion.Text;
                     target.Type = newQuestion.Type;
                     target.CorrectAnswerValue = newQuestion.CorrectAnswerValue;
+                    target.CorrectAnswer = null;
+                    target.CorrectAnswerId = null;
 
-                    // zaktualizuj odpowiedzi
-                    if (newQuestion.Type == Models.Quizzes.QuestionType.TrueFalse)
+                    _context.Answers.RemoveRange(target.Answers);
+                    target.Answers.Clear();
+
+                    if (newQuestion.Type != Models.Quizzes.QuestionType.TrueFalse)
                     {
-                        _context.Answers.RemoveRange(target.Answers);
-                        target.CorrectAnswer = null;
-                    }
-                    else
-                    {
-                        _context.Answers.RemoveRange(target.Answers);
-                        target.Answers = newQuestion.Answers;
-                        target.CorrectAnswer = newQuestion.CorrectAnswer;
+                        foreach (var ans in newQuestion.Answers)
+                        {
+                            target.Answers.Add(new AnswerEntity { Text = ans.Text });
+                        }
                     }
                 }
                 else
                 {
+                    newQuestion.CorrectAnswer = null;
+                    newQuestion.CorrectAnswerId = null;
+                    newQuestion.Quiz = existing;
+                    newQuestion.QuizId = existing.Id;
                     existing.Questions.Add(newQuestion);
                 }
             }
 
-            await _context.SaveChangesAsync();
             return existing;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }
