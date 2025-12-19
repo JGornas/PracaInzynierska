@@ -1,5 +1,6 @@
-Ôªøusing Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Infrastructure;
+using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Repositories.Interfaces;
 
 namespace PhishApp.WebApi.Repositories
@@ -22,7 +23,7 @@ namespace PhishApp.WebApi.Repositories
 
             if (quiz == null)
             {
-                throw new KeyNotFoundException($"Quiz o Id {quizId} nie zosta≈Ç znaleziony.");
+                throw new KeyNotFoundException($"Quiz o Id {quizId} nie zosta≥ znaleziony.");
             }
 
             _context.Quizzes.Remove(quiz);
@@ -30,5 +31,72 @@ namespace PhishApp.WebApi.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<QuizEntity?> GetQuizAsync(int quizId)
+        {
+            return await _context.Quizzes
+                .Include(q => q.Questions)
+                    .ThenInclude(q => q.Answers)
+                .FirstOrDefaultAsync(q => q.Id == quizId);
+        }
+
+        public async Task<QuizEntity> AddQuizAsync(QuizEntity quiz)
+        {
+            _context.Quizzes.Add(quiz);
+            await _context.SaveChangesAsync();
+            return quiz;
+        }
+
+        public async Task<QuizEntity> UpdateQuizAsync(QuizEntity quiz)
+        {
+            var existing = await _context.Quizzes
+                .Include(q => q.Questions)
+                    .ThenInclude(q => q.Answers)
+                .FirstOrDefaultAsync(q => q.Id == quiz.Id);
+
+            if (existing == null)
+            {
+                throw new KeyNotFoundException($"Quiz o Id {quiz.Id} nie zosta≥ znaleziony.");
+            }
+
+            existing.Title = quiz.Title;
+            existing.Description = quiz.Description;
+
+            // UsuÒ pytania, ktÛrych nie ma w nowym payloadzie
+            var incomingIds = quiz.Questions.Where(q => q.Id > 0).Select(q => q.Id).ToHashSet();
+            var toRemove = existing.Questions.Where(q => !incomingIds.Contains(q.Id)).ToList();
+            _context.Questions.RemoveRange(toRemove);
+
+            foreach (var newQuestion in quiz.Questions)
+            {
+                if (newQuestion.Id > 0)
+                {
+                    var target = existing.Questions.First(q => q.Id == newQuestion.Id);
+                    target.Text = newQuestion.Text;
+                    target.Type = newQuestion.Type;
+                    target.CorrectAnswerValue = newQuestion.CorrectAnswerValue;
+
+                    // zaktualizuj odpowiedzi
+                    if (newQuestion.Type == Models.Quizzes.QuestionType.TrueFalse)
+                    {
+                        _context.Answers.RemoveRange(target.Answers);
+                        target.CorrectAnswer = null;
+                    }
+                    else
+                    {
+                        _context.Answers.RemoveRange(target.Answers);
+                        target.Answers = newQuestion.Answers;
+                        target.CorrectAnswer = newQuestion.CorrectAnswer;
+                    }
+                }
+                else
+                {
+                    existing.Questions.Add(newQuestion);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return existing;
+        }
     }
 }
+

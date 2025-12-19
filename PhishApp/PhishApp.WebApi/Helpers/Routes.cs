@@ -51,6 +51,9 @@
         //Quizzes
         public const string QuizzesGrid = "api/quizzes/grid";
         public const string DeleteQuizz= "api/quizzes/{id}";
+        public const string GetQuiz = "api/quizzes/{id}";
+        public const string CreateQuiz = "api/quizzes";
+        public const string UpdateQuiz = "api/quizzes/{id}";
 
         //Tracking
         public const string GetPixel = "api/pixel/{messageId}.png";
