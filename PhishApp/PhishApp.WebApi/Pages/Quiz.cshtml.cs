@@ -23,10 +23,17 @@ namespace PhishApp.WebApi.Pages
             if (id is null || id == 0)
                 return BadRequest("Missing token");
 
-
-            Quiz =  await _quizService.GetQuizAsync((int)id);
+            try
+            {
+                Quiz = await _quizService.GetQuizAsync((int)id);
+            }
+            catch (KeyNotFoundException)
+            {
+                Quiz = null;
+            }
 
             return Page();
         }
+
     }
 }

@@ -86,14 +86,24 @@ public class CampaignRepository : ICampaignRepository
     {
         var campaign = await _context.Campaigns
             .Include(c => c.CampaignRecipientGroups)
+            .Include(c => c.CampaignGroupMemberEmailInfos)
             .FirstOrDefaultAsync(c => c.Id == id);
 
-        if (campaign != null)
+        if (campaign == null)
+            return;
+
+        if (campaign.CampaignGroupMemberEmailInfos.Any())
         {
-            _context.CampaignRecipientGroups.RemoveRange(campaign.CampaignRecipientGroups);
-            
-            _context.Campaigns.Remove(campaign);
-            await _context.SaveChangesAsync();
+            throw new InvalidOperationException(
+                "Nie można usunąć tej kampanii, ponieważ została ona wysłana."
+            );
         }
+
+        _context.CampaignRecipientGroups.RemoveRange(campaign.CampaignRecipientGroups);
+
+        _context.Campaigns.Remove(campaign);
+
+        await _context.SaveChangesAsync();
     }
+
 }

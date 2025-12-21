@@ -27,13 +27,13 @@ namespace PhishApp.WebApi.Infrastructure
             {
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.Email).IsRequired();
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
             });
 
             builder.Entity<RecipientGroupEntity>(entity =>
             {
                 entity.Property(e => e.Name).IsRequired();
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
             });
 
             builder.Entity<RecipientGroupMemberEntity>(entity =>
@@ -61,7 +61,7 @@ namespace PhishApp.WebApi.Infrastructure
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Password).IsRequired();
                 entity.Property(e => e.ReplyTo).HasMaxLength(200);
-                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
             });
 
             builder.Entity<CampaignEntity>(entity =>
@@ -69,6 +69,21 @@ namespace PhishApp.WebApi.Infrastructure
                 entity.HasMany(c => c.CampaignRecipientGroups)
                       .WithOne(crg => crg.Campaign)
                       .HasForeignKey(crg => crg.CampaignId);
+
+                entity.HasOne(c => c.Template)
+                      .WithMany()
+                      .HasForeignKey(c => c.TemplateId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(c => c.LandingPage)
+                      .WithMany()
+                      .HasForeignKey(c => c.LandingPageId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(c => c.SendingProfile)
+                      .WithMany()
+                      .HasForeignKey(c => c.SendingProfileId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             builder.Entity<RecipientGroupEntity>(entity =>
@@ -98,11 +113,12 @@ namespace PhishApp.WebApi.Infrastructure
 
             builder.Entity<QuestionEntity>()
                 .HasOne(q => q.CorrectAnswer)
-                .WithMany() // brak kolekcji w AnswerEntity
+                .WithMany()
                 .HasForeignKey(q => q.CorrectAnswerId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
         }
+
 
         public DbSet<TemplateEntity> Templates { get; set; }
         public DbSet<RecipientEntity> Recipients { get; set; }
