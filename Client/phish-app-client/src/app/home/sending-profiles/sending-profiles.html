@@ -259,10 +259,18 @@
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn" (click)="closeEditModal()">Anuluj</button>
-          <button type="submit" class="btn btn-primary" [disabled]="isSaving">
-            {{ isSaving ? 'Zapisywanie...' : 'Zapisz zmiany' }}
-          </button>
+          <app-button-component
+            [label]="'Anuluj'"
+            [variant]="'white-outline-theme'"
+            [action]="closeEditModal.bind(this)">
+          </app-button-component>
+
+          <app-button-component
+            [label]="isSaving ? 'Zapisywanie...' : 'Zapisz zmiany'"
+            [variant]="'blue-theme'"
+            [disabled]="isSaving"
+            [action]="saveEdit.bind(this)">
+          </app-button-component>
         </div>
       </form>
     </div>

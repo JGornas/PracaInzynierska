@@ -31,7 +31,6 @@ type RecipientGridRow = RecipientDto & { createdAtLabel: string };
 type GroupGridRow = {
   id: number;
   name: string;
-  campaignLabel: string;
   membersCount: number;
 };
 
@@ -78,7 +77,6 @@ export class Recipients implements OnInit {
 
   groupColumns: GridColumn[] = [
     { field: 'name', label: 'Nazwa grupy' },
-    { field: 'campaignLabel', label: 'Kampania' },
     { field: 'membersCount', label: 'Liczba odbiorców' }
   ];
 
@@ -160,7 +158,6 @@ export class Recipients implements OnInit {
     this.groupGridData = this.groups.map(group => ({
       id: group.id,
       name: group.name,
-      campaignLabel: group.campaign || '-',
       membersCount: group.members?.length ?? 0
     }));
   }
@@ -673,6 +670,7 @@ export class Recipients implements OnInit {
     alert(message || fallbackMessage);
   }
 }
+
 
 
 

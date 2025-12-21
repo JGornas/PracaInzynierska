@@ -6,28 +6,7 @@
     </div>
   </header>
 
-  <section class="card individuals-card">
-    <div class="section-header">
-      <div>
-        <h3>Pojedynczy odbiorcy</h3>
-        <div class="section-hint">Podwójne kliknięcie otwiera edycję, kosz usuwa wpis.</div>
-      </div>
-      <app-button-component
-        [label]="'Dodaj odbiorcę'"
-        [variant]="'blue-theme'"
-        [action]="openCreateRecipient.bind(this)">
-      </app-button-component>
-    </div>
-
-    <app-grid
-      [localData]="individualGridData"
-      [columnsToDisplay]="individualColumns"
-      [isRemovable]="true"
-      (rowDoubleClicked)="handleRecipientDoubleClicked($event)"
-      (rowRemoved)="handleRecipientRemoved($event)">
-    </app-grid>
-  </section>
-
+  
   <section class="card groups-card">
     <div class="section-header">
       <div>
@@ -116,10 +95,6 @@
             @if (groupNameTouched && !(groupName?.trim())) {
               <div class="error">Nazwa grupy jest wymagana</div>
             }
-          </label>
-          <label>
-            Kampania (opcjonalnie)
-            <input class="form-control" [(ngModel)]="campaign" name="campaign" placeholder="Nazwa kampanii" />
           </label>
         </div>
 
@@ -341,3 +316,5 @@
     </div>
   }
 </div>
+
+

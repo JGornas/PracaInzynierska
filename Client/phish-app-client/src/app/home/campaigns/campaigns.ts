@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+﻿import { Component, ViewChild } from '@angular/core';
 import { GridComponent } from '../../core/components/grid-component/grid-component';
 import { GridColumn, GridElement } from '../../core/components/grid-component/grid-component.models';
 import { ButtonComponent } from '../../core/components/button-component/button-component';
@@ -19,6 +19,7 @@ export class Campaigns {
 
   columns: GridColumn[] = [
     { field: 'id', label: 'ID' },
+    { field: 'name', label: 'Nazwa kampanii' },
     { field: 'description', label: 'Opis' }
   ];
 
@@ -82,3 +83,4 @@ export class Campaigns {
     }
   }
 }
+
