@@ -1,5 +1,249 @@
-﻿@page "/quiz/{id:int}"
+@page "/quiz/{id:int}"
 
 @model PhishApp.WebApi.Pages.QuizModel
 @{
+    var quiz = Model.Quiz;
 }
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <title>Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            color: #1f2328;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 48px auto;
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .description {
+            color: #5a6470;
+            margin-bottom: 24px;
+        }
+
+        .question {
+            padding: 16px 0;
+            border-top: 1px solid #e6e9ee;
+        }
+
+        .question:first-of-type {
+            border-top: 0;
+        }
+
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .options label {
+            display: block;
+            margin: 6px 0;
+            cursor: pointer;
+        }
+
+        .options label.correct {
+            background: #e6f7ea;
+            border-left: 4px solid #2da44e;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+
+        .options label.incorrect {
+            background: #ffeceb;
+            border-left: 4px solid #cf222e;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+
+        .actions {
+            margin-top: 28px;
+            text-align: right;
+        }
+
+        button {
+            background: #1f6feb;
+            color: #ffffff;
+            border: 0;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 22px;
+            padding: 16px;
+            background: #eef4ff;
+            border-radius: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        @if (quiz == null)
+        {
+            <h1>Nie znaleziono quizu</h1>
+            <p>Nie udalo sie wczytac danych quizu.</p>
+        }
+        else
+        {
+            <h1>@quiz.Title</h1>
+            if (!string.IsNullOrWhiteSpace(quiz.Description))
+            {
+                <div class="description">@quiz.Description</div>
+            }
+
+            <form id="quizForm">
+                @for (var i = 0; i < quiz.Questions.Count; i++)
+                {
+                    var question = quiz.Questions[i];
+                    var questionName = $"q{i}";
+                    var correctKey = (question.CorrectAnswer ?? string.Empty).ToUpperInvariant();
+                    var correctValue = question.CorrectAnswerValue.HasValue
+                        ? (question.CorrectAnswerValue.Value ? "true" : "false")
+                        : string.Empty;
+                    var dataCorrect = question.Type == "TRUE_FALSE" ? correctValue : correctKey;
+
+                    <div class="question" data-correct="@dataCorrect">
+                        <div class="question-title">@($"{i + 1}. {question.Text}")</div>
+                        <div class="options">
+                            @if (question.Type == "TRUE_FALSE")
+                            {
+                                <label>
+                                    <input type="radio" name="@questionName" value="true" />
+                                    Prawda
+                                </label>
+                                <label>
+                                    <input type="radio" name="@questionName" value="false" />
+                                    Falsz
+                                </label>
+                            }
+                            else if (question.Options != null && question.Options.Count > 0)
+                            {
+                                foreach (var opt in question.Options)
+                                {
+                                    <label>
+                                        <input type="radio" name="@questionName" value="@opt.Key" />
+                                        @opt.Key) @opt.Value
+                                    </label>
+                                }
+                            }
+                            else
+                            {
+                                <div>Brak odpowiedzi do tego pytania.</div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="actions">
+                    <button type="button" id="finishBtn">Zakoncz</button>
+                </div>
+            </form>
+
+            <div class="result hidden" id="resultBox">
+                <div id="result"></div>
+                <div id="resultDetail"></div>
+            </div>
+        }
+    </div>
+
+    <script>
+        (function () {
+            var finishBtn = document.getElementById("finishBtn");
+            if (!finishBtn) {
+                return;
+            }
+
+            finishBtn.addEventListener("click", function () {
+                var questions = document.querySelectorAll(".question");
+                var correctCount = 0;
+                var answeredCount = 0;
+
+                questions.forEach(function (q) {
+                    var correct = (q.dataset.correct || "").toLowerCase();
+                    if (!correct) {
+                        return;
+                    }
+
+                    var selected = q.querySelector("input[type='radio']:checked");
+                    var inputs = q.querySelectorAll("input[type='radio']");
+                    inputs.forEach(function (input) {
+                        input.disabled = true;
+                    });
+
+                    var labels = q.querySelectorAll("label");
+                    labels.forEach(function (label) {
+                        var input = label.querySelector("input");
+                        if (!input) {
+                            return;
+                        }
+
+                        var value = (input.value || "").toLowerCase();
+                        if (value === correct) {
+                            label.classList.add("correct");
+                        }
+                    });
+
+                    if (!selected) {
+                        return;
+                    }
+
+                    answeredCount++;
+                    var selectedValue = (selected.value || "").toLowerCase();
+                    if (selectedValue === correct) {
+                        correctCount++;
+                    } else {
+                        labels.forEach(function (label) {
+                            var input = label.querySelector("input");
+                            if (input === selected) {
+                                label.classList.add("incorrect");
+                            }
+                        });
+                    }
+                });
+
+                var total = questions.length;
+                var percent = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+                var resultBox = document.getElementById("resultBox");
+                var result = document.getElementById("result");
+                var resultDetail = document.getElementById("resultDetail");
+
+                result.textContent = "Wynik: " + correctCount + " / " + total + " (" + percent + "%).";
+                resultDetail.textContent = "Udzielone odpowiedzi: " + answeredCount + " / " + total + ".";
+                resultBox.classList.remove("hidden");
+                finishBtn.disabled = true;
+            });
+        })();
+    </script>
+</body>
+</html>
