@@ -32,12 +32,15 @@ export interface InteractionReportDto {
   clickedAt?: string | null;
   opened: boolean;
   clicked: boolean;
+  submitted: boolean;
+  submittedAt?: string | null;
 }
 
 export interface ReportsSummaryDto {
   sent: number;
   opened: number;
   clicked: number;
+  submitted: number;
 }
 
 export interface ReportsExportBarDto {
@@ -69,6 +72,7 @@ export interface ReportsExportPayload {
     openRate: number;
     clickRate: number;
     clickToOpenRate: number;
+    formSubmissions: number;
   };
   bars: ReportsExportBarDto[];
   rows: ReportsExportRowDto[];

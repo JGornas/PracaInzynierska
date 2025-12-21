@@ -1,17 +1,10 @@
-<div class="reports-container">
+﻿<div class="reports-container">
   <header class="toolbar">
     <div class="left">
       <h2>Raporty</h2>
       <div class="hint">Analizuj interakcje odbiorców i skuteczność kampanii phishingowych.</div>
     </div>
     <div class="actions">
-      <app-button-component
-        [label]="demoLoaded ? 'Odśwież demo' : 'Dane przykładowe'"
-        [variant]="'white-outline-theme'"
-        [disabled]="isLoading"
-        [action]="loadDemoData.bind(this)">
-      </app-button-component>
-
       <app-button-component
         [label]="isExporting ? 'Eksportowanie...' : 'Eksportuj do PDF'"
         [variant]="'blue-theme'"
@@ -85,6 +78,10 @@
           <div class="metric">
             <div class="metric-label">CTOR</div>
             <div class="metric-value">{{ metrics.clickToOpenRate | number: '1.0-1' }}%</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Wypełnione formularze</div>
+            <div class="metric-value">{{ metrics.formSubmissions | number: '1.0-1' }}%</div>
           </div>
         </div>
         <div class="chart-legend">

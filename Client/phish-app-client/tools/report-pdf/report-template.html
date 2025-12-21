@@ -265,7 +265,8 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 12px;
+      table-layout: fixed;
     }
 
     thead {
@@ -274,16 +275,42 @@
 
     th {
       text-align: left;
-      padding: 10px 12px;
+      padding: 8px 10px;
       color: #312e81;
       border-bottom: 1px solid #c7d2fe;
       font-weight: 700;
     }
 
     td {
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-bottom: 1px solid var(--border);
       color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 38%;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 18%;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+      width: 14%;
+    }
+
+    th:nth-child(4),
+    td:nth-child(4) {
+      width: 14%;
+    }
+
+    th:nth-child(5),
+    td:nth-child(5) {
+      width: 16%;
     }
 
     tbody tr:nth-child(odd) {
@@ -300,6 +327,12 @@
       font-size: 12px;
       border: 1px solid #cbd5e1;
       background: #f8fafc;
+      white-space: nowrap;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      white-space: nowrap;
     }
 
     .status-dot {

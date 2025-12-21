@@ -55,7 +55,7 @@ function loadData(dataPath) {
     const raw = fs.readFileSync(dataPath, 'utf8');
     return JSON.parse(raw);
   } catch (err) {
-    throw new Error(`Nie moge odczytac pliku z danymi: ${dataPath}\n${err.message}`);
+    throw new Error(`Nie mogę odczytać pliku z danymi: ${dataPath}\n${err.message}`);
   }
 }
 
@@ -107,7 +107,8 @@ function renderMetricItems(metrics = {}) {
   const items = [
     { label: 'Open rate (otwarcia / wysłane)', value: metrics.openRate ?? 0, suffix: '%' },
     { label: 'CTR (kliknięcia / wysłane)', value: metrics.clickRate ?? 0, suffix: '%' },
-    { label: 'CTOR (kliknięcia / otwarcia)', value: metrics.clickToOpenRate ?? 0, suffix: '%' }
+    { label: 'CTOR (kliknięcia / otwarcia)', value: metrics.clickToOpenRate ?? 0, suffix: '%' },
+    { label: 'Wypełnione formularze', value: metrics.formSubmissions ?? 0, suffix: '%' }
   ];
 
   return items
@@ -276,3 +277,5 @@ main().catch(err => {
   console.error('[PDF] Blad generowania:', err.message);
   process.exitCode = 1;
 });
+
+

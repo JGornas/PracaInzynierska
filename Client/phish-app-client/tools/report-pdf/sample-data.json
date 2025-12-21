@@ -9,12 +9,14 @@
   "summary": {
     "sent": 420,
     "opened": 288,
-    "clicked": 144
+    "clicked": 144,
+    "submitted": 36
   },
   "metrics": {
     "openRate": 68.6,
     "clickRate": 34.3,
-    "clickToOpenRate": 50.0
+    "clickToOpenRate": 50.0,
+    "formSubmissions": 8.6
   },
   "bars": [
     {

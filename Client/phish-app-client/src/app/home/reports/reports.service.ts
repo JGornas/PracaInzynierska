@@ -182,7 +182,7 @@ export class ReportsService {
     }
 
     if (httpError?.status === 404) {
-      return of('Raport nie jest dostępny. Upewnij się, że filtry zwracają wyniki lub skorzystaj z przykładowych danych.');
+      return of('Raport nie jest dostępny. Upewnij się, że filtry zwracają wyniki.');
     }
 
     if (httpError?.error instanceof Blob) {

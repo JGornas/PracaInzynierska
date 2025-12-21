@@ -65,8 +65,10 @@ namespace PhishApp.WebApi.Controllers
             public DateTime? SentAt { get; set; }
             public DateTime? OpenedAt { get; set; }
             public DateTime? ClickedAt { get; set; }
+            public DateTime? SubmittedAt { get; set; }
             public bool Opened { get; set; }
             public bool Clicked { get; set; }
+            public bool Submitted { get; set; }
         }
 
         public class ReportsExportPayload
@@ -93,6 +95,7 @@ namespace PhishApp.WebApi.Controllers
             public int Sent { get; set; }
             public int Opened { get; set; }
             public int Clicked { get; set; }
+            public int Submitted { get; set; }
         }
 
         public class MetricsDto
@@ -100,6 +103,7 @@ namespace PhishApp.WebApi.Controllers
             public double OpenRate { get; set; }
             public double ClickRate { get; set; }
             public double ClickToOpenRate { get; set; }
+            public double FormSubmissions { get; set; }
         }
 
         public class BarDto
@@ -172,8 +176,10 @@ namespace PhishApp.WebApi.Controllers
                     item.SentAt,
                     OpenedAt = item.OpenedTime,
                     ClickedAt = item.FormSubmittedTime ?? item.RedirectedToLandingPageTime,
+                    SubmittedAt = item.FormSubmittedTime,
                     Opened = item.IsEmailOpened,
-                    Clicked = item.IsRedirectedToLandingPage || item.IsFormSubmitted
+                    Clicked = item.IsRedirectedToLandingPage || item.IsFormSubmitted,
+                    Submitted = item.IsFormSubmitted
                 })
                 .ToListAsync();
 
@@ -189,8 +195,10 @@ namespace PhishApp.WebApi.Controllers
                 SentAt = item.SentAt,
                 OpenedAt = item.OpenedAt,
                 ClickedAt = item.ClickedAt,
+                SubmittedAt = item.SubmittedAt,
                 Opened = item.Opened,
-                Clicked = item.Clicked
+                Clicked = item.Clicked,
+                Submitted = item.Submitted
             }).ToList();
 
             return RestResponse<List<InteractionReportDto>>.CreateResponse(result);
@@ -207,7 +215,8 @@ namespace PhishApp.WebApi.Controllers
                 {
                     Sent = group.Count(x => x.IsSent),
                     Opened = group.Count(x => x.IsEmailOpened),
-                    Clicked = group.Count(x => x.IsRedirectedToLandingPage || x.IsFormSubmitted)
+                    Clicked = group.Count(x => x.IsRedirectedToLandingPage || x.IsFormSubmitted),
+                    Submitted = group.Count(x => x.IsFormSubmitted)
                 })
                 .FirstOrDefaultAsync() ?? new SummaryDto();
 

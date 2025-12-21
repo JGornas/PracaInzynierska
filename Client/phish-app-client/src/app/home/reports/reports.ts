@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+﻿﻿import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, AfterViewInit, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, Subject } from 'rxjs';
@@ -27,11 +27,12 @@ interface ReportGridRow extends GridElement {
   sentAtLabel: string;
   openedAtLabel: string;
   clickedAtLabel: string;
+  submittedLabel: string;
   statusLabel: string;
 }
 
 interface ChartBar {
-  key: 'sent' | 'opened' | 'clicked';
+  key: 'sent' | 'opened' | 'clicked' | 'submitted';
   label: string;
   value: number;
   color: string;
@@ -52,6 +53,7 @@ interface PdfDocumentData {
     openRate: number;
     clickRate: number;
     clickToOpenRate: number;
+    formSubmissions: number;
   };
   bars: ChartBar[];
   rows: ReportGridRow[];
@@ -74,6 +76,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     { field: 'sentAtLabel', label: 'Wysłano' },
     { field: 'openedAtLabel', label: 'Otwarcie maila' },
     { field: 'clickedAtLabel', label: 'Kliknięcie w URL' },
+    { field: 'submittedLabel', label: 'Wypełniony formularz' },
     { field: 'statusLabel', label: 'Status' }
   ];
 
@@ -88,96 +91,21 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
   isLoadingFilters = false;
   isExporting = false;
   errorMessage: string | null = null;
-  demoLoaded = false;
 
   metrics = {
     openRate: 0,
     clickRate: 0,
-    clickToOpenRate: 0
+    clickToOpenRate: 0,
+    formSubmissions: 0
   };
 
   private filtersReady = false;
   private readonly destroy$ = new Subject<void>();
-  private readonly demoCampaigns: ReportSelectOption[] = [
-    { id: 1, name: 'Symulacja: BezpiecznaBank' },
-    { id: 2, name: 'Symulacja: Korespondencja HR' }
-  ];
-
-  private readonly demoGroups: ReportGroupOption[] = [
-    { id: 101, name: 'ZespĂłĹ‚ SprzedaĹĽy', campaignId: 1 },
-    { id: 102, name: 'ZespĂłĹ‚ IT', campaignId: 1 },
-    { id: 201, name: 'Nowi pracownicy', campaignId: 2 }
-  ];
-
-  private readonly demoInteractions: InteractionReportDto[] = [
-    {
-      id: 1,
-      campaignId: 1,
-      campaignName: 'Symulacja: BezpiecznaBank',
-      groupId: 101,
-      groupName: 'ZespĂłĹ‚ SprzedaĹĽy',
-      recipientEmail: 'anna.kowalska@firma.pl',
-      recipientName: 'Anna Kowalska',
-      sentAt: '2025-02-10T08:05:00Z',
-      openedAt: '2025-02-10T08:22:00Z',
-      clickedAt: '2025-02-10T08:24:12Z',
-      opened: true,
-      clicked: true
-    },
-    {
-      id: 2,
-      campaignId: 1,
-      campaignName: 'Symulacja: BezpiecznaBank',
-      groupId: 101,
-      groupName: 'ZespĂłĹ‚ SprzedaĹĽy',
-      recipientEmail: 'marek.nowak@firma.pl',
-      recipientName: 'Marek Nowak',
-      sentAt: '2025-02-10T08:07:00Z',
-      openedAt: '2025-02-10T08:40:00Z',
-      clickedAt: null,
-      opened: true,
-      clicked: false
-    },
-    {
-      id: 3,
-      campaignId: 1,
-      campaignName: 'Symulacja: BezpiecznaBank',
-      groupId: 102,
-      groupName: 'ZespĂłĹ‚ IT',
-      recipientEmail: 'ewa.zielinska@firma.pl',
-      recipientName: 'Ewa Zielinska',
-      sentAt: '2025-02-10T08:11:00Z',
-      openedAt: null,
-      clickedAt: null,
-      opened: false,
-      clicked: false
-    },
-    {
-      id: 4,
-      campaignId: 2,
-      campaignName: 'Symulacja: Korespondencja HR',
-      groupId: 201,
-      groupName: 'Nowi pracownicy',
-      recipientEmail: 'piotr.lewandowski@firma.pl',
-      recipientName: 'Piotr Lewandowski',
-      sentAt: '2025-02-14T09:15:00Z',
-      openedAt: '2025-02-14T09:18:00Z',
-      clickedAt: '2025-02-14T09:19:30Z',
-      opened: true,
-      clicked: true
-    }
-  ];
-
-  private readonly demoSummary: ReportsSummaryDto = {
-    sent: 4,
-    opened: 3,
-    clicked: 2
-  };
 
   @ViewChild('performanceChart') performanceChartRef?: ElementRef<HTMLCanvasElement>;
 
   private renderScheduled = false;
-  private currentSummary: ReportsSummaryDto = { sent: 0, opened: 0, clicked: 0 };
+  private currentSummary: ReportsSummaryDto = { sent: 0, opened: 0, clicked: 0, submitted: 0 };
 
   constructor(private fb: FormBuilder, private reportsService: ReportsService) {
     this.filtersForm = this.fb.group({
@@ -229,8 +157,8 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     if (!this.canExportReport) {
       Swal.fire({
         icon: 'info',
-        title: 'Wybierz kampanie',
-        text: 'Aby wygenerowac raport PDF, wybierz konkretna kampanie.',
+        title: 'Wybierz kampanię',
+        text: 'Aby wygenerować raport PDF, wybierz konkretną kampanię.',
         confirmButtonText: 'OK'
       });
       return;
@@ -299,7 +227,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
           this.groups = filters.groups ?? [];
           this.isLoadingFilters = false;
           this.filtersReady = true;
-          this.demoLoaded = false;
           this.applyFilters();
         },
         error: err => {
@@ -326,7 +253,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: ({ interactions, summary }) => {
           this.isLoading = false;
-          this.demoLoaded = false;
           this.updateGridRows(interactions ?? []);
           this.updateChart(summary ?? null);
         },
@@ -401,6 +327,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
         sentAtLabel: this.formatDate(item.sentAt),
         openedAtLabel: this.formatDate(item.openedAt),
         clickedAtLabel: this.formatDate(item.clickedAt),
+        submittedLabel: item.submitted ? 'Tak' : 'Nie',
         statusLabel: this.buildStatusLabel(item)
       };
     });
@@ -410,24 +337,28 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     const sent = summary?.sent ?? 0;
     const opened = summary?.opened ?? 0;
     const clicked = summary?.clicked ?? 0;
+    const submitted = summary?.submitted ?? 0;
 
-    this.chartMaxValue = Math.max(sent, opened, clicked, 1);
-    this.currentSummary = { sent, opened, clicked };
+    this.chartMaxValue = Math.max(sent, opened, clicked, submitted, 1);
+    this.currentSummary = { sent, opened, clicked, submitted };
 
     const openRate = sent > 0 ? (opened / sent) * 100 : 0;
     const clickRate = sent > 0 ? (clicked / sent) * 100 : 0;
     const clickToOpenRate = opened > 0 ? (clicked / opened) * 100 : 0;
+    const submissionRate = sent > 0 ? (submitted / sent) * 100 : 0;
 
     this.metrics = {
       openRate,
       clickRate,
-      clickToOpenRate
+      clickToOpenRate,
+      formSubmissions: submissionRate
     };
 
     this.chartBars = [
       { key: 'sent', label: 'Wysłane maile', value: sent, color: '#334155', rate: null },
       { key: 'opened', label: 'Otwarcia', value: opened, color: '#1d4ed8', rate: openRate },
-      { key: 'clicked', label: 'Kliknięcia', value: clicked, color: '#0f766e', rate: clickRate }
+      { key: 'clicked', label: 'Kliknięcia', value: clicked, color: '#0f766e', rate: clickRate },
+      { key: 'submitted', label: 'Wypełnione formularze', value: submitted, color: '#b45309', rate: submissionRate }
     ];
 
     this.renderCharts();
@@ -613,51 +544,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     ctx.fill();
   }
 
-  loadDemoData(): void {
-    this.isLoading = false;
-    this.isLoadingFilters = false;
-    this.isExporting = false;
-    this.errorMessage = null;
-    this.filtersReady = true;
-    this.demoLoaded = true;
-
-    this.campaigns = [...this.demoCampaigns];
-    this.groups = [...this.demoGroups];
-
-    this.filtersForm.patchValue(
-      {
-        campaignId: 1,
-        groupId: 101,
-        dateFrom: '2025-02-01',
-        dateTo: '2025-02-20'
-      },
-      { emitEvent: false }
-    );
-
-    this.updateGridRows(this.demoInteractions);
-    this.updateChart(this.demoSummary);
-
-    Swal.fire({
-      icon: 'info',
-      title: 'Dane przykĹ‚adowe',
-      text: 'Wyświetlamy przykładowy raport. Aby pobrać dane z serwera, wybierz filtry lub użyj eksportu.',
-      confirmButtonText: 'OK'
-    });
-  }
-
-  private generateDemoPdf(): void {
-    const data = this.buildPdfData();
-    const pdfBlob = this.buildPdfDocument(data);
-    this.triggerFileDownload(pdfBlob, this.buildExportFileName());
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Eksport PDF',
-      text: 'Wygenerowano przykĹ‚adowy raport PDF.',
-      confirmButtonText: 'OK'
-    });
-  }
-
   private buildPdfData(): PdfDocumentData {
     const campaignId = this.normalizeId(this.filtersForm.get('campaignId')?.value ?? null);
     const groupId = this.normalizeId(this.filtersForm.get('groupId')?.value ?? null);
@@ -684,7 +570,8 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       metrics: {
         openRate: this.metrics.openRate,
         clickRate: this.metrics.clickRate,
-        clickToOpenRate: this.metrics.clickToOpenRate
+        clickToOpenRate: this.metrics.clickToOpenRate,
+        formSubmissions: this.metrics.formSubmissions
       },
       bars: [...this.chartBars],
       rows
@@ -989,7 +876,8 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       metrics: {
         openRate: this.metrics.openRate,
         clickRate: this.metrics.clickRate,
-        clickToOpenRate: this.metrics.clickToOpenRate
+        clickToOpenRate: this.metrics.clickToOpenRate,
+        formSubmissions: this.metrics.formSubmissions
       },
       bars,
       rows
@@ -1014,4 +902,19 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
   }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
