@@ -93,13 +93,18 @@ namespace PhishApp.EmailSender.Services
                 modifiedContent);
 
                 await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, true, pixelId, landingId, formSubmitId);
-                //udalo sie wyslac
+
+                _logService.Info($"Pomyślnie wysłano maila do {reciepient.Email}: {reciepient.FirstName} {reciepient.LastName}, Szablon: {campaign.Template?.Id ?? 0}");
+               
             }
             catch (Exception e)
             {
                 string message = $"Błąd podczas wysyłania maila do {reciepient.Email}: {e.Message}";
                 await _campaignService.AddEmailInfoAsync(campaign.Id, reciepient.GroupMemberId, false, pixelId, landingId, formSubmitId, message);
-                //nie udalo sie wyslac
+
+
+                _logService.Error($"Błąd podczas wysyłki maila do {reciepient.Email}: {reciepient.FirstName} {reciepient.LastName}, Szablon: {campaign.Template?.Id ?? 0}: {e.Message}");
+
             }
         }
 
