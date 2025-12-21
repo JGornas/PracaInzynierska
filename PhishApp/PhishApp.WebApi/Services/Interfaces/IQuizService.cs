@@ -1,6 +1,7 @@
 ﻿using PhishApp.WebApi.Models.Grid;
 using PhishApp.WebApi.Models.Rows;
 using PhishApp.WebApi.Models.Quizzes;
+using PhishApp.WebApi.Models.RestApi.Quizzes;
 
 namespace PhishApp.WebApi.Services.Interfaces
 {
@@ -10,6 +11,7 @@ namespace PhishApp.WebApi.Services.Interfaces
         Task<GridData<QuizRow>?> GetTemplatesGridData(GridRequest request);
         Task<QuizDto> GetQuizAsync(int id);
         Task<QuizDto> SaveQuizAsync(QuizPayload payload);
+        Task<bool> SendQuizEmails(SendQuizzRequestInfo requestInfo);
     }
 }
 

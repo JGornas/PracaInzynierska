@@ -1,4 +1,5 @@
 ﻿import { SendingProfile } from "../sending-profiles/sending-profiles.models";
+import { Template } from "../templates/templates.models";
 
 export type QuizQuestionType = 'TRUE_FALSE' | 'ABCD';
 
@@ -59,6 +60,7 @@ export class QuizzSendingInfo {
   id: number = 0;
   quizz: Quizz;
   sendingProfile: SendingProfile | null = null;
+  template: Template | null = null;
   recipientGroups: RecipientGroup[];
 
   constructor() {
@@ -84,4 +86,12 @@ export class RecipientGroup {
     this.campaign = null;
     this.createdAt = undefined;
   }
+}
+
+export interface SendQuizzRequestInfo {
+  id: number;
+  quizzId: number;
+  sendingProfileId: number;
+  templateId: number;
+  recipientGroupIds: number[];
 }

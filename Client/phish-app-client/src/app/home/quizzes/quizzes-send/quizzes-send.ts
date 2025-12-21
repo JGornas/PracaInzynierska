@@ -11,6 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { GridComponent } from '../../../core/components/grid-component/grid-component';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+import { QuizzesService } from '../quizzes.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-quizzes-send',
@@ -34,6 +36,7 @@ export class QuizzesSend implements OnInit {
 
   constructor(
     private sharedQuizzesService: SharedQuizzesService,
+    private quizzesService: QuizzesService,
     private router: Router
   ) {}
 
@@ -59,8 +62,25 @@ export class QuizzesSend implements OnInit {
     });
   }
 
+  public selectTemplate(): void {
+
+    this.sharedQuizzesService.setCurrent(this.quizzSendingInfo);
+
+    if(!this.quizzSendingInfo) {
+      return;
+    }
+
+    this.router.navigate(['/home/templates'], {
+      queryParams: { selectMode: 'true', quizSendingId: this.quizzSendingInfo.id }
+    });
+  }
+
   public get sendingProfileName(): string {
     return this.quizzSendingInfo.sendingProfile?.name || 'Wybierz profil wysyłki';
+  }
+
+  public get templateName(): string {
+    return this.quizzSendingInfo.template?.name || 'Wybierz szablon';
   }
 
   recipientGroupColumns = [
@@ -98,7 +118,82 @@ export class QuizzesSend implements OnInit {
       }
     }
 
-    public async send(): Promise<void> {
-        console.log('Wysyłanie quizu:', this.quizzSendingInfo);
+  public async send(): Promise<void> {
+
+    if (!this.quizzSendingInfo.template) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Brak szablonu',
+        text: 'Wybierz szablon quizu przed wysłaniem.'
+      });
+      return;
     }
+
+    if (!this.quizzSendingInfo.sendingProfile) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Brak profilu wysyłki',
+        text: 'Wybierz profil wysyłki przed wysłaniem.'
+      });
+      return;
+    }
+
+    if (!this.quizzSendingInfo.recipientGroups || this.quizzSendingInfo.recipientGroups.length === 0) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Brak odbiorców',
+        text: 'Wybierz co najmniej jedną grupę odbiorców.'
+      });
+      return;
+    }
+
+    const confirmResult = await Swal.fire({
+      title: 'Wysłać quiz?',
+      text: 'Czy na pewno chcesz wysłać e-mail z quizem do wybranych odbiorców?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Tak, wyślij',
+      cancelButtonText: 'Anuluj'
+    });
+
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
+
+    Swal.fire({
+      title: 'Wysyłanie...',
+      text: 'Trwa wysyłanie quizu',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    try {
+      const result = await firstValueFrom(
+        this.quizzesService.sendQuiz(this.quizzSendingInfo)
+      );
+
+      Swal.close();
+
+      if (result) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Sukces',
+          text: 'Quiz został wysłany do odbiorców.'
+        });
+      } else {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Niepowodzenie',
+          text: 'Quiz nie został wysłany.'
+        });
+      }
+    } catch (error) {
+      Swal.close();
+      await Swal.fire({
+        icon: 'error',
+        title: 'Błąd',
+        text: 'Wystąpił błąd podczas wysyłania quizu.'
+      });
+    }
+  }
 }

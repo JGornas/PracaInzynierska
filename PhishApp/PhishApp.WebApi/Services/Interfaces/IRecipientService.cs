@@ -16,5 +16,6 @@ namespace PhishApp.WebApi.Services.Interfaces
         Task<RecipientGroup> UpdateGroupAsync(int id, RecipientGroup group);
         Task DeleteGroupAsync(int id);
         Task<GridData<RecipientGroupRow>> GetRecipientGroupGridData(GridRequest request);
+        Task<RecipientGroup?> GetGroupByIdAsync(int id);
     }
 }

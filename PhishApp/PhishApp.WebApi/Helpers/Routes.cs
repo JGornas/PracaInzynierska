@@ -54,6 +54,7 @@
         public const string GetQuiz = "api/quizzes/{id}";
         public const string CreateQuiz = "api/quizzes";
         public const string UpdateQuiz = "api/quizzes/{id}";
+        public const string SendQuizEmail = "api/quizzes/send";
 
         //Tracking
         public const string GetPixel = "api/pixel/{messageId}.png";

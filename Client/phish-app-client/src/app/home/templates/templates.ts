@@ -8,6 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { TemplatesService } from './templates.service';
 import { SharedCampaignService } from '../campaigns/shared-campaigns.service';
 import { CommonModule } from '@angular/common';
+import { SharedQuizzesService } from '../quizzes/shared-quizzes.service';
 
 @Component({
   selector: 'app-templates',
@@ -22,21 +23,38 @@ export class Templates implements OnInit {
   selectedProfileId: number | null = null;
   selectedTemplateId: number | null = null;
 
+  isSelectModeFromCampaign: boolean = false;
+  isSelectModeFromQuizz: boolean = false;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private templateService: TemplatesService,
-    private sharedCampaignService: SharedCampaignService
+    private sharedCampaignService: SharedCampaignService,
+    private sharedQuizzService: SharedQuizzesService,
   )
   {}
   
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const selectMode = params['selectMode'] === 'true';
-      const campaignId = params['campaignId'] ? Number(params['campaignId']) : null;
 
+      const campaignId = params['campaignId'] !== undefined
+        ? Number(params['campaignId'])
+        : null;
 
-      if (selectMode) {
+      const quizzId = params['quizSendingId'] !== undefined
+        ? Number(params['quizSendingId'])
+        : null;
+
+      if (!selectMode) {
+        this.isSelectMode = false;
+        return;
+      }
+
+      this.isSelectMode = true;
+
+      if (campaignId !== null) {
         const campaign = this.sharedCampaignService.getCurrentValue();
 
         if (!campaign || campaign.id !== campaignId) {
@@ -44,17 +62,38 @@ export class Templates implements OnInit {
           return;
         }
 
-        this.isSelectMode = true;
+        this.isSelectModeFromCampaign = true;
+        this.isSelectModeFromQuizz = false;
 
         if (campaign.template) {
           this.selectedTemplateId = campaign.template.id;
         }
-      } else {
-        this.isSelectMode = false;
+
+        return;
       }
 
+      if (quizzId !== null) {
+        const quizz = this.sharedQuizzService.getCurrentValue();
+
+        if (!quizz || quizz.id !== quizzId) {
+          this.router.navigate(['/home/quizzes']);
+          return;
+        }
+
+        this.isSelectModeFromCampaign = false;
+        this.isSelectModeFromQuizz = true;
+
+        if (quizz.template) {
+          this.selectedTemplateId = quizz.template.id;
+        }
+
+        return;
+      }
+
+      this.router.navigate(['/home']);
     });
   }
+
 
 
   columns: GridColumn[] = [
@@ -93,11 +132,21 @@ export class Templates implements OnInit {
     this.selectedTemplateId = id;
   }
 
-  cancelTemplateSelection(): void {    
-    const pendingCampaign = this.sharedCampaignService.getCurrentValue();
-    if (pendingCampaign) {
-      this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+  cancelTemplateSelection(): void {
+    if (this.isSelectModeFromCampaign) {
+      const pendingCampaign = this.sharedCampaignService.getCurrentValue();
+      if (pendingCampaign) {
+        this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+      }
+      return;
     }
+
+    if (this.isSelectModeFromQuizz) {
+      this.router.navigate(['/home/quizzes/send']);
+      return;
+    }
+
+    this.router.navigate(['/home']);
   }
 
   selectTemplate(): void {
@@ -105,25 +154,32 @@ export class Templates implements OnInit {
       return;
     }
 
-    // pobierz template z serwisu
     this.templateService.getTemplate(this.selectedTemplateId).subscribe({
       next: (template) => {
-        const pendingCampaign = this.sharedCampaignService.getCurrentValue();
-        if (pendingCampaign) {
-          // przypisz wybrany template do kampanii
-          pendingCampaign.template = template;
 
-          // zaktualizuj w shared service
-          this.sharedCampaignService.setCurrent(pendingCampaign);
-          console.log('Selected template set in pending campaign:', pendingCampaign);
+        if (this.isSelectModeFromCampaign) {
+          const pendingCampaign = this.sharedCampaignService.getCurrentValue();
+          if (pendingCampaign) {
+            pendingCampaign.template = template;
+            this.sharedCampaignService.setCurrent(pendingCampaign);
 
-          // nawiguj z powrotem do edycji kampanii
-          this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
-          return;
+            this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
+            return;
+          }
         }
 
-        // fallback
-        this.router.navigate(['/home/campaigns']);
+        if (this.isSelectModeFromQuizz) {
+          const quizzInfo = this.sharedQuizzService.getCurrentValue();
+          if (quizzInfo) {
+            quizzInfo.template = template;
+            this.sharedQuizzService.setCurrent(quizzInfo);
+
+            this.router.navigate(['/home/quizzes/send']);
+            return;
+          }
+        }
+
+        this.router.navigate(['/home']);
       },
       error: (err) => {
         console.error('Błąd pobierania szablonu:', err);
@@ -135,6 +191,7 @@ export class Templates implements OnInit {
       }
     });
   }
+
 
 
   async handleRowDeleted(selected: GridElement) {

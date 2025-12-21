@@ -7,7 +7,7 @@ export const templatesRoutes: Routes = [
     path: 'templates',
     children: [
       { path: '', component: Templates },
-      { path: 'create', component: TemplatesEdit },
+      { path: 'create', component: TemplatesEdit},
       { path: ':id/edit', component: TemplatesEdit },
     ]
   }

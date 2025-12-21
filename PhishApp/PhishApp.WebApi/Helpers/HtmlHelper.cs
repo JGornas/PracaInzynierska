@@ -45,6 +45,46 @@ namespace PhishApp.WebApi.Helpers
             return content + "\n" + pixelHtml;
         }
 
+        public static string AddQuizRedirects(string htmlContent, int quizzId)
+        {
+            if (string.IsNullOrWhiteSpace(htmlContent))
+                return htmlContent;
+
+            string landingBaseUrl = $"{Constants.NGrokUrl}/quiz/{quizzId}";
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(htmlContent);
+
+            var aNodes = doc.DocumentNode.SelectNodes("//a[@href]");
+            if (aNodes != null)
+            {
+                foreach (var a in aNodes)
+                {
+                    a.SetAttributeValue("href", landingBaseUrl);
+                }
+            }
+
+            var buttonNodes = doc.DocumentNode.SelectNodes("//button[@onclick]");
+            if (buttonNodes != null)
+            {
+                foreach (var button in buttonNodes)
+                {
+                    string onclick = button.GetAttributeValue("onclick", "");
+
+                    if (onclick.Contains("window.location", StringComparison.OrdinalIgnoreCase))
+                    {
+                        button.SetAttributeValue(
+                            "onclick",
+                            $"window.location='{landingBaseUrl}'"
+                        );
+                    }
+                }
+            }
+
+            return doc.DocumentNode.OuterHtml;
+        }
+
+
         public static string AddLandingRedirects(string htmlContent, Guid landingId)
         {
             if (string.IsNullOrWhiteSpace(htmlContent))

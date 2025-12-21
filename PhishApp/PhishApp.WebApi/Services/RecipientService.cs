@@ -80,6 +80,13 @@ namespace PhishApp.WebApi.Services
             return entities.Select(MapGroup).ToList();
         }
 
+        public async Task<RecipientGroup?> GetGroupByIdAsync(int id)
+        {
+            var group = await _recipientRepository.GetGroupByIdAsync(id);
+
+            return group is null ? null : MapGroup(group);
+        }
+
         public async Task<RecipientGroup> CreateGroupAsync(RecipientGroup group)
         {
             var normalized = NormalizeGroup(group);

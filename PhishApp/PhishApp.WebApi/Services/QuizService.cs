@@ -1,6 +1,9 @@
-﻿using PhishApp.WebApi.Models.Grid;
+﻿using PhishApp.WebApi.Helpers;
+using PhishApp.WebApi.Models.Grid;
 using PhishApp.WebApi.Models.Identity;
 using PhishApp.WebApi.Models.Quizzes;
+using PhishApp.WebApi.Models.Recipients;
+using PhishApp.WebApi.Models.RestApi.Quizzes;
 using PhishApp.WebApi.Models.Rows;
 using PhishApp.WebApi.Repositories.Interfaces;
 using PhishApp.WebApi.Services.Interfaces;
@@ -11,11 +14,54 @@ namespace PhishApp.WebApi.Services
     {
         private readonly IGridService _gridService;
         private readonly IQuizzRepository _quizzRepository;
+        private readonly IEmailSendingService _emailSendingService;
+        private readonly IRecipientService _recipientService;
+        private readonly ISendingProfileService _sendingProfileService;
+        private readonly ITemplateService _templateService;
 
-        public QuizService(IGridService gridService, IQuizzRepository quizzRepository)
+
+        public QuizService(IGridService gridService, IQuizzRepository quizzRepository, IEmailSendingService emailSendingService, IRecipientService recipientService, ISendingProfileService sendingProfileService, ITemplateService templateService)
         {
             _gridService = gridService;
             _quizzRepository = quizzRepository;
+            _emailSendingService = emailSendingService;
+            _recipientService = recipientService;
+            _sendingProfileService = sendingProfileService;
+            _templateService = templateService;
+        }
+
+
+        public async Task<bool> SendQuizEmails(SendQuizzRequestInfo requestInfo)
+        {
+            var quizz = await GetQuizAsync(requestInfo.QuizzId);
+            var sendingProfile = await _sendingProfileService.GetProfileAsync(requestInfo.SendingProfileId);
+            var template = await _templateService.GetTemplate(requestInfo.TemplateId);
+
+            var recipientGroups = new List<RecipientGroup>();
+
+            foreach(var groupId in requestInfo.RecipientGroupIds)
+            {
+                var group = await _recipientService.GetGroupByIdAsync(groupId);
+                if (group != null)
+                {
+                    recipientGroups.Add(group);
+                }
+            }
+
+            foreach (var group in recipientGroups)
+            {
+                foreach (var member in group.Members)
+                {
+                    var body = HtmlHelper.AddQuizRedirects(template.Content, quizz.Id);
+                    var recipient = member;
+                    var subject = template.Subject;
+
+                    await _emailSendingService.SendMailAsync(sendingProfile, recipient.Email, subject, body);
+                }
+            }
+
+
+            return true;
         }
 
         public async Task DeleteQuizz(int id)

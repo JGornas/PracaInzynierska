@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { RestService } from "../../core/services/rest.service";
 import { Observable, catchError, throwError } from "rxjs";
-import { QuizDto, QuizPayload } from "./quizzes.models";
+import { QuizDto, QuizPayload, QuizzSendingInfo, SendQuizzRequestInfo } from "./quizzes.models";
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +33,18 @@ export class QuizzesService {
       })
     );
   }
+  public sendQuiz(info: QuizzSendingInfo): Observable<boolean> {
+    const payload: SendQuizzRequestInfo = {
+      id: info.id,
+      quizzId: info.quizz.id,
+      sendingProfileId: info.sendingProfile?.id ?? 0,
+      templateId: info.template?.id ?? 0,
+      recipientGroupIds: info.recipientGroups.map(g => g.id)
+    };
+
+    return this.rest.post<boolean>('/api/quizzes/send', payload);
+  }
+
 }
 
 

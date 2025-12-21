@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PhishApp.WebApi.Helpers;
 using PhishApp.WebApi.Models.Grid;
-using PhishApp.WebApi.Models.RestApi;
-using PhishApp.WebApi.Models.Rows;
 using PhishApp.WebApi.Models.Quizzes;
+using PhishApp.WebApi.Models.RestApi;
+using PhishApp.WebApi.Models.RestApi.Quizzes;
+using PhishApp.WebApi.Models.Rows;
 using PhishApp.WebApi.Services;
 using PhishApp.WebApi.Services.Interfaces;
 
@@ -60,6 +61,14 @@ namespace PhishApp.WebApi.Controllers
             payload.Id = id;
             var quiz = await _quizService.SaveQuizAsync(payload);
             return RestResponse<QuizDto>.CreateResponse(quiz);
+        }
+
+        [HttpPost]
+        [Route(Routes.SendQuizEmail)]
+        public async Task<RestResponse<bool>> SendQuizzEmail([FromBody] SendQuizzRequestInfo requestInfo)
+        {
+            await _quizService.SendQuizEmails(requestInfo);
+            return RestResponse<bool>.CreateResponse(true);
         }
     }
 }

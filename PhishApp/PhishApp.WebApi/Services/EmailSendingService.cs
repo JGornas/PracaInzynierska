@@ -2,14 +2,7 @@
 using MimeKit;
 using PhishApp.WebApi.Models.SendingProfiles;
 using PhishApp.WebApi.Services.Interfaces;
-using System.Net;
-//using System.Net.Mail;
 using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
-using System;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PhishApp.WebApi.Services
 {

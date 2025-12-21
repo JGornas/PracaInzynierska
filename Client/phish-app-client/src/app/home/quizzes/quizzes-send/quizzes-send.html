@@ -20,6 +20,21 @@
           readonly
           [value]="sendingProfileName" />
       </mat-form-field>
+
+      <mat-form-field
+        class="campaign-field clickable"
+        appearance="outline"
+        role="button"
+        tabindex="0"
+        (click)="selectTemplate()">
+        <mat-label>Szablon email</mat-label>
+
+        <input
+          matInput
+          placeholder="Wybierz szablon email"
+          readonly
+          [value]="templateName" />
+      </mat-form-field>
     </div>
 
     <div class="row">
