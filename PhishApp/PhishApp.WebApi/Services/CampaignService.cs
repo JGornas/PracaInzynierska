@@ -222,7 +222,6 @@ namespace PhishApp.WebApi.Services
                     {
                         Id = crg.RecipientGroupId,
                         Name = crg.RecipientGroup.Name,
-                        Campaign = crg.RecipientGroup.Campaign,
                         CreatedAt = crg.RecipientGroup.CreatedAt,
                         Members = crg.RecipientGroup.Members
                             .Select(m => new Recipient

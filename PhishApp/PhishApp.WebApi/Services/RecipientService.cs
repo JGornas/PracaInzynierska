@@ -99,7 +99,6 @@ namespace PhishApp.WebApi.Services
             var groupEntity = new RecipientGroupEntity
             {
                 Name = normalized.Name,
-                Campaign = normalized.Campaign
             };
 
             var saved = await _recipientRepository.AddGroupAsync(groupEntity, memberEntities.Select(m => m.Id));
@@ -119,7 +118,6 @@ namespace PhishApp.WebApi.Services
             {
                 Id = id,
                 Name = normalized.Name,
-                Campaign = normalized.Campaign
             };
 
             var updated = await _recipientRepository.UpdateGroupAsync(id, groupEntity, memberEntities.Select(m => m.Id));
@@ -165,7 +163,6 @@ namespace PhishApp.WebApi.Services
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                Campaign = entity.Campaign,
                 CreatedAt = entity.CreatedAt,
                 Members = members
             };

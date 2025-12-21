@@ -148,7 +148,6 @@ namespace PhishApp.WebApi.Repositories
             }
 
             existing.Name = group.Name;
-            existing.Campaign = group.Campaign;
             existing.UpdatedAt = DateTime.Now;
 
             var desiredIds = memberRecipientIds?.Distinct().ToList() ?? new List<int>();
