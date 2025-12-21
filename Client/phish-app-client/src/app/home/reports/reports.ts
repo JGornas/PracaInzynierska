@@ -220,7 +220,22 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  get canExportReport(): boolean {
+    const campaignId = this.filtersForm.get('campaignId')?.value;
+    return this.normalizeId(campaignId) !== null;
+  }
+
   exportToPdf(): void {
+    if (!this.canExportReport) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Wybierz kampanie',
+        text: 'Aby wygenerowac raport PDF, wybierz konkretna kampanie.',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
     if (this.isExporting) {
       return;
     }

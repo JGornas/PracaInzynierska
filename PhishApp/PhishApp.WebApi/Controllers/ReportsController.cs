@@ -9,7 +9,11 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PhishApp.WebApi.Helpers;
+using PhishApp.WebApi.Infrastructure;
+using PhishApp.WebApi.Models.Identity;
+using PhishApp.WebApi.Models.RestApi;
 
 namespace PhishApp.WebApi.Controllers
 {
@@ -17,12 +21,52 @@ namespace PhishApp.WebApi.Controllers
     [AllowAnonymous]
     public class ReportsController : ControllerBase
     {
+        private readonly DataContext _context;
+
+        public ReportsController(DataContext context)
+        {
+            _context = context;
+        }
+
         public class ReportsFilterPayload
         {
             public int? CampaignId { get; set; }
             public int? GroupId { get; set; }
             public string? DateFrom { get; set; }
             public string? DateTo { get; set; }
+        }
+
+        public class ReportSelectOption
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+        }
+
+        public class ReportGroupOption : ReportSelectOption
+        {
+            public int? CampaignId { get; set; }
+        }
+
+        public class ReportsFiltersDto
+        {
+            public List<ReportSelectOption> Campaigns { get; set; } = new();
+            public List<ReportGroupOption> Groups { get; set; } = new();
+        }
+
+        public class InteractionReportDto
+        {
+            public int Id { get; set; }
+            public int CampaignId { get; set; }
+            public string CampaignName { get; set; } = string.Empty;
+            public int? GroupId { get; set; }
+            public string? GroupName { get; set; }
+            public string RecipientEmail { get; set; } = string.Empty;
+            public string? RecipientName { get; set; }
+            public DateTime? SentAt { get; set; }
+            public DateTime? OpenedAt { get; set; }
+            public DateTime? ClickedAt { get; set; }
+            public bool Opened { get; set; }
+            public bool Clicked { get; set; }
         }
 
         public class ReportsExportPayload
@@ -73,6 +117,101 @@ namespace PhishApp.WebApi.Controllers
             public string? Sent { get; set; }
             public string? Opened { get; set; }
             public string? Clicked { get; set; }
+        }
+
+        [HttpGet(Routes.ReportsFilters)]
+        public async Task<RestResponse<ReportsFiltersDto>> GetFilters()
+        {
+            var campaigns = await _context.Campaigns
+                .AsNoTracking()
+                .OrderBy(c => c.Name)
+                .Select(c => new ReportSelectOption
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                })
+                .ToListAsync();
+
+            var groups = await _context.CampaignRecipientGroups
+                .AsNoTracking()
+                .Select(g => new { g.CampaignId, g.RecipientGroupId, g.RecipientGroup.Name })
+                .GroupBy(g => new { g.CampaignId, g.RecipientGroupId, g.Name })
+                .Select(g => new ReportGroupOption
+                {
+                    Id = g.Key.RecipientGroupId,
+                    Name = g.Key.Name,
+                    CampaignId = g.Key.CampaignId
+                })
+                .OrderBy(g => g.Name)
+                .ToListAsync();
+
+            return RestResponse<ReportsFiltersDto>.CreateResponse(new ReportsFiltersDto
+            {
+                Campaigns = campaigns,
+                Groups = groups
+            });
+        }
+
+        [HttpPost(Routes.ReportsInteractions)]
+        public async Task<RestResponse<List<InteractionReportDto>>> GetInteractions([FromBody] ReportsFilterPayload payload)
+        {
+            var query = BuildFilteredQuery(payload, includeDetails: true);
+
+            var raw = await query
+                .OrderByDescending(i => i.SentAt)
+                .Select(item => new
+                {
+                    item.Id,
+                    item.CampaignId,
+                    CampaignName = item.Campaign.Name,
+                    GroupId = (int?)item.RecipientMember.GroupId,
+                    GroupName = item.RecipientMember.Group.Name,
+                    RecipientEmail = item.RecipientMember.Recipient.Email,
+                    RecipientFirstName = item.RecipientMember.Recipient.FirstName,
+                    RecipientLastName = item.RecipientMember.Recipient.LastName,
+                    item.SentAt,
+                    OpenedAt = item.OpenedTime,
+                    ClickedAt = item.FormSubmittedTime ?? item.RedirectedToLandingPageTime,
+                    Opened = item.IsEmailOpened,
+                    Clicked = item.IsRedirectedToLandingPage || item.IsFormSubmitted
+                })
+                .ToListAsync();
+
+            var result = raw.Select(item => new InteractionReportDto
+            {
+                Id = item.Id,
+                CampaignId = item.CampaignId,
+                CampaignName = item.CampaignName,
+                GroupId = item.GroupId,
+                GroupName = item.GroupName,
+                RecipientEmail = item.RecipientEmail,
+                RecipientName = BuildRecipientName(item.RecipientFirstName, item.RecipientLastName),
+                SentAt = item.SentAt,
+                OpenedAt = item.OpenedAt,
+                ClickedAt = item.ClickedAt,
+                Opened = item.Opened,
+                Clicked = item.Clicked
+            }).ToList();
+
+            return RestResponse<List<InteractionReportDto>>.CreateResponse(result);
+        }
+
+        [HttpPost(Routes.ReportsSummary)]
+        public async Task<RestResponse<SummaryDto>> GetSummary([FromBody] ReportsFilterPayload payload)
+        {
+            var query = BuildFilteredQuery(payload, includeDetails: false);
+
+            var summary = await query
+                .GroupBy(_ => 1)
+                .Select(group => new SummaryDto
+                {
+                    Sent = group.Count(x => x.IsSent),
+                    Opened = group.Count(x => x.IsEmailOpened),
+                    Clicked = group.Count(x => x.IsRedirectedToLandingPage || x.IsFormSubmitted)
+                })
+                .FirstOrDefaultAsync() ?? new SummaryDto();
+
+            return RestResponse<SummaryDto>.CreateResponse(summary);
         }
 
         [HttpPost(Routes.ReportsExport)]
@@ -187,6 +326,83 @@ namespace PhishApp.WebApi.Controllers
             var from = string.IsNullOrWhiteSpace(filtersRaw?.DateFrom) ? "--" : filtersRaw!.DateFrom!;
             var to = string.IsNullOrWhiteSpace(filtersRaw?.DateTo) ? "--" : filtersRaw!.DateTo!;
             return $"{from} - {to}";
+        }
+
+        private IQueryable<CampaignGroupMemberEmailInfoEntity> BuildFilteredQuery(ReportsFilterPayload? payload, bool includeDetails)
+        {
+            var query = _context.CampaignGroupMemberEmailInfos.AsNoTracking();
+            if (includeDetails)
+            {
+                query = query
+                    .Include(x => x.Campaign)
+                    .Include(x => x.RecipientMember)
+                        .ThenInclude(m => m.Group)
+                    .Include(x => x.RecipientMember)
+                        .ThenInclude(m => m.Recipient);
+            }
+
+            if (payload?.CampaignId is > 0)
+            {
+                query = query.Where(x => x.CampaignId == payload.CampaignId);
+            }
+
+            if (payload?.GroupId is > 0)
+            {
+                query = query.Where(x => x.RecipientMember.GroupId == payload.GroupId);
+            }
+
+            var from = ParseDate(payload?.DateFrom, endOfDay: false);
+            if (from.HasValue)
+            {
+                query = query.Where(x => x.SentAt != null && x.SentAt >= from.Value);
+            }
+
+            var to = ParseDate(payload?.DateTo, endOfDay: true);
+            if (to.HasValue)
+            {
+                query = query.Where(x => x.SentAt != null && x.SentAt < to.Value);
+            }
+
+            return query;
+        }
+
+        private static DateTime? ParseDate(string? value, bool endOfDay)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            if (!DateTime.TryParse(value, out var parsed))
+            {
+                return null;
+            }
+
+            var date = parsed.Date;
+            return endOfDay ? date.AddDays(1) : date;
+        }
+
+        private static string? BuildRecipientName(string? firstName, string? lastName)
+        {
+            var first = firstName?.Trim();
+            var last = lastName?.Trim();
+
+            if (string.IsNullOrWhiteSpace(first) && string.IsNullOrWhiteSpace(last))
+            {
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(first))
+            {
+                return last;
+            }
+
+            if (string.IsNullOrWhiteSpace(last))
+            {
+                return first;
+            }
+
+            return $"{first} {last}";
         }
 
         private static string InferStatusColor(string? status)

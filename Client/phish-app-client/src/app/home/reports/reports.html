@@ -15,7 +15,7 @@
       <app-button-component
         [label]="isExporting ? 'Eksportowanie...' : 'Eksportuj do PDF'"
         [variant]="'blue-theme'"
-        [disabled]="isExporting || isLoading || isLoadingFilters"
+        [disabled]="isExporting || isLoading || isLoadingFilters || !canExportReport"
         [action]="exportToPdf.bind(this)">
       </app-button-component>
     </div>

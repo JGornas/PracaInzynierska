@@ -45,6 +45,9 @@
         public const string UpdateCampaign = "api/campaigns/update";
 
         // Reports
+        public const string ReportsFilters = "api/reports/filters";
+        public const string ReportsInteractions = "api/reports/interactions";
+        public const string ReportsSummary = "api/reports/summary";
         public const string ReportsExport = "api/reports/export";
         public const string ReportsExportHtml = "api/reports/export/html";
 

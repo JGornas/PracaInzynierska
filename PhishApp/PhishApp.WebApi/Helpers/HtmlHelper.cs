@@ -20,6 +20,17 @@ namespace PhishApp.WebApi.Helpers
             return hasLinks || hasButtons;
         }
 
+        public static bool ContainsFormElements(string htmlContent)
+        {
+            if (string.IsNullOrWhiteSpace(htmlContent))
+                return false;
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(htmlContent);
+
+            return doc.DocumentNode.SelectSingleNode("//form") != null;
+        }
+
         public static string GetEmailContentWithPixel(string? templateContent, Guid pixelId)
         {
             string pixelUrl = $"{Constants.NGrokUrl}/api/pixel/{pixelId}.png";
@@ -141,6 +152,13 @@ namespace PhishApp.WebApi.Helpers
             var doc = new HtmlDocument();
             doc.LoadHtml(htmlContent);
 
+            var formNodes = doc.DocumentNode.SelectNodes("//form");
+            if (formNodes != null && formNodes.Count > 0)
+            {
+                AppendFormSubmitTrackingScript(doc, submitUrl);
+                return doc.DocumentNode.OuterHtml;
+            }
+
             var aNodes = doc.DocumentNode.SelectNodes("//a[@href]");
             if (aNodes != null)
             {
@@ -168,6 +186,26 @@ namespace PhishApp.WebApi.Helpers
             }
 
             return doc.DocumentNode.OuterHtml;
+        }
+
+        private static void AppendFormSubmitTrackingScript(HtmlDocument doc, string submitUrl)
+        {
+            var safeUrl = submitUrl.Replace("'", "\\'");
+            var script = "(function(){var done=false;var url='" + safeUrl + "';" +
+                         "document.addEventListener('submit',function(e){var t=e.target;" +
+                         "if(!t||t.tagName!=='FORM'){return;}if(done){return;}done=true;" +
+                         "e.preventDefault();window.location.href=url;},true);})();";
+
+            var scriptNode = HtmlNode.CreateNode($"<script>{script}</script>");
+            var body = doc.DocumentNode.SelectSingleNode("//body");
+            if (body != null)
+            {
+                body.AppendChild(scriptNode);
+            }
+            else
+            {
+                doc.DocumentNode.AppendChild(scriptNode);
+            }
         }
     }
 }

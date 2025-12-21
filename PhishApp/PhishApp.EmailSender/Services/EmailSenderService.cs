@@ -107,13 +107,13 @@ namespace PhishApp.EmailSender.Services
         {
             formSubmitId = null;
 
-            if(campaign.LandingPage is not null)
+            if (campaign.LandingPage is not null)
             {
                 string landingPageContent = campaign.LandingPage.Content;
 
-                bool hasClickableElements = HtmlHelper.ContainsClickableElements(landingPageContent);
+                bool hasFormElements = HtmlHelper.ContainsFormElements(landingPageContent);
 
-                if(hasClickableElements)
+                if (hasFormElements)
                 {
                     formSubmitId = Guid.NewGuid();
                 }

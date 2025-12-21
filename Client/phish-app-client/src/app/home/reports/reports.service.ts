@@ -1,10 +1,13 @@
 ﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, from, of, throwError } from 'rxjs';
+import { Observable, forkJoin, from, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { RestService } from '../../core/services/rest.service';
+import { GridData, GridRequest } from '../../core/components/grid-component/grid-component.models';
 import {
   InteractionReportDto,
+  ReportGroupOption,
+  ReportSelectOption,
   ReportsExportPayload,
   ReportsFilterPayload,
   ReportsFiltersDto,
@@ -19,7 +22,12 @@ export class ReportsService {
   constructor(private rest: RestService, private http: HttpClient) {}
 
   loadFilters(): Observable<ReportsFiltersDto> {
-    return this.rest.get<ReportsFiltersDto>(`${this.baseUrl}/filters`);
+    return this.rest.get<ReportsFiltersDto>(`${this.baseUrl}/filters`).pipe(
+      catchError(error => {
+        console.warn('[REPORTS] Nie znaleziono filtrów z API, używam fallbacku.', error);
+        return this.loadFiltersFallback();
+      })
+    );
   }
 
   loadInteractions(payload: ReportsFilterPayload): Observable<InteractionReportDto[]> {
@@ -28,6 +36,56 @@ export class ReportsService {
 
   loadSummary(payload: ReportsFilterPayload): Observable<ReportsSummaryDto> {
     return this.rest.post<ReportsSummaryDto>(`${this.baseUrl}/summary`, payload);
+  }
+
+  private loadFiltersFallback(): Observable<ReportsFiltersDto> {
+    const request: GridRequest = {
+      sort: 'id',
+      order: 'desc',
+      pageInfo: {
+        pageIndex: 0,
+        pageSize: 1000,
+        totalCount: 0
+      },
+      filter: '',
+      selectedItemId: null,
+      excludedItems: []
+    };
+
+    const campaigns$ = this.rest.post<GridData>('/api/campaigns/grid', request).pipe(
+      map(grid => this.mapCampaigns(grid?.items ?? []))
+    );
+
+    const groups$ = this.rest.get<any[]>('/api/recipients/groups').pipe(
+      map(groups => this.mapGroups(groups ?? [])),
+      catchError(() => of([] as ReportGroupOption[]))
+    );
+
+    return forkJoin({ campaigns: campaigns$, groups: groups$ }).pipe(
+      map(({ campaigns, groups }) => ({
+        campaigns,
+        groups
+      }))
+    );
+  }
+
+  private mapCampaigns(items: Array<Record<string, unknown>>): ReportSelectOption[] {
+    return items
+      .map(item => ({
+        id: Number(item['id'] ?? item['Id']) || 0,
+        name: String(item['name'] ?? item['Name'] ?? '').trim()
+      }))
+      .filter(item => item.id > 0 && item.name.length > 0);
+  }
+
+  private mapGroups(items: Array<Record<string, unknown>>): ReportGroupOption[] {
+    return items
+      .map(item => ({
+        id: Number(item['id'] ?? item['Id']) || 0,
+        name: String(item['name'] ?? item['Name'] ?? '').trim(),
+        campaignId: null
+      }))
+      .filter(item => item.id > 0 && item.name.length > 0);
   }
 
   exportToPdf(filters: ReportsFilterPayload, exportData: ReportsExportPayload): Observable<Blob> {
