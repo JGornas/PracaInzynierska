@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PhishApp.WebApi.Models.Quizzes;
@@ -5,6 +6,7 @@ using PhishApp.WebApi.Services.Interfaces;
 
 namespace PhishApp.WebApi.Pages
 {
+    [AllowAnonymous]
     public class QuizModel : PageModel
     {
         private readonly IQuizService _quizService;
