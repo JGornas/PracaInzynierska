@@ -28,7 +28,6 @@ export class QuizzesService {
   public deleteQuizz(id: number): Observable<void> {
     return this.rest.delete<void>(`/api/quizzes/${id}`).pipe(
       catchError(error => {
-        console.error(`Blad usuwania quizu o id=${id}:`, error);
         return throwError(() => error);
       })
     );

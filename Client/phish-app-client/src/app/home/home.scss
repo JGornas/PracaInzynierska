@@ -1,12 +1,10 @@
 :host {
-  // Colors
   --sidebar-color: #f1f1f1;
   --primary-color: #3a5891;
   --text-color: #707070;
   --logout-background-color: #e0e0e0;
   --logout-background-color-hover: #c52727;
 
-  // Transitions
   --tran-03: all 0.3s ease;
   --tran-04: all 0.4s ease;
 }
@@ -37,7 +35,6 @@
     padding-left: 15px;
 }
 
-//Sidebar
 .sidebar{
     flex: 0 0 auto;
     top: 0;

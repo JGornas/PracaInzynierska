@@ -22,8 +22,6 @@ export class TemplateEditorComponent implements AfterViewInit {
       });
 
       this.editorInitialized = true;
-    } else {
-      console.error('Unlayer script not loaded!');
     }
   }
 
@@ -45,7 +43,6 @@ export class TemplateEditorComponent implements AfterViewInit {
 
   public setDesign(design: any) {
     if (!this.editorInitialized) {
-      console.error('Editor not initialized');
       return;
     }
 

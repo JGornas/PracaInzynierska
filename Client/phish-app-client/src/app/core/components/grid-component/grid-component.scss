@@ -69,7 +69,6 @@ tr.example-element-row:not(.example-expanded-row):active {
   left: 0;
   bottom: 0;
   right: 0;
-  // background: rgba(255, 255, 255, 0.7);
   z-index: 1000;
 
   display: flex;
@@ -77,7 +76,6 @@ tr.example-element-row:not(.example-expanded-row):active {
   justify-content: center;
 }
 
-/* Aktywny wiersz */
 .active-row {
   background-color: rgb(229, 238, 255); /* Twój kolor tła */
 }
@@ -96,7 +94,6 @@ tr.example-element-row:not(.example-expanded-row):active {
   background-color: #3a5891; /* kolor linii */
 }
 
-/* Domyślnie kolumny mają auto szerokość */
 .mat-column-remove {
   width: 1%;                  /* minimalna szerokość */
   white-space: nowrap;         /* nie łamie przycisku */
@@ -147,5 +144,7 @@ tr.mat-mdc-row:hover:not(.active-row) {
   width: 100%;
   overflow-x: auto;
 }
+
+
 
 

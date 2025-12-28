@@ -4,7 +4,7 @@
       <span class="eyebrow">Panel</span>
       <h1>Centrum dowodzenia kampaniami</h1>
       <p class="lead">
-        Monitoruj skuteczność wysyłek, reakcje odbiorców i punkty ryzyka w jednym miejscu.
+        Monitoruj skuteczność wysyłek i reakcje odbiorców w jednym miejscu.
       </p>
     </div>
   </header>
@@ -34,7 +34,6 @@
           <h3>Ostatnie interakcje</h3>
           <p>Najświeższe reakcje odbiorców z aktywnych kampanii.</p>
         </div>
-        <span class="card-tag">24h</span>
       </div>
       <ul class="activity-list">
         @for (item of activities; track item.title + item.time) {
@@ -56,7 +55,6 @@
           <h3>Skuteczność kampanii</h3>
           <p>Porównanie otwarć, kliknięć i wypełnionych formularzy.</p>
         </div>
-        <span class="card-tag">status live</span>
       </div>
       <div class="campaign-list">
         @for (campaign of campaigns; track campaign.name) {
@@ -95,29 +93,6 @@
         }
       </div>
     </article>
-
-    <article class="card risk-card">
-      <div class="card-header">
-        <div>
-          <h3>Ryzyko działów</h3>
-          <p>Najbardziej narażone zespoły i ich trend.</p>
-        </div>
-        <span class="card-tag">skala 0-100</span>
-      </div>
-      <div class="risk-list">
-        @for (dept of departments; track dept.name) {
-          <div class="risk-row" [style.--tone]="dept.tone">
-            <div class="risk-name">{{ dept.name }}</div>
-            <div class="risk-bar">
-              <span class="risk-fill" [style.width.%]="dept.risk"></span>
-            </div>
-            <div class="risk-meta">
-              <span class="risk-score">{{ dept.risk }}</span>
-              <span class="risk-trend">{{ dept.trend }}</span>
-            </div>
-          </div>
-        }
-      </div>
-    </article>
   </section>
 </div>
+

@@ -12,7 +12,6 @@ export class TemplatesService {
     public saveTemplate(template: Template): Observable<Template> {
         return this.rest.post<Template>('/api/templates/update', template).pipe(
             catchError(error => {
-                console.error('Błąd zapisu szablonu:', error);
                 return throwError(() => error);
             })
         );
@@ -21,7 +20,6 @@ export class TemplatesService {
     public getTemplate(id: number): Observable<Template> {
         return this.rest.get<Template>(`/api/templates/${id}`).pipe(
             catchError(error => {
-                console.error(`Błąd pobrania szablonu o id=${id}:`, error);
                 return throwError(() => error);
             })
         );
@@ -30,7 +28,6 @@ export class TemplatesService {
     public deleteTemplate(id: number): Observable<void> {
         return this.rest.delete<void>(`/api/templates/${id}`).pipe(
             catchError(error => {
-            console.error(`Błąd usuwania szablonu o id=${id}:`, error);
             return throwError(() => error);
             })
         );

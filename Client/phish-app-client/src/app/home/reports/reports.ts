@@ -186,7 +186,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
           });
         },
         error: err => {
-          console.error('[EXPORT PDF] Błąd backendu', err);
           this.isExporting = false;
           const status = (err as { status?: number })?.status;
           const message = err instanceof Error ? err.message : 'Nie udało się wyeksportować raportu z serwera.';
@@ -585,22 +584,18 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
 
     const push = (value: string) => commands.push(value);
 
-    // Base background
     this.setFillColor(commands, '#ffffff');
     push(`0 0 ${pageWidth} ${pageHeight} re f`);
 
-    // Header accent
     this.setFillColor(commands, '#e0ecff');
     push(`36 ${pageHeight - 96} ${pageWidth - 72} 52 re f`);
     this.setStrokeColor(commands, '#bfd7ff');
     push('1 w');
     push(`36 ${pageHeight - 96} ${pageWidth - 72} 52 re S`);
 
-    // Header texts
     this.addPdfText(commands, data.title, 54, pageHeight - 66, 20, '#1f2937');
     this.addPdfText(commands, `Wygenerowano: ${data.generatedAt}`, 54, pageHeight - 86, 11, '#475569');
 
-    // Summary cards
     const summaryTop = pageHeight - 124;
     const boxHeight = 68;
     const boxWidth = 164;
@@ -628,7 +623,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // Filters panel
     const filterX = 54 + 3 * (boxWidth + boxGap);
     const filterWidth = pageWidth - filterX - 54;
     const filterHeight = boxHeight;
@@ -645,7 +639,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     this.addPdfText(commands, `Grupa: ${data.filters.group}`, filterX + 12, filterY + filterHeight - 49, 10, '#475569');
     this.addPdfText(commands, `Zakres: ${data.filters.dateFrom} - ${data.filters.dateTo}`, filterX + 12, filterY + 18, 10, '#475569');
 
-    // Performance chart
     const chartX = 54;
     const chartY = 360;
     const chartWidth = pageWidth - 108;
@@ -689,7 +682,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
 
     this.addPdfText(commands, 'WydajnoĹ›Ä‡ kampanii', chartX + 12, chartY + chartHeight + 26, 12, '#1e293b');
 
-    // Interactions table
     const tableX = 54;
     const tableBottom = 165;
     const tableWidth = pageWidth - 108;
@@ -902,6 +894,7 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
   }
 
 }
+
 
 
 

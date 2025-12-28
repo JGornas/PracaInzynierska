@@ -119,7 +119,6 @@ export class SetPassword {
     Swal.fire({ icon: 'error', title: 'Błąd', text: errorMessage });
   }
 
-  // --- obsługa Enter ---
   @HostListener('window:keydown', ['$event'])
   handleGlobalKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter') {
@@ -137,7 +136,7 @@ export class SetPassword {
       this.confirmPasswordInput.nativeElement.focus();
       return;
     }
-    // jeśli oba pola wypełnione – wykonaj logowanie
     this.handleSubmit();
   }
 }
+

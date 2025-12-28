@@ -56,7 +56,6 @@ export class Login {
           resolve();
         },
         error: (error) => {
-          // Pełna obsługa błędu z login()
           Swal.fire({
           icon: 'error',
           title: 'Błąd logowania',
@@ -82,7 +81,6 @@ export class Login {
       return;
     }
 
-    // jeśli oba pola są wypełnione – wykonaj logowanie
     this.handleSubmit();
   }
 
@@ -93,3 +91,4 @@ export class Login {
     }
   }
 }
+

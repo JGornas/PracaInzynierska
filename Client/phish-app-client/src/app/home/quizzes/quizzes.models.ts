@@ -95,3 +95,4 @@ export interface SendQuizzRequestInfo {
   templateId: number;
   recipientGroupIds: number[];
 }
+

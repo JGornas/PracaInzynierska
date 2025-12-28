@@ -110,7 +110,6 @@ export class TemplatesEdit implements OnInit {
         this.editor.setDesign(this.template.designObject);
       }
     } catch (error) {
-      console.error('Błąd pobierania szablonu:', error);
 
       await Swal.fire({
         icon: 'error',

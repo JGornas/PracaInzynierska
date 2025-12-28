@@ -30,7 +30,6 @@ export class CampaignsEditAddReciepientGroup implements OnInit{
     const id = this.route.snapshot.paramMap.get('id');
     
     const sharedCampaign = this.sharedCampaignService.getCurrentValue();
-    console.log('📌 Loaded shared campaign for adding recipient group:', sharedCampaign);
     if(sharedCampaign && sharedCampaign.id === Number(id)) {
       this.campaign = sharedCampaign;
     } else {
@@ -50,7 +49,6 @@ export class CampaignsEditAddReciepientGroup implements OnInit{
 
   onGroupsSelected(selected: GridElement[]) {
     this.selectedGroups = selected;
-    console.log('Zaznaczone:', selected);
   }
 
   async save(): Promise<void> {
@@ -84,8 +82,8 @@ export class CampaignsEditAddReciepientGroup implements OnInit{
 
 
   async cancel(): Promise<void> {
-    // Implementation for saving recipient group
   }
   
 
 }
+

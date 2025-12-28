@@ -68,7 +68,6 @@
 .modal-header .close { background: transparent; border: none; font-size: 20px; cursor: pointer; line-height: 1; }
 .modal-body { padding: 16px; flex: 1 1 auto; min-height: 0; overflow: auto; }
 
-/* Lepszy układ tabeli członków w modalu */
 .members-list .table { table-layout: fixed; }
 .members-list th:nth-child(1) { width: 18%; }
 .members-list th:nth-child(2) { width: 18%; }
@@ -88,4 +87,5 @@
 .section-header h3 { margin: 0; }
 .section-hint { color: #6b7280; font-size: 12px; margin-top: 4px; }
 .card app-grid { display: block; margin-top: 8px; }
+
 

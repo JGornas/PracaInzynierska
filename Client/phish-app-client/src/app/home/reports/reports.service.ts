@@ -1,7 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin, from, of, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { RestService } from '../../core/services/rest.service';
 import { GridData, GridRequest } from '../../core/components/grid-component/grid-component.models';
 import {
@@ -23,10 +23,7 @@ export class ReportsService {
 
   loadFilters(): Observable<ReportsFiltersDto> {
     return this.rest.get<ReportsFiltersDto>(`${this.baseUrl}/filters`).pipe(
-      catchError(error => {
-        console.warn('[REPORTS] Nie znaleziono filtrów z API, używam fallbacku.', error);
-        return this.loadFiltersFallback();
-      })
+      catchError(() => this.loadFiltersFallback())
     );
   }
 
@@ -93,53 +90,27 @@ export class ReportsService {
     const urlHtml = `${this.baseUrl}/export/html`;
     const urlSimple = `${this.baseUrl}/export`;
 
-    console.log('%c[EXPORT PDF] Próba HTML (Puppeteer backend)', 'color: #007bff; font-weight: bold;');
-    console.log('URL:', urlHtml);
-    console.log('Headers:', headers);
-    console.log('Payload:', exportData);
-
     const requestHtml = this.http.post(urlHtml, exportData, {
       headers,
       withCredentials: true,
       responseType: 'blob'
-    }).pipe(
-      tap((response: Blob) => {
-        console.log('%c[EXPORT PDF] Odebrano Blob (HTML)', 'color: green; font-weight: bold;');
-        console.log('Blob size:', response.size, 'bytes');
-        console.log('Blob type:', response.type);
-      })
-    );
+    });
 
     const requestSimple = () => {
-      console.log('%c[EXPORT PDF] Próba fallback /export z samymi filtrami', 'color: #f59e0b; font-weight: bold;');
-      console.log('URL:', urlSimple);
-      console.log('Payload:', filters);
       return this.http.post(urlSimple, filters, {
         headers,
         withCredentials: true,
         responseType: 'blob'
-      }).pipe(
-        tap((response: Blob) => {
-          console.log('%c[EXPORT PDF] Odebrano Blob (fallback)', 'color: green; font-weight: bold;');
-          console.log('Blob size:', response.size, 'bytes');
-          console.log('Blob type:', response.type);
-        })
-      );
+      });
     };
 
     return requestHtml.pipe(
       catchError(error => {
         const httpErr = error as HttpErrorResponse;
         const status = httpErr?.status;
-        console.warn('[EXPORT PDF] HTML endpoint nie zadziałał, status:', status);
         if (status === 404 || status === 415) {
           return requestSimple();
         }
-        console.error('%c[EXPORT PDF] BŁĄD', 'color: red; font-weight: bold;');
-        console.error('Status:', status);
-        console.error('Status text:', httpErr?.statusText);
-        console.error('URL:', httpErr?.url);
-        console.error('Error object:', error);
         return this.resolveExportError(error);
       })
     );

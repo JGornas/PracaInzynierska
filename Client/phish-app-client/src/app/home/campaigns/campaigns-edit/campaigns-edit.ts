@@ -101,7 +101,6 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     const hour = pad(now.getHours());
     const minute = pad(now.getMinutes());
 
-    console.log('Min datetime:', `${year}-${month}-${day}T${hour}:${minute}`);
 
     return `${year}-${month}-${day}T${hour}:${minute}`;
   }
@@ -113,12 +112,10 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     const chosen = new Date(val);
     const now = new Date();
 
-    // jeśli wybrano przeszły czas → wymuś minDateTime
     if (chosen < now) {
       const corrected = this.minDateTime;
       this.campaign.sendTime = corrected;
 
-      // nadpisanie INPUTA — to rozwiązuje problem widoku
       setTimeout(() => {
         if (this.datetimeInput?.nativeElement) {
           this.datetimeInput.nativeElement.value = corrected;
@@ -318,3 +315,4 @@ export class CampaignsEdit implements OnInit, OnDestroy {
   }
 
 }
+

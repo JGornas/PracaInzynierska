@@ -106,7 +106,6 @@ export class LandingPages implements OnInit {
         this.router.navigate(['/home/campaigns']);
       },
       error: (err) => {
-        console.error('Błąd pobierania landing page:', err);
         Swal.fire({
           icon: 'error',
           title: 'Błąd',
