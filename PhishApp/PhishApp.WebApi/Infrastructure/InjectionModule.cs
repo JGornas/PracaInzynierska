@@ -43,6 +43,8 @@ namespace PhishApp.WebApi.Infrastructure
             services.AddTransient<ITrackingService, TrackingService>();
             services.AddTransient<IQuizService, QuizService>();
             services.AddTransient<IQuizzRepository, QuizzRepository>();
+            services.AddTransient<IReportService, ReportService>();
+            services.AddTransient<IReportRepository, ReportRepository>();
 
             services.AddDbContext<DataContext>(options =>
             {

@@ -17,5 +17,21 @@ namespace PhishApp.WebApi.Helpers
             if (string.IsNullOrEmpty(dateTimeString)) return null;
             return DateTime.ParseExact(dateTimeString, Format, CultureInfo.InvariantCulture);
         }
+
+        public static DateTime? ParseDate(string? value, bool endOfDay)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            if (!DateTime.TryParse(value, out var parsed))
+            {
+                return null;
+            }
+
+            var date = parsed.Date;
+            return endOfDay ? date.AddDays(1) : date;
+        }
     }
 }

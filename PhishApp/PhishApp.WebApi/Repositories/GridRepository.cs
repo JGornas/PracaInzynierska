@@ -20,7 +20,6 @@ namespace PhishApp.WebApi.Repositories
         {
             IQueryable<T> query = _context.Set<T>();
 
-            // Wykluczanie określonych elementów
             if (request.ExcludedItems != null && request.ExcludedItems.Any())
             {
                 var idProp = typeof(T).GetProperty("Id");
@@ -32,7 +31,6 @@ namespace PhishApp.WebApi.Repositories
                 }
             }
 
-            // Filtrowanie po wszystkich właściwościach jako string
             if (!string.IsNullOrWhiteSpace(request.Filter))
             {
                 var parameter = Expression.Parameter(typeof(T), "x");
@@ -66,7 +64,6 @@ namespace PhishApp.WebApi.Repositories
                 }
             }
 
-            // Sortowanie
             if (!string.IsNullOrEmpty(request.Sort))
             {
                 var prop = typeof(T).GetProperties()
@@ -81,10 +78,8 @@ namespace PhishApp.WebApi.Repositories
             }
 
 
-            // Liczba wszystkich rekordów po filtrze
             var totalCount = await query.CountAsync();
 
-            // Obsługa SelectedItemId
             int pageIndex = request.PageInfo.PageIndex;
 
             if (request.SelectedItemId.HasValue && request.SelectedItemId.Value > 0)
@@ -94,7 +89,6 @@ namespace PhishApp.WebApi.Repositories
                 {
                     var idValue = request.SelectedItemId.Value;
 
-                    // Pobierz wszystkie Id w aktualnym sortowaniu i filtrze
                     var allIds = await query.Select(e => EF.Property<int>(e, idProp.Name)).ToListAsync();
 
                     var position = allIds.IndexOf(idValue);
@@ -105,7 +99,6 @@ namespace PhishApp.WebApi.Repositories
                 }
             }
 
-            // Paginacja
             var items = await query
                 .Skip(pageIndex * request.PageInfo.PageSize)
                 .Take(request.PageInfo.PageSize)

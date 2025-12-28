@@ -20,7 +20,6 @@ namespace PhishApp.WebApi.Repositories
         public async Task<ApplicationUserToken> SetRefreshTokenAsync(ApplicationUser user, string tokenValue, DateTime expires)
         {
             ApplicationUserToken refreshToken;
-            // Sprawdź, czy istnieje już refresh token
             var existingToken = await _context.UserTokens
                 .FirstOrDefaultAsync(t => t.UserId == user.Id && t.LoginProvider == Constants.TokenProvider && t.Name == Constants.RefreshTokenName);
 
