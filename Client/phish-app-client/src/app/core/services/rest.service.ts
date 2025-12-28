@@ -56,20 +56,16 @@ export class RestService {
     const backendMessage = error?.error?.data || 'Wystąpił nieznany błąd.';
 
     if (error.status === 401) {
-      // Dla 401 próbujemy odświeżyć token
       return this.refreshAccessToken().pipe(
         switchMap(() => {
-          // Po odświeżeniu tokena, ponawiamy oryginalne zapytanie
           return retryFn().pipe(
             catchError((retryError) => {
-              // Jeżeli ponowne zapytanie też zwróci 401 - sesja wygasła
               if (retryError.status === 401) {
                 this.showSessionExpiredError(
                   retryError?.error?.data || 'Sesja wygasła. Zaloguj się ponownie.'
                 );
                 return EMPTY;
               }
-              // Dla innych błędów przy ponownej próbie - rzucamy dalej
               return throwError(() => new Error(
                 retryError?.error?.data || 'Wystąpił nieznany błąd.'
               ));
@@ -77,7 +73,6 @@ export class RestService {
           );
         }),
         catchError((refreshError) => {
-          // Jeżeli refresh token się nie udał - również pokazujemy błąd
           this.showSessionExpiredError(
             refreshError.message || 'Sesja wygasła. Zaloguj się ponownie.'
           );
@@ -85,7 +80,6 @@ export class RestService {
         })
       );
     } else {
-      // Dla wszystkich innych błędów po prostu rzucamy dalej z backendMessage
       return throwError(() => new Error(backendMessage));
     }
   }
@@ -106,7 +100,6 @@ export class RestService {
           errorMessage = error.message;
         }
 
-        // TYLKO rzucamy error, bez pokazywania Swal
         return throwError(() => new Error(errorMessage));
       }),
       switchMap((response: any) => {
@@ -114,7 +107,6 @@ export class RestService {
           localStorage.setItem('accessToken', response.data);
           return of(response.data);
         } else {
-          // Rzucamy error zamiast pokazywać Swal
           return throwError(() => new Error('Brak accessToken w odpowiedzi'));
         }
       })
@@ -134,3 +126,4 @@ export class RestService {
     });
   }
 }
+

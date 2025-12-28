@@ -71,7 +71,6 @@ export class Campaigns {
         text: 'Kampania została pomyślnie usunięta.'
       });
 
-      // odśwież grid
       this.grid.loadRemoteData(true);
 
     } catch (error: any) {
@@ -83,4 +82,5 @@ export class Campaigns {
     }
   }
 }
+
 

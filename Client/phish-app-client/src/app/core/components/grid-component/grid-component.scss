@@ -69,7 +69,6 @@ tr.example-element-row:not(.example-expanded-row):active {
   left: 0;
   bottom: 0;
   right: 0;
-  // background: rgba(255, 255, 255, 0.7);
   z-index: 1000;
 
   display: flex;
@@ -147,5 +146,6 @@ tr.mat-mdc-row:hover:not(.active-row) {
   width: 100%;
   overflow-x: auto;
 }
+
 
 

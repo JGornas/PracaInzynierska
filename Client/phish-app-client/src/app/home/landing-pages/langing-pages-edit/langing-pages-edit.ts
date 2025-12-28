@@ -68,7 +68,6 @@ export class LangingPagesEdit implements OnInit, AfterViewInit {
     }
 
     try {
-      // pobierz aktualny HTML z edytora
       if (this.htmlCode) {
         this.landingPage.content = this.htmlCode;
       }
@@ -83,7 +82,6 @@ export class LangingPagesEdit implements OnInit, AfterViewInit {
         text: 'Strona docelowa została zapisana pomyślnie.'
       });
 
-      // po zapisie można np. wrócić do listy
       await this.router.navigate(['home/landing-pages']);
     } catch (error: any) {
       await Swal.fire({
@@ -162,3 +160,4 @@ export class LangingPagesEdit implements OnInit, AfterViewInit {
 
 
 }
+

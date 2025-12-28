@@ -82,8 +82,8 @@ export class CampaignsEditAddReciepientGroup implements OnInit{
 
 
   async cancel(): Promise<void> {
-    // Implementation for saving recipient group
   }
   
 
 }
+
