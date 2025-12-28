@@ -7,5 +7,4 @@ import Swal from 'sweetalert2';
 //   confirmButtonColor: '#3a5891',
 // });
 
-bootstrapApplication(App, appConfig)
-  .catch((err) => console.error(err));
+bootstrapApplication(App, appConfig);

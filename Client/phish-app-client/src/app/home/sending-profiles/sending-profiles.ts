@@ -254,7 +254,6 @@ export class SendingProfiles implements OnInit {
       if (pendingCampaign) {
         pendingCampaign.sendingProfile = sendingProfile;
         this.sharedCampaignService.setCurrent(pendingCampaign);
-        console.log('Selected sending profile set in pending campaign:', pendingCampaign);
 
         this.router.navigate([`/home/campaigns/${pendingCampaign.id}/edit`]);
         return;
@@ -266,7 +265,6 @@ export class SendingProfiles implements OnInit {
       if (quizzInfo) {
         quizzInfo.sendingProfile = sendingProfile;
         this.sharedQuizzSendingInfoService.setCurrent(quizzInfo);
-        console.log('Selected sending profile set in QuizzSendingInfo:', quizzInfo);
 
         this.router.navigate(['/home/quizzes/send']);
         return;

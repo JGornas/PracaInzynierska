@@ -72,7 +72,6 @@ export class LangingPagesEdit implements OnInit, AfterViewInit {
       if (this.htmlCode) {
         this.landingPage.content = this.htmlCode;
       }
-      console.log('Saving landing page:', this.landingPage);
       const updatedLandingPage = await firstValueFrom(
         this.landingPagesService.saveLandingPage(this.landingPage)
       );
@@ -138,7 +137,6 @@ export class LangingPagesEdit implements OnInit, AfterViewInit {
         this.updatePreview(this.htmlCode);
       }
     } catch (error) {
-      console.error('Błąd pobierania strony docelowej:', error);
 
       await Swal.fire({
         icon: 'error',

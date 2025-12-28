@@ -18,7 +18,6 @@ export class CampaignsService {
     return this.rest.get<any>(`/api/campaigns/${id}`).pipe(
       map(response => this.mapToCampaign(response)),
       catchError(err => {
-        console.error(`Błąd pobierania kampanii id=${id}`, err);
         return throwError(() => err);
       })
     );
@@ -37,7 +36,6 @@ export class CampaignsService {
   public deleteCampaign(id: number): Observable<void> {
     return this.rest.delete<void>(`/api/campaigns/${id}`).pipe(
       catchError(err => {
-        console.error(`Błąd usuwania kampanii id=${id}`, err);
         return throwError(() => err);
       })
     );

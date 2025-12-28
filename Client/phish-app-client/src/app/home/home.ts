@@ -19,7 +19,6 @@ export class Home {
   logout() {
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/auth/login']),
-      error: (err) => console.error('Blad przy wylogowaniu', err)
     });
   }
 

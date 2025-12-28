@@ -95,7 +95,6 @@ export class RestService {
       withCredentials: true
     }).pipe(
       catchError(error => {
-        console.error('Błąd refresh token:', error);
 
         let errorMessage = 'Sesja wygasła. Zaloguj się ponownie.';
 
@@ -115,7 +114,6 @@ export class RestService {
           localStorage.setItem('accessToken', response.data);
           return of(response.data);
         } else {
-          console.error('Brak accessToken w odpowiedzi:', response);
           // Rzucamy error zamiast pokazywać Swal
           return throwError(() => new Error('Brak accessToken w odpowiedzi'));
         }

@@ -44,7 +44,6 @@ export class QuizzesSendRecipientGroups implements OnInit {
 
   onGroupsSelected(selected: GridElement[]) {
     this.selectedGroups = selected;
-    console.log('Zaznaczone grupy:', selected);
   }
 
   async save(): Promise<void> {

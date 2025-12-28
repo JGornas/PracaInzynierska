@@ -182,7 +182,6 @@ export class Templates implements OnInit {
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        console.error('Błąd pobierania szablonu:', err);
         Swal.fire({
           icon: 'error',
           title: 'Błąd',

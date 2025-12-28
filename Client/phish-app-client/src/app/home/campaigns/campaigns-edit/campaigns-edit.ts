@@ -101,7 +101,6 @@ export class CampaignsEdit implements OnInit, OnDestroy {
     const hour = pad(now.getHours());
     const minute = pad(now.getMinutes());
 
-    console.log('Min datetime:', `${year}-${month}-${day}T${hour}:${minute}`);
 
     return `${year}-${month}-${day}T${hour}:${minute}`;
   }

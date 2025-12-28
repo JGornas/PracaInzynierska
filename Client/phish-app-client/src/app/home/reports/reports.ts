@@ -186,7 +186,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
           });
         },
         error: err => {
-          console.error('[EXPORT PDF] Błąd backendu', err);
           this.isExporting = false;
           const status = (err as { status?: number })?.status;
           const message = err instanceof Error ? err.message : 'Nie udało się wyeksportować raportu z serwera.';

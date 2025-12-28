@@ -10,13 +10,11 @@ export class SharedCampaignService {
   public current$ = this.currentSubject.asObservable();
 
   setCurrent(campaign: Campaign | null): void {
-      console.log('Ustawiam current:', campaign);
       this.currentSubject.next(campaign);
   }
 
   getCurrentValue(): Campaign | null {
       const value = this.currentSubject.getValue();
-      console.log('Pobieram current:', value);
       return value;
   }
 
