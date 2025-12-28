@@ -4,7 +4,6 @@ namespace PhishApp.WebApi.Services.Interfaces
 {
     public interface IEmailSendingService
     {
-        Task SendEmailTestMailKit();
         Task SendMailAsync(SendingProfile profile, string? recipientEmail, string subject, string body, bool isHtml = true);
     }
 }
