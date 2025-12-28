@@ -3,7 +3,6 @@
   gap: 16px;
   width: 100%;
 
-  /* domyślnie poziomo (lub wtedy gdy !isVertical) */
   &.horizontal {
     flex-direction: row;
 
@@ -15,7 +14,6 @@
     }
   }
 
-  /* pionowo — jeden pod drugim */
   &.vertical {
     flex-direction: column;
 
@@ -29,7 +27,6 @@
   }
 }
 
-/* Jeżeli używasz nu-monaco-editor lub innego wrappera — wymuś 100% szerokości wewnętrznego edytora */
 .editor ::ng-deep nu-monaco-editor,
 .editor ::ng-deep app-html-editor-component,
 .editor ::ng-deep .monaco-editor {
@@ -37,7 +34,6 @@
   box-sizing: border-box;
 }
 
-/* ewentualnie ustaw minimalną wysokość by wyglądało spójnie */
 .editor, .preview {
   min-height: 320px;
 }
@@ -66,4 +62,5 @@ section{
   padding: 16px;
   border-radius: 8px;
 }
+
 

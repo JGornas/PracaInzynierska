@@ -21,7 +21,6 @@ body {
 
   margin: 0;
 }
-/* You can add global styles to this file, and also import other style files */
 html, body, app-root {
   height: 100vh;
   width: 100vw;
@@ -37,7 +36,6 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-/* style do swal */
 .swal2-confirm {
   background-color: #3a5891 !important;
   border-color: #3a5891 !important;
@@ -61,4 +59,5 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
 
