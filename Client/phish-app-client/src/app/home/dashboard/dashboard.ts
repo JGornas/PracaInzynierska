@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { forkJoin, of, Subject, timer } from 'rxjs';
+import { catchError, exhaustMap, finalize, takeUntil, tap } from 'rxjs/operators';
 import { InteractionReportDto, ReportSelectOption, ReportsFilterPayload, ReportsFiltersDto } from '../reports/reports.models';
 import { ReportsService } from '../reports/reports.service';
 
@@ -45,13 +45,6 @@ interface CampaignPerformance {
   tone: string;
 }
 
-interface DepartmentRisk {
-  name: string;
-  risk: number;
-  trend: string;
-  tone: string;
-}
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -59,7 +52,7 @@ interface DepartmentRisk {
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   isLoading = true;
   errorMessage: string | null = null;
 
@@ -70,20 +63,33 @@ export class Dashboard implements OnInit {
   kpiCards: DashboardKpiCard[] = [];
   activities: ActivityItem[] = [];
   campaigns: CampaignPerformance[] = [];
-  departments: DepartmentRisk[] = [];
+
+  private readonly refreshIntervalMs = 30000;
+  private readonly destroy$ = new Subject<void>();
+  private hasLoadedOnce = false;
 
   constructor(private reportsService: ReportsService) {}
 
   ngOnInit(): void {
-    this.loadDashboard();
+    timer(0, this.refreshIntervalMs)
+      .pipe(
+        takeUntil(this.destroy$),
+        exhaustMap(() => this.loadDashboard$())
+      )
+      .subscribe();
   }
 
-  private loadDashboard(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadDashboard$() {
     const payload = this.buildDashboardPayload();
-    this.isLoading = true;
+    this.isLoading = !this.hasLoadedOnce;
     this.errorMessage = null;
 
-    forkJoin({
+    return forkJoin({
       filters: this.reportsService.loadFilters().pipe(
         catchError(() => {
           this.errorMessage = 'Nie udało się pobrać listy kampanii.';
@@ -96,20 +102,24 @@ export class Dashboard implements OnInit {
           return of([] as InteractionReportDto[]);
         })
       )
-    }).subscribe(({ filters, interactions }) => {
-      this.isLoading = false;
-      const summary = this.buildSummary(interactions);
-      const rates = this.calculateRates(summary);
+    }).pipe(
+      tap(({ filters, interactions }) => {
+        const summary = this.buildSummary(interactions);
+        const rates = this.calculateRates(summary);
 
-      this.heroScore = this.calculateResilienceScore(rates);
-      this.heroPulse = this.buildHeroPulse(interactions);
-      this.lastUpdatedLabel = this.resolveLastUpdated(interactions);
+        this.heroScore = this.calculateResilienceScore(rates);
+        this.heroPulse = this.buildHeroPulse(interactions);
+        this.lastUpdatedLabel = this.resolveLastUpdated(interactions);
 
-      this.campaigns = this.buildCampaigns(interactions, filters.campaigns ?? []);
-      this.activities = this.buildActivities(interactions);
-      this.departments = this.buildDepartmentRisks(interactions, rates);
-      this.kpiCards = this.buildKpis(summary, rates, filters, interactions);
-    });
+        this.campaigns = this.buildCampaigns(interactions, filters.campaigns ?? []);
+        this.activities = this.buildActivities(interactions);
+        this.kpiCards = this.buildKpis(summary, rates, filters, interactions);
+        this.hasLoadedOnce = true;
+      }),
+      finalize(() => {
+        this.isLoading = false;
+      })
+    );
   }
 
   private buildDashboardPayload(): ReportsFilterPayload {
@@ -172,7 +182,6 @@ export class Dashboard implements OnInit {
     interactions: InteractionReportDto[]
   ): DashboardKpiCard[] {
     const campaignsCount = filters.campaigns?.length ?? 0;
-    const groupsCount = filters.groups?.length ?? 0;
     const primaryCampaign = this.campaigns[0]?.name ?? 'Brak aktywnych kampanii';
 
     const sentSpark = this.normalizeSeries(this.buildDailyCounts(interactions, 6, 'sent'), 16, 46);
@@ -185,7 +194,7 @@ export class Dashboard implements OnInit {
         label: 'Aktywne kampanie',
         value: this.formatNumber(campaignsCount),
         delta: `Największa: ${primaryCampaign}`,
-        meta: `Grupy odbiorców: ${this.formatNumber(groupsCount)}`,
+        meta: '',
         tone: '#2563eb',
         spark: sentSpark
       },
@@ -193,23 +202,23 @@ export class Dashboard implements OnInit {
         label: 'Wysłane maile',
         value: this.formatNumber(summary.sent),
         delta: `Otwarcia: ${this.formatNumber(summary.opened)}`,
-        meta: `Kliknięcia: ${this.formatNumber(summary.clicked)}`,
+        meta: ``,
         tone: '#0f766e',
         spark: clickedSpark
       },
       {
         label: 'Otwarcia',
-        value: `${rates.openRate.toFixed(1)}%`,
-        delta: `Otworzone: ${this.formatNumber(summary.opened)}`,
-        meta: `Wysłane: ${this.formatNumber(summary.sent)}`,
+        value: this.formatNumber(summary.opened),
+        delta: `${rates.openRate.toFixed(1)}%`,
+        meta: ``,
         tone: '#f97316',
         spark: openedSpark
       },
       {
         label: 'Wypełnione formularze',
-        value: `${rates.submissionRate.toFixed(1)}%`,
-        delta: `Wypełnienia: ${this.formatNumber(summary.submitted)}`,
-        meta: `Kliknięcia: ${this.formatNumber(summary.clicked)}`,
+        value: this.formatNumber(summary.submitted),
+        delta: `${rates.submissionRate.toFixed(1)}%`,
+        meta: ``,
         tone: '#7c3aed',
         spark: submittedSpark
       }
@@ -294,51 +303,6 @@ export class Dashboard implements OnInit {
       .slice(0, 3);
   }
 
-  private buildDepartmentRisks(interactions: InteractionReportDto[], overallRates: RateSummary): DepartmentRisk[] {
-    const groups = new Map<string, SummaryCounts>();
-    interactions.forEach(item => {
-      const groupName = item.groupName?.trim() || 'Brak grupy';
-      const current = groups.get(groupName) ?? {
-        sent: 0,
-        opened: 0,
-        clicked: 0,
-        submitted: 0
-      };
-
-      if (item.sentAt) {
-        current.sent += 1;
-      }
-      if (item.opened) {
-        current.opened += 1;
-      }
-      if (item.clicked) {
-        current.clicked += 1;
-      }
-      if (item.submitted) {
-        current.submitted += 1;
-      }
-
-      groups.set(groupName, current);
-    });
-
-    const overallRisk = this.calculateRiskScore(overallRates);
-
-    return Array.from(groups.entries())
-      .map(([name, summary]) => {
-        const rates = this.calculateRates(summary);
-        const risk = Math.round(this.calculateRiskScore(rates));
-        const trend = this.formatDelta(risk - overallRisk);
-        return {
-          name,
-          risk,
-          trend,
-          tone: this.pickRiskTone(risk)
-        };
-      })
-      .sort((a, b) => b.risk - a.risk)
-      .slice(0, 4);
-  }
-
   private buildDailyCounts(
     interactions: InteractionReportDto[],
     days: number,
@@ -411,23 +375,6 @@ export class Dashboard implements OnInit {
     return { label: 'Wysłano wiadomość', tone: '#64748b' };
   }
 
-  private calculateRiskScore(rates: RateSummary): number {
-    return rates.clickRate * 0.6 + rates.submissionRate * 0.4;
-  }
-
-  private pickRiskTone(score: number): string {
-    if (score >= 70) {
-      return '#ef4444';
-    }
-    if (score >= 50) {
-      return '#f97316';
-    }
-    if (score >= 30) {
-      return '#2563eb';
-    }
-    return '#22c55e';
-  }
-
   private pickCampaignTone(sent: number): string {
     if (sent >= 400) {
       return '#2563eb';
@@ -436,12 +383,6 @@ export class Dashboard implements OnInit {
       return '#0f766e';
     }
     return '#f97316';
-  }
-
-  private formatDelta(value: number): string {
-    const rounded = Math.round(value);
-    const sign = rounded > 0 ? '+' : '';
-    return `${sign}${rounded} pp`;
   }
 
   private roundRate(value: number): number {
@@ -490,3 +431,6 @@ export class Dashboard implements OnInit {
     return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
 }
+
+
+
