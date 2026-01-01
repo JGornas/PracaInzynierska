@@ -307,9 +307,6 @@ namespace PhishApp.WebApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CampaignEntityId")
-                        .HasColumnType("int");
-
                     b.Property<int>("CampaignId")
                         .HasColumnType("int");
 
@@ -357,8 +354,6 @@ namespace PhishApp.WebApi.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CampaignEntityId");
 
                     b.HasIndex("CampaignId");
 
@@ -840,12 +835,8 @@ namespace PhishApp.WebApi.Migrations
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.CampaignGroupMemberEmailInfoEntity", b =>
                 {
-                    b.HasOne("PhishApp.WebApi.Models.Identity.CampaignEntity", null)
-                        .WithMany("CampaignGroupMemberEmailInfos")
-                        .HasForeignKey("CampaignEntityId");
-
                     b.HasOne("PhishApp.WebApi.Models.Identity.CampaignEntity", "Campaign")
-                        .WithMany()
+                        .WithMany("CampaignGroupMemberEmailInfos")
                         .HasForeignKey("CampaignId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

@@ -49,18 +49,6 @@ namespace PhishApp.WebApi.Infrastructure
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            builder.Entity<CampaignGroupMemberEmailInfoEntity>(entity =>
-            {
-                entity.HasOne(e => e.RecipientMember)
-                      .WithMany()
-                      .HasForeignKey(e => e.RecipientMemberId)
-                      .OnDelete(DeleteBehavior.SetNull);
-
-                entity.HasOne(e => e.Campaign)
-                      .WithMany()
-                      .HasForeignKey(e => e.CampaignId);
-            });
-
             builder.Entity<SendingProfileEntity>(entity =>
             {
                 entity.HasIndex(e => e.Name).IsUnique();
@@ -111,6 +99,21 @@ namespace PhishApp.WebApi.Infrastructure
                 entity.ToTable("CampaignRecipientGroups");
             });
 
+            builder.Entity<CampaignGroupMemberEmailInfoEntity>(entity =>
+            {
+                entity.HasOne(e => e.Campaign)
+                      .WithMany(c => c.CampaignGroupMemberEmailInfos)
+                      .HasForeignKey(e => e.CampaignId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.RecipientMember)
+                      .WithMany()
+                      .HasForeignKey(e => e.RecipientMemberId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+            });
+
+
             builder.Entity<QuizEntity>()
                 .HasMany(q => q.Questions)
                 .WithOne(q => q.Quiz)
@@ -130,7 +133,6 @@ namespace PhishApp.WebApi.Infrastructure
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
         }
-
 
 
         public DbSet<TemplateEntity> Templates { get; set; }

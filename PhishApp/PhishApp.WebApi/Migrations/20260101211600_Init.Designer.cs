@@ -12,8 +12,8 @@ using PhishApp.WebApi.Infrastructure;
 namespace PhishApp.WebApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20251115233506_CampaignsRelations")]
-    partial class CampaignsRelations
+    [Migration("20260101211600_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -139,6 +139,28 @@ namespace PhishApp.WebApi.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.AnswerEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("Answers");
+                });
+
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
@@ -249,6 +271,9 @@ namespace PhishApp.WebApi.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<bool>("IsSentSuccessfully")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("LandingPageId")
                         .HasColumnType("int");
 
@@ -275,6 +300,71 @@ namespace PhishApp.WebApi.Migrations
                     b.HasIndex("TemplateId");
 
                     b.ToTable("Campaigns");
+                });
+
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.CampaignGroupMemberEmailInfoEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CampaignId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("FormSubmitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("FormSubmittedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsEmailOpened")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFormSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRedirectedToLandingPage")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSent")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("LandingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("OpenedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PixelId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("RecipientGroupMemberEntityId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RecipientMemberId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RedirectedToLandingPageTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("RecipientGroupMemberEntityId");
+
+                    b.HasIndex("RecipientMemberId");
+
+                    b.ToTable("CampaignGroupMemberEmailInfos");
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.CampaignRecipientGroupEntity", b =>
@@ -322,6 +412,60 @@ namespace PhishApp.WebApi.Migrations
                     b.ToTable("LandingPages");
                 });
 
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.QuestionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CorrectAnswerId")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("CorrectAnswerValue")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("QuizId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrectAnswerId");
+
+                    b.HasIndex("QuizId");
+
+                    b.ToTable("Questions");
+                });
+
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.QuizEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Quizzes");
+                });
+
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.RecipientEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -333,7 +477,7 @@ namespace PhishApp.WebApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -375,14 +519,10 @@ namespace PhishApp.WebApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Campaign")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -431,7 +571,7 @@ namespace PhishApp.WebApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Host")
                         .IsRequired()
@@ -545,6 +685,46 @@ namespace PhishApp.WebApi.Migrations
                     b.ToTable("CampaignRows");
                 });
 
+            modelBuilder.Entity("PhishApp.WebApi.Models.Rows.QuizRow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuizRows");
+                });
+
+            modelBuilder.Entity("PhishApp.WebApi.Models.Rows.RecipientGroupRow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RecipientGroupRows");
+                });
+
             modelBuilder.Entity("PhishApp.WebApi.Models.Rows.TemplateRow", b =>
                 {
                     b.Property<int>("Id")
@@ -612,6 +792,17 @@ namespace PhishApp.WebApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.AnswerEntity", b =>
+                {
+                    b.HasOne("PhishApp.WebApi.Models.Identity.QuestionEntity", "Question")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.ApplicationUserToken", b =>
                 {
                     b.HasOne("PhishApp.WebApi.Models.Identity.ApplicationUser", null)
@@ -625,21 +816,46 @@ namespace PhishApp.WebApi.Migrations
                 {
                     b.HasOne("PhishApp.WebApi.Models.Identity.LandingPageEntity", "LandingPage")
                         .WithMany()
-                        .HasForeignKey("LandingPageId");
+                        .HasForeignKey("LandingPageId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("PhishApp.WebApi.Models.Identity.SendingProfileEntity", "SendingProfile")
                         .WithMany()
-                        .HasForeignKey("SendingProfileId");
+                        .HasForeignKey("SendingProfileId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("PhishApp.WebApi.Models.Identity.TemplateEntity", "Template")
                         .WithMany()
-                        .HasForeignKey("TemplateId");
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("LandingPage");
 
                     b.Navigation("SendingProfile");
 
                     b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.CampaignGroupMemberEmailInfoEntity", b =>
+                {
+                    b.HasOne("PhishApp.WebApi.Models.Identity.CampaignEntity", "Campaign")
+                        .WithMany("CampaignGroupMemberEmailInfos")
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PhishApp.WebApi.Models.Identity.RecipientGroupMemberEntity", null)
+                        .WithMany("CampaignGroupMemberEmailInfos")
+                        .HasForeignKey("RecipientGroupMemberEntityId");
+
+                    b.HasOne("PhishApp.WebApi.Models.Identity.RecipientGroupMemberEntity", "RecipientMember")
+                        .WithMany()
+                        .HasForeignKey("RecipientMemberId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("RecipientMember");
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.CampaignRecipientGroupEntity", b =>
@@ -659,6 +875,24 @@ namespace PhishApp.WebApi.Migrations
                     b.Navigation("Campaign");
 
                     b.Navigation("RecipientGroup");
+                });
+
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.QuestionEntity", b =>
+                {
+                    b.HasOne("PhishApp.WebApi.Models.Identity.AnswerEntity", "CorrectAnswer")
+                        .WithMany()
+                        .HasForeignKey("CorrectAnswerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PhishApp.WebApi.Models.Identity.QuizEntity", "Quiz")
+                        .WithMany("Questions")
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CorrectAnswer");
+
+                    b.Navigation("Quiz");
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.RecipientGroupMemberEntity", b =>
@@ -682,7 +916,19 @@ namespace PhishApp.WebApi.Migrations
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.CampaignEntity", b =>
                 {
+                    b.Navigation("CampaignGroupMemberEmailInfos");
+
                     b.Navigation("CampaignRecipientGroups");
+                });
+
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.QuestionEntity", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.QuizEntity", b =>
+                {
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.RecipientEntity", b =>
@@ -695,6 +941,11 @@ namespace PhishApp.WebApi.Migrations
                     b.Navigation("CampaignRecipientGroups");
 
                     b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("PhishApp.WebApi.Models.Identity.RecipientGroupMemberEntity", b =>
+                {
+                    b.Navigation("CampaignGroupMemberEmailInfos");
                 });
 #pragma warning restore 612, 618
         }
