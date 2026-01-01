@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RestService } from '../core/services/rest.service';
-import { LoginModel, JwtPayload } from './auth.models';
+import { LoginModel, JwtPayload, RegisterModel } from './auth.models';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 
@@ -47,4 +47,14 @@ export class AuthService {
       })
     );
   }
+
+  public register(data: RegisterModel): Observable<string> {
+    return this.rest.post<string>('/api/auth/register', data).pipe(
+      map((password: string) => password),
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
+
 }

@@ -13,3 +13,7 @@ export interface JwtPayload {
   mustSetPassword?: string;
   [key: string]: any;
 }
+
+export class RegisterModel {
+  email: string = '';
+}

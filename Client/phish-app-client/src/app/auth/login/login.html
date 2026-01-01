@@ -1,9 +1,7 @@
 <div class="auth-center-box">
   <div class="auth-panel">
     <div class="auth-header">
-      <div class="brand-logo">
-        <!-- dodaj swoje logo -->
-      </div>
+      
       <h1>Zaloguj się do PhishApp</h1>
       <p>Twórz kampanie phishingowe</p>
     </div>
@@ -41,8 +39,9 @@
     
     <div class="social-area">
       <app-button-component
-        [label]="'Skontaktuj się z nami'"
+        [label]="'Zarejestruj się'"
         [disabled]="contactButtonDisabled"
+        [action]="goToRegister.bind(this)"
         [variant]="'white-outline-theme'">
       </app-button-component>
     </div>

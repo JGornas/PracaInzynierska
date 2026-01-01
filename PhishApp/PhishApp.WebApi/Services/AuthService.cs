@@ -130,9 +130,16 @@ namespace PhishApp.WebApi.Services
             };
         }
 
-        public async Task<string> RegisterAsync(LoginRequestInfo request)
+        public async Task<string> RegisterAsync(RegisterRequestInfo request)
         {
-            // Tworzymy losowy klucz aktywacyjny
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException(
+                    "Konto z podanym adresem email już istnieje."
+                );
+            }
+
             var activationKey = Guid.NewGuid().ToString("N");
 
             var user = new ApplicationUser
@@ -147,11 +154,14 @@ namespace PhishApp.WebApi.Services
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new Exception($"Tworzenie użytkownika nie powiodło się: {errors}");
+                throw new ApplicationException(
+                    $"Tworzenie użytkownika nie powiodło się: {errors}"
+                );
             }
 
             return activationKey;
         }
+
 
         public async Task LogoutAsync(string? refreshToken)
         {

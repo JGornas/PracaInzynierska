@@ -90,5 +90,9 @@ export class Login {
       this.passwordInput.nativeElement.type = this.passwordVisible ? 'text' : 'password';
     }
   }
+
+  public goToRegister() {
+    this.router.navigate(['/auth/register']);
+  }
 }
 

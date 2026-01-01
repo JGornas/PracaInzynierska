@@ -1,0 +1,57 @@
+<div class="auth-center-box">
+  <div class="auth-panel">
+    <div class="auth-header">
+      <h1>Zarejestruj konto</h1>
+      <p>Utwórz dostęp do PhishApp</p>
+    </div>
+
+    <div class="input-row">
+      <label>Email</label>
+      <input
+        type="email"
+        required
+        [(ngModel)]="model.email"
+        #emailInput
+        [disabled]="generatedPassword !== null"
+      />
+    </div>
+
+    <div class="input-row" *ngIf="generatedPassword">
+      <label>Jednorazowe hasło</label>
+      <input
+        type="text"
+        [value]="generatedPassword"
+        readonly
+        (click)="copyPassword()"
+      />
+      <small style="color:#727272">
+        Kliknij w pole, aby skopiować hasło
+      </small>
+    </div>
+
+    <div class="social-area">
+      <app-button-component
+        *ngIf="!generatedPassword"
+        [label]="'Załóż konto'"
+        [action]="handleSubmit.bind(this)">
+      </app-button-component>
+
+      <app-button-component
+        *ngIf="generatedPassword"
+        [label]="'Skopiuj hasło'"
+        [variant]="'white-outline-theme'"
+        [action]="copyPassword.bind(this)">
+      </app-button-component>
+
+      <div class="section-divider">
+        <span>lub</span>
+      </div>
+
+      <app-button-component
+        [label]="'Przejdź do logowania'"
+        [variant]="'white-outline-theme'"
+        [action]="goToLogin.bind(this)">
+      </app-button-component>
+    </div>
+  </div>
+</div>

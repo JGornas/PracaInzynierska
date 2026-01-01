@@ -101,8 +101,8 @@ namespace PhishApp.WebApi.Controllers
 
         [HttpPost]
         [Route(Routes.Register)]
-        [AllowAnonymous] //TODO w jakiś sposób trzeba ustawić aby tylko adimn mogl to wykonywac
-        public async Task<RestResponse<string>> Register(LoginRequestInfo request)
+        [AllowAnonymous]
+        public async Task<RestResponse<string>> Register(RegisterRequestInfo request)
         {
             var response = await _authService.RegisterAsync(request);
             return RestResponse<string>.CreateResponse(response);
