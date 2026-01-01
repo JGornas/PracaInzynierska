@@ -22,38 +22,6 @@ namespace PhishApp.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route(Routes.GetRecipients)]
-        public async Task<RestResponse<IReadOnlyCollection<Recipient>>> GetRecipients()
-        {
-            var recipients = await _recipientService.GetRecipientsAsync();
-            return RestResponse<IReadOnlyCollection<Recipient>>.CreateResponse(recipients);
-        }
-
-        [HttpPost]
-        [Route(Routes.CreateRecipient)]
-        public async Task<RestResponse<Recipient>> CreateRecipient([FromBody] Recipient recipient)
-        {
-            var created = await _recipientService.CreateRecipientAsync(recipient);
-            return RestResponse<Recipient>.CreateResponse(created);
-        }
-
-        [HttpPut]
-        [Route(Routes.UpdateRecipient)]
-        public async Task<RestResponse<Recipient>> UpdateRecipient(int id, [FromBody] Recipient recipient)
-        {
-            var updated = await _recipientService.UpdateRecipientAsync(id, recipient);
-            return RestResponse<Recipient>.CreateResponse(updated);
-        }
-
-        [HttpDelete]
-        [Route(Routes.DeleteRecipient)]
-        public async Task<RestResponse<bool>> DeleteRecipient(int id)
-        {
-            await _recipientService.DeleteRecipientAsync(id);
-            return RestResponse<bool>.CreateResponse(true);
-        }
-
-        [HttpGet]
         [Route(Routes.GetRecipientGroups)]
         public async Task<RestResponse<IReadOnlyCollection<RecipientGroup>>> GetGroups()
         {

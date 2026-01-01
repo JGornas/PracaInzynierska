@@ -9,6 +9,7 @@ import { RecipientsService } from './recipients.service';
 import { RecipientDto, RecipientGroupDto, RecipientGroupPayload, RecipientPayload } from './recipients.models';
 import { ButtonComponent } from '../../core/components/button-component/button-component';
 
+
 interface CsvPreview {
   headers: string[];
   rows: string[][];
@@ -68,20 +69,12 @@ export class Recipients implements OnInit {
     await this.loadData();
   }
 
-  individualColumns: GridColumn[] = [
-    { field: 'email', label: 'E-mail' },
-    { field: 'firstName', label: 'Imię' },
-    { field: 'lastName', label: 'Nazwisko' },
-    { field: 'position', label: 'Stanowisko' }
-  ];
+ 
 
   groupColumns: GridColumn[] = [
     { field: 'name', label: 'Nazwa grupy' },
     { field: 'membersCount', label: 'Liczba odbiorców' }
   ];
-
-  individualRecipients: RecipientDto[] = [];
-  individualGridData: RecipientGridRow[] = [];
 
   groups: RecipientGroupDto[] = [];
   groupGridData: GroupGridRow[] = [];
@@ -127,7 +120,7 @@ export class Recipients implements OnInit {
   async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      await Promise.all([this.loadRecipients(), this.loadGroups()]);
+      await Promise.all([this.loadGroups()]);
     } catch (error) {
       this.handleError(error, 'Nie udało się pobrać odbiorców.');
     } finally {
@@ -135,23 +128,11 @@ export class Recipients implements OnInit {
     }
   }
 
-  private async loadRecipients(): Promise<void> {
-    const recipients = await firstValueFrom(this.recipientsService.getRecipients());
-    this.individualRecipients = recipients;
-    this.refreshRecipientGridData();
-  }
 
   private async loadGroups(): Promise<void> {
     const groups = await firstValueFrom(this.recipientsService.getGroups());
     this.groups = groups;
     this.refreshGroupGridData();
-  }
-
-  private refreshRecipientGridData(): void {
-    this.individualGridData = this.individualRecipients.map(rec => ({
-      ...rec,
-      createdAtLabel: rec.createdAt ? this.formatDate(rec.createdAt) : ''
-    }));
   }
 
   private refreshGroupGridData(): void {
@@ -165,27 +146,6 @@ export class Recipients implements OnInit {
   openCreateRecipient(): void {
     this.editingRecipientId = null;
     this.recipientForm.reset();
-    this.recipientForm.markAsPristine();
-    this.recipientForm.markAsUntouched();
-    this.showRecipientModal = true;
-  }
-
-  openEditRecipient(row: GridElement): void {
-    const id = Number(row['id']);
-    if (!id) {
-      return;
-    }
-    const recipient = this.individualRecipients.find(r => r.id === id);
-    if (!recipient) {
-      return;
-    }
-    this.editingRecipientId = id;
-    this.recipientForm.reset({
-      firstName: recipient.firstName || '',
-      lastName: recipient.lastName || '',
-      email: recipient.email,
-      position: recipient.position || ''
-    });
     this.recipientForm.markAsPristine();
     this.recipientForm.markAsUntouched();
     this.showRecipientModal = true;
@@ -225,7 +185,7 @@ export class Recipients implements OnInit {
       } else {
         await firstValueFrom(this.recipientsService.createRecipient(payload));
       }
-      await Promise.all([this.loadRecipients(), this.loadGroups()]);
+      await Promise.all([this.loadGroups()]);
       this.showRecipientModal = false;
       this.editingRecipientId = null;
     } catch (error) {
@@ -245,30 +205,6 @@ export class Recipients implements OnInit {
 
   recalculateImport(): void {
     this.performImport(false);
-  }
-
-
-  async handleRecipientRemoved(row: GridElement): Promise<void> {
-    const id = Number(row['id']);
-    if (!id) {
-      return;
-    }
-    const recipient = this.individualRecipients.find(r => r.id === id);
-    const email = recipient?.email || '';
-    const confirmed = confirm(`Usunąć odbiorcę "${email || id}"?`);
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await firstValueFrom(this.recipientsService.deleteRecipient(id));
-      await Promise.all([this.loadRecipients(), this.loadGroups()]);
-    } catch (error) {
-      this.handleError(error, 'Nie udało się usunąć odbiorcy.');
-    }
-  }
-
-  handleRecipientDoubleClicked(row: GridElement): void {
-    this.openEditRecipient(row);
   }
 
   openCreateGroup(): void {
@@ -362,7 +298,7 @@ export class Recipients implements OnInit {
       this.showGroupModal = false;
       this.editingGroupId = null;
       this.editingIndex = null;
-      await Promise.all([this.loadGroups(), this.loadRecipients()]);
+      await Promise.all([this.loadGroups()]);
     } catch (error) {
       this.handleError(error, 'Nie udało się zapisać grupy.');
     } finally {
@@ -373,31 +309,18 @@ export class Recipients implements OnInit {
   private buildMembersPayload(): RecipientPayload[] {
     return this.membersWorking.map(member => {
       const email = (member.email || '').trim().toLowerCase();
-      const existing = this.findRecipientByEmail(email);
-      const memberId = member.id ?? existing?.id ?? undefined;
 
-      const firstName = this.normalizeOptionalText(member.firstName) ?? this.normalizeOptionalText(existing?.firstName);
-      const lastName = this.normalizeOptionalText(member.lastName) ?? this.normalizeOptionalText(existing?.lastName);
-      const position = this.normalizeOptionalText(member.position) ?? this.normalizeOptionalText(existing?.position);
-      const externalId = this.normalizeOptionalText(member.externalId) ?? this.normalizeOptionalText(existing?.externalId);
-
-      const payload: RecipientPayload = {
+      return {
         email,
-        ...(memberId !== undefined && memberId !== null ? { id: memberId } : {}),
-        ...(firstName ? { firstName } : {}),
-        ...(lastName ? { lastName } : {}),
-        ...(position ? { position } : {}),
-        ...(externalId ? { externalId } : {})
+        ...(member.id !== undefined && member.id !== null ? { id: member.id } : {}),
+        ...(member.firstName ? { firstName: (member.firstName || '').trim() } : {}),
+        ...(member.lastName ? { lastName: (member.lastName || '').trim() } : {}),
+        ...(member.position ? { position: (member.position || '').trim() } : {}),
+        ...(member.externalId ? { externalId: (member.externalId || '').trim() } : {})
       };
-
-      return payload;
     });
   }
 
-  private findRecipientByEmail(email: string): RecipientDto | undefined {
-    const normalized = (email || '').trim().toLowerCase();
-    return this.individualRecipients.find(r => (r.email || '').toLowerCase() === normalized);
-  }
 
   private normalizeOptionalText(value: string | null | undefined): string | undefined {
     const trimmed = (value ?? '').trim();
@@ -415,7 +338,7 @@ export class Recipients implements OnInit {
     }
     try {
       await firstValueFrom(this.recipientsService.deleteGroup(id));
-      await Promise.all([this.loadGroups(), this.loadRecipients()]);
+      await Promise.all([this.loadGroups()]);
     } catch (error) {
       this.handleError(error, 'Nie udało się usunąć grupy.');
     }

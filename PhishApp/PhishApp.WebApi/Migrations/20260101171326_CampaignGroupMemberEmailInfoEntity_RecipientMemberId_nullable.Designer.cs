@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhishApp.WebApi.Infrastructure;
 
@@ -11,9 +12,11 @@ using PhishApp.WebApi.Infrastructure;
 namespace PhishApp.WebApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260101171326_CampaignGroupMemberEmailInfoEntity_RecipientMemberId_nullable")]
+    partial class CampaignGroupMemberEmailInfoEntity_RecipientMemberId_nullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,9 +310,6 @@ namespace PhishApp.WebApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CampaignEntityId")
-                        .HasColumnType("int");
-
                     b.Property<int>("CampaignId")
                         .HasColumnType("int");
 
@@ -344,9 +344,6 @@ namespace PhishApp.WebApi.Migrations
                     b.Property<Guid>("PixelId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("RecipientGroupMemberEntityId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("RecipientMemberId")
                         .HasColumnType("int");
 
@@ -358,11 +355,7 @@ namespace PhishApp.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CampaignEntityId");
-
                     b.HasIndex("CampaignId");
-
-                    b.HasIndex("RecipientGroupMemberEntityId");
 
                     b.HasIndex("RecipientMemberId");
 
@@ -840,24 +833,15 @@ namespace PhishApp.WebApi.Migrations
 
             modelBuilder.Entity("PhishApp.WebApi.Models.Identity.CampaignGroupMemberEmailInfoEntity", b =>
                 {
-                    b.HasOne("PhishApp.WebApi.Models.Identity.CampaignEntity", null)
-                        .WithMany("CampaignGroupMemberEmailInfos")
-                        .HasForeignKey("CampaignEntityId");
-
                     b.HasOne("PhishApp.WebApi.Models.Identity.CampaignEntity", "Campaign")
-                        .WithMany()
+                        .WithMany("CampaignGroupMemberEmailInfos")
                         .HasForeignKey("CampaignId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PhishApp.WebApi.Models.Identity.RecipientGroupMemberEntity", null)
-                        .WithMany("CampaignGroupMemberEmailInfos")
-                        .HasForeignKey("RecipientGroupMemberEntityId");
-
                     b.HasOne("PhishApp.WebApi.Models.Identity.RecipientGroupMemberEntity", "RecipientMember")
-                        .WithMany()
-                        .HasForeignKey("RecipientMemberId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany("CampaignGroupMemberEmailInfos")
+                        .HasForeignKey("RecipientMemberId");
 
                     b.Navigation("Campaign");
 

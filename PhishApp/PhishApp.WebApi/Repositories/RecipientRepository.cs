@@ -15,13 +15,6 @@ namespace PhishApp.WebApi.Repositories
             _context = context;
         }
 
-        public async Task<IReadOnlyCollection<RecipientEntity>> GetRecipientsAsync()
-        {
-            return await _context.Recipients
-                .AsNoTracking()
-                .OrderBy(r => r.Email)
-                .ToListAsync();
-        }
 
         public async Task<RecipientEntity?> GetRecipientByIdAsync(int id)
         {
@@ -76,18 +69,6 @@ namespace PhishApp.WebApi.Repositories
             await _context.SaveChangesAsync();
 
             return existing;
-        }
-
-        public async Task DeleteRecipientAsync(int id)
-        {
-            var entity = await _context.Recipients.FirstOrDefaultAsync(r => r.Id == id);
-            if (entity is null)
-            {
-                return;
-            }
-
-            _context.Recipients.Remove(entity);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<IReadOnlyCollection<RecipientGroupEntity>> GetGroupsAsync()

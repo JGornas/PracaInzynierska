@@ -14,8 +14,8 @@ namespace PhishApp.WebApi.Models.Identity
         public CampaignEntity Campaign { get; set; } = null!;
 
         [ForeignKey(nameof(RecipientMember))]
-        public int RecipientMemberId { get; set; }
-        public RecipientGroupMemberEntity RecipientMember { get; set; } = null!;
+        public int? RecipientMemberId { get; set; }
+        public RecipientGroupMemberEntity? RecipientMember { get; set; } = null!;
 
         public bool IsSent { get; set; } = false;
 

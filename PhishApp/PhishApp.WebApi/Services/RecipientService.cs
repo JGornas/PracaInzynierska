@@ -23,57 +23,6 @@ namespace PhishApp.WebApi.Services
             return await _gridService.GetGridData<RecipientGroupRow>(request);
         }
 
-        public async Task<IReadOnlyCollection<Recipient>> GetRecipientsAsync()
-        {
-            var entities = await _recipientRepository.GetRecipientsAsync();
-            return entities.Select(MapRecipient).ToList();
-        }
-
-        public async Task<Recipient> CreateRecipientAsync(Recipient recipient)
-        {
-            var normalized = NormalizeRecipientForSave(recipient);
-            await EnsureEmailNotInUse(normalized.Email);
-
-            var entity = new RecipientEntity
-            {
-                Email = normalized.Email,
-                FirstName = normalized.FirstName,
-                LastName = normalized.LastName,
-                Position = normalized.Position,
-                ExternalId = normalized.ExternalId
-            };
-
-            var saved = await _recipientRepository.AddRecipientAsync(entity);
-            return MapRecipient(saved);
-        }
-
-        public async Task<Recipient> UpdateRecipientAsync(int id, Recipient recipient)
-        {
-            var normalized = NormalizeRecipientForSave(recipient);
-            var existing = await _recipientRepository.GetRecipientByIdAsync(id) ??
-                throw new InvalidOperationException($"Recipient with id {id} not found");
-
-            var duplicate = await _recipientRepository.GetRecipientByEmailAsync(normalized.Email);
-            if (duplicate is not null && duplicate.Id != id)
-            {
-                throw new InvalidOperationException($"Recipient with email {normalized.Email} already exists.");
-            }
-
-            existing.Email = normalized.Email;
-            existing.FirstName = normalized.FirstName;
-            existing.LastName = normalized.LastName;
-            existing.Position = normalized.Position;
-            existing.ExternalId = normalized.ExternalId;
-
-            var updated = await _recipientRepository.UpdateRecipientAsync(existing);
-            return MapRecipient(updated);
-        }
-
-        public async Task DeleteRecipientAsync(int id)
-        {
-            await _recipientRepository.DeleteRecipientAsync(id);
-        }
-
         public async Task<IReadOnlyCollection<RecipientGroup>> GetGroupsAsync()
         {
             var entities = await _recipientRepository.GetGroupsAsync();
@@ -129,14 +78,6 @@ namespace PhishApp.WebApi.Services
             await _recipientRepository.DeleteGroupAsync(id);
         }
 
-        private async Task EnsureEmailNotInUse(string email)
-        {
-            var existing = await _recipientRepository.GetRecipientByEmailAsync(email);
-            if (existing is not null)
-            {
-                throw new InvalidOperationException($"Recipient with email {email} already exists.");
-            }
-        }
 
         private static Recipient MapRecipient(RecipientEntity entity)
         {
