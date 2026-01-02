@@ -233,8 +233,9 @@
 .kpi-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
+  flex-wrap: nowrap;
 }
 
 .kpi-label {
@@ -248,7 +249,14 @@
   background: color-mix(in srgb, var(--tone) 14%, transparent);
   padding: 4px 8px;
   border-radius: 999px;
+  margin-left: auto;
+  max-width: 65%;
+  min-width: 0;
+  line-height: 1.2;
+  text-align: right;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kpi-value {
@@ -263,20 +271,6 @@
   color: #64748b;
 }
 
-.kpi-spark {
-  margin-top: auto;
-  padding-top: 12px;
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 36px;
-}
-
-.spark-bar {
-  flex: 1;
-  border-radius: 6px 6px 2px 2px;
-  background: color-mix(in srgb, var(--tone) 65%, #ffffff);
-}
 
 .insights-grid {
   display: grid;

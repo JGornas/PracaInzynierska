@@ -14,15 +14,12 @@
       <article class="kpi-card" [style.--tone]="card.tone">
         <div class="kpi-header">
           <span class="kpi-label">{{ card.label }}</span>
-          <span class="kpi-chip">{{ card.delta }}</span>
+          @if (card.delta) {
+            <span class="kpi-chip">{{ card.delta }}</span>
+          }
         </div>
         <div class="kpi-value">{{ card.value }}</div>
         <div class="kpi-meta">{{ card.meta }}</div>
-        <div class="kpi-spark">
-          @for (spark of card.spark; track $index) {
-            <span class="spark-bar" [style.height.%]="spark"></span>
-          }
-        </div>
       </article>
     }
   </section>
@@ -62,7 +59,6 @@
             <div class="campaign-head">
               <div>
                 <div class="campaign-name">{{ campaign.name }}</div>
-                <div class="campaign-status">{{ campaign.status }}</div>
               </div>
               <div class="campaign-sent">Wysłano: {{ campaign.sent }}</div>
             </div>
@@ -95,4 +91,3 @@
     </article>
   </section>
 </div>
-
