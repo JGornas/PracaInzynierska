@@ -116,7 +116,7 @@ namespace PhishApp.EmailSender.Services
             {
                 string landingPageContent = campaign.LandingPage.Content;
 
-                bool hasFormElements = HtmlHelper.ContainsFormElements(landingPageContent);
+                bool hasFormElements = HtmlHelper.ContainsClickableElements(landingPageContent);
 
                 if (hasFormElements)
                 {
