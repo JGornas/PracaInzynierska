@@ -21,7 +21,7 @@ interface RateSummary {
 interface DashboardKpiCard {
   label: string;
   value: string;
-  delta: string;
+  delta?: string;
   meta: string;
   tone: string;
   spark: number[];
@@ -37,7 +37,6 @@ interface ActivityItem {
 
 interface CampaignPerformance {
   name: string;
-  status: string;
   sent: number;
   openRate: number;
   clickRate: number;
@@ -182,7 +181,7 @@ export class Dashboard implements OnInit, OnDestroy {
     interactions: InteractionReportDto[]
   ): DashboardKpiCard[] {
     const campaignsCount = filters.campaigns?.length ?? 0;
-    const primaryCampaign = this.campaigns[0]?.name ?? 'Brak aktywnych kampanii';
+    const primaryCampaign = this.campaigns[0]?.name ?? 'Brak kampanii';
 
     const sentSpark = this.normalizeSeries(this.buildDailyCounts(interactions, 6, 'sent'), 16, 46);
     const openedSpark = this.normalizeSeries(this.buildDailyCounts(interactions, 6, 'opened'), 16, 46);
@@ -191,9 +190,9 @@ export class Dashboard implements OnInit, OnDestroy {
 
     return [
       {
-        label: 'Aktywne kampanie',
+        label: 'Kampanie',
         value: this.formatNumber(campaignsCount),
-        delta: `Największa: ${primaryCampaign}`,
+        delta: undefined,
         meta: '',
         tone: '#2563eb',
         spark: sentSpark
@@ -289,7 +288,6 @@ export class Dashboard implements OnInit, OnDestroy {
       const rates = this.calculateRates(current);
       return {
         name: current.name,
-        status: current.sent > 0 ? 'Aktywna' : 'W przygotowaniu',
         sent: current.sent,
         openRate: this.roundRate(rates.openRate),
         clickRate: this.roundRate(rates.clickRate),
