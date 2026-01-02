@@ -2,7 +2,7 @@
 import { Component, OnDestroy, OnInit, AfterViewInit, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, Subject } from 'rxjs';
-import { debounceTime, skip, takeUntil } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { GridComponent } from '../../core/components/grid-component/grid-component';
 import { GridColumn, GridElement } from '../../core/components/grid-component/grid-component.models';
 import {
@@ -203,7 +203,6 @@ export class Reports implements OnInit, AfterViewInit, OnDestroy {
     this.filtersForm.valueChanges
       .pipe(
         debounceTime(250),
-        skip(1),
         takeUntil(this.destroy$)
       )
       .subscribe(() => {
