@@ -33,7 +33,7 @@ namespace PhishApp.WebApi.Helpers
 
         public static string GetEmailContentWithPixel(string? templateContent, Guid pixelId)
         {
-            string pixelUrl = $"{Constants.NGrokUrl}/api/pixel/{pixelId}.png";
+            string pixelUrl = $"{Constants.PublicUrl}/api/pixel/{pixelId}.png";
 
             string pixelHtml = $"<img src=\"{pixelUrl}\" width=\"1\" height=\"1\" />";
 
@@ -61,7 +61,7 @@ namespace PhishApp.WebApi.Helpers
             if (string.IsNullOrWhiteSpace(htmlContent))
                 return htmlContent;
 
-            string landingBaseUrl = $"{Constants.NGrokUrl}/quiz/{quizzId}";
+            string landingBaseUrl = $"{Constants.PublicUrl}/quiz/{quizzId}";
 
             var doc = new HtmlDocument();
             doc.LoadHtml(htmlContent);
@@ -101,7 +101,7 @@ namespace PhishApp.WebApi.Helpers
             if (string.IsNullOrWhiteSpace(htmlContent))
                 return htmlContent;
 
-            string landingBaseUrl = $"{Constants.NGrokUrl}/landing/{landingId}";
+            string landingBaseUrl = $"{Constants.PublicUrl}/landing/{landingId}";
 
             var doc = new HtmlDocument();
             doc.LoadHtml(htmlContent);
@@ -156,7 +156,7 @@ namespace PhishApp.WebApi.Helpers
             if (string.IsNullOrWhiteSpace(htmlContent))
                 return htmlContent;
 
-            string submitUrl = $"{Constants.NGrokUrl}/result/{formSubmitId}";
+            string submitUrl = $"{Constants.PublicUrl}/result/{formSubmitId}";
 
             var doc = new HtmlDocument();
             doc.LoadHtml(htmlContent);
