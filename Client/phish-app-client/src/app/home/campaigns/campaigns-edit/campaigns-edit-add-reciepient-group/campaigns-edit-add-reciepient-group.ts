@@ -82,6 +82,7 @@ export class CampaignsEditAddReciepientGroup implements OnInit{
 
 
   async cancel(): Promise<void> {
+    await this.router.navigate([`/home/campaigns/${this.campaign.id}/edit`]);
   }
   
 
