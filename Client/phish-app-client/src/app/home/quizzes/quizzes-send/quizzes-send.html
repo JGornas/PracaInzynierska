@@ -1,6 +1,6 @@
 <div class="container">
   <header>
-    <h2>Wyślij quiz</h2>
+    <h2>Wy&#347;lij quiz</h2>
   </header>
 
 
@@ -12,11 +12,11 @@
         role="button"
         tabindex="0"
         (click)="selectSendingProfile()">
-        <mat-label>Profil wysyłki</mat-label>
+        <mat-label>Profil wysy&#322;ki</mat-label>
 
         <input
           matInput
-          placeholder="Wybierz profil wysyłki"
+          placeholder="Wybierz profil wysy&#322;ki"
           readonly
           [value]="sendingProfileName" />
       </mat-form-field>
@@ -27,11 +27,11 @@
         role="button"
         tabindex="0"
         (click)="selectTemplate()">
-        <mat-label>Szablon email</mat-label>
+        <mat-label>Szablon e-mail</mat-label>
 
         <input
           matInput
-          placeholder="Wybierz szablon email"
+          placeholder="Wybierz szablon e-mail"
           readonly
           [value]="templateName" />
       </mat-form-field>
@@ -39,14 +39,14 @@
 
     <div class="row">
       <app-button-component
-        [label]="'Dodaj grupę odbiorców'"
+        [label]="'Dodaj grup&#281; odbiorc&#243;w'"
         [variant]="'white-outline-theme'"
         [action]="addRecipientGroup.bind(this)">
       </app-button-component>
     </div>
 
     <div class="grid-section">
-      <h3>Grupy odbiorców</h3>
+      <h3>Grupy odbiorc&#243;w</h3>
       <app-grid
         [localData]="quizzSendingInfo.recipientGroups"
         [columnsToDisplay]="recipientGroupColumns"
@@ -66,7 +66,7 @@
     </app-button-component>
 
     <app-button-component
-    [label]="'Wyślij quiz'"
+    [label]="'Wy&#347;lij quiz'"
     [variant]="'blue-theme'"
     [action]="send.bind(this)">
     </app-button-component>

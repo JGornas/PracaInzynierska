@@ -1,8 +1,8 @@
-﻿<div class="quizzes-edit-container" *ngIf="!loading; else loadingTpl">
+<div class="quizzes-edit-container" *ngIf="!loading; else loadingTpl">
   <header class="page-header">
     <div>
       <h2>{{ isEditMode ? 'Edytuj quiz' : 'Nowy quiz' }}</h2>
-      <p class="hint">Uzupelnij dane quizu oraz pytania.</p>
+      <p class="hint">Uzupe&#322;nij dane quizu oraz pytania.</p>
     </div>
     <div class="actions">
       <app-button-component
@@ -30,7 +30,7 @@
       </label>
       <label>
         Opis (opcjonalnie)
-        <textarea class="form-control" rows="3" formControlName="description" placeholder="Krotki opis"></textarea>
+        <textarea class="form-control" rows="3" formControlName="description" placeholder="Kr&#243;tki opis"></textarea>
       </label>
     </form>
   </section>
@@ -39,7 +39,7 @@
     <div class="card-header">
       <div>
         <h3>Pytania</h3>
-        <p class="hint">Zaznacz pytanie aby je edytowac albo dodaj nowe.</p>
+        <p class="hint">Zaznacz pytanie, aby je edytowa&#263;, albo dodaj nowe.</p>
       </div>
       <app-button-component
         [label]="'Dodaj pytanie'"
@@ -63,15 +63,15 @@
     <div class="card-header">
       <div>
         <h3>{{ editingQuestionIndex === null ? 'Dodaj pytanie' : 'Edytuj pytanie' }}</h3>
-        <p class="hint">Uzupelnij tresc i odpowiedzi.</p>
+        <p class="hint">Uzupe&#322;nij tre&#347;&#263; i odpowiedzi.</p>
       </div>
-      <button class="btn-link" (click)="resetQuestionForm()">Wyczysc</button>
+      <button class="btn-link" (click)="resetQuestionForm()">Wyczy&#347;&#263;</button>
     </div>
 
     <form [formGroup]="questionForm" class="question-form">
       <label>
-        Tresc pytania
-        <input class="form-control" formControlName="text" placeholder="Tresc pytania" />
+        Tre&#347;&#263; pytania
+        <input class="form-control" formControlName="text" placeholder="Tre&#347;&#263; pytania" />
         @if (questionForm.get('text')?.invalid && questionForm.get('text')?.touched) {
           <div class="error">Pytanie jest wymagane (min. 3 znaki).</div>
         }
@@ -82,7 +82,7 @@
           Typ pytania
           <select class="form-control" formControlName="type" (change)="onTypeChange()">
             <option value="ABCD">ABCD</option>
-            <option value="TRUE_FALSE">Prawda/Falsz</option>
+            <option value="TRUE_FALSE">Prawda/Fa&#322;sz</option>
           </select>
         </label>
       </div>
@@ -95,7 +95,7 @@
           </label>
           <label class="option-row">
             <input type="radio" formControlName="correctAnswerValue" [value]="false" />
-            <span>Falsz</span>
+            <span>Fa&#322;sz</span>
           </label>
         </div>
       } @else {
@@ -103,7 +103,7 @@
           @for (key of ['A','B','C','D']; track key) {
             <div class="option-row">
               <label class="option-label">{{ key }})</label>
-              <input class="form-control" [formControlName]="'option' + key" placeholder="Odpowiedz {{ key }}" />
+              <input class="form-control" [formControlName]="'option' + key" placeholder="Odpowied&#378; {{ key }}" />
               <label class="option-correct">
                 <input type="radio" formControlName="correctAnswer" [value]="key" />
                 <span>Poprawna</span>
@@ -125,5 +125,5 @@
 </div>
 
 <ng-template #loadingTpl>
-  <div class="loading">Ladowanie...</div>
+  <div class="loading">&#321;adowanie...</div>
 </ng-template>

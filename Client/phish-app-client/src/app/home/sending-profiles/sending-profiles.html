@@ -1,8 +1,8 @@
 ﻿<div class="sending-profiles-container">
   <header class="toolbar">
     <div class="left">
-      <h2>Profile wysylki</h2>
-      <div class="hint">Konfiguruj nadawcow i parametry serwera pocztowego dla kampanii.</div>
+      <h2>Profile wysy&#322;ki</h2>
+      <div class="hint">Konfiguruj nadawc&#243;w i parametry serwera pocztowego dla kampanii.</div>
     </div>
     <app-button-component
       [label]="'Nowy profil'"
@@ -56,7 +56,7 @@
     <div class="modal-backdrop" (click)="closeCreateModal()"></div>
     <div class="modal-dialog" role="dialog" aria-modal="true">
       <div class="modal-header">
-        <h3>Nowy profil wysylki</h3>
+        <h3>Nowy profil wysy&#322;ki</h3>
         <button class="close" type="button" (click)="closeCreateModal()">x</button>
       </div>
       <div class="modal-body" [formGroup]="createForm">
@@ -65,22 +65,22 @@
             Nazwa profilu *
             <input class="form-control" formControlName="name" />
             <div class="error" *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched">
-              Podaj nazwe profilu.
+              Podaj nazw&#281; profilu.
             </div>
           </label>
 
           <label>
-            Protokol
+            Protok&#243;&#322;
             <select class="form-control" formControlName="protocol">
               <option *ngFor="let protocol of protocolOptions" [value]="protocol">{{ protocol }}</option>
             </select>
           </label>
 
           <label>
-            Nadawca (imie i nazwisko) *
+            Nadawca (imi&#281; i nazwisko) *
             <input class="form-control" formControlName="senderName" />
             <div class="error" *ngIf="createForm.get('senderName')?.invalid && createForm.get('senderName')?.touched">
-              Podaj imie i nazwisko nadawcy.
+              Podaj imi&#281; i nazwisko nadawcy.
             </div>
           </label>
 
@@ -105,23 +105,23 @@
             Port *
             <input class="form-control" type="number" min="1" max="65535" formControlName="port" />
             <div class="error" *ngIf="createForm.get('port')?.invalid && createForm.get('port')?.touched">
-              Port musi miescic sie w zakresie 1-65535.
+              Port musi mie&#347;ci&#263; si&#281; w zakresie 1-65535.
             </div>
           </label>
 
           <label>
-            Nazwa uzytkownika *
+            Nazwa u&#380;ytkownika *
             <input class="form-control" formControlName="username" />
             <div class="error" *ngIf="createForm.get('username')?.invalid && createForm.get('username')?.touched">
-              Podaj nazwe uzytkownika serwera pocztowego.
+              Podaj nazw&#281; u&#380;ytkownika serwera pocztowego.
             </div>
           </label>
 
           <label>
-            Haslo *
+            Has&#322;o *
             <input class="form-control" type="password" formControlName="password" autocomplete="off" />
             <div class="error" *ngIf="createForm.get('password')?.invalid && createForm.get('password')?.touched">
-              Podaj haslo do serwera pocztowego.
+              Podaj has&#322;o do serwera pocztowego.
             </div>
           </label>
 
@@ -134,7 +134,7 @@
           </label>
 
           <label>
-            Testowy email odbiorcy (opcjonalnie)
+            Testowy e-mail odbiorcy (opcjonalnie)
             <input class="form-control" formControlName="testEmail" placeholder="odbiorca@twoja-domena.pl" />
             <div class="error" *ngIf="createForm.get('testEmail')?.invalid && createForm.get('testEmail')?.touched">
               Podaj poprawny adres e-mail.
@@ -143,7 +143,7 @@
 
           <label class="checkbox span-2">
             <input type="checkbox" formControlName="useSsl" />
-            <span>Wymagaj szyfrowania TLS/SSL dla polaczen</span>
+            <span>Wymagaj szyfrowania TLS/SSL dla po&#322;&#261;cze&#324;</span>
           </label>
         </div>
 
@@ -170,7 +170,7 @@
     <div class="modal-backdrop" (click)="closeEditModal()"></div>
     <div class="modal-dialog" role="dialog" aria-modal="true">
       <div class="modal-header">
-        <h3>Edytuj profil wysylki</h3>
+        <h3>Edytuj profil wysy&#322;ki</h3>
         <button class="close" type="button" (click)="closeEditModal()">x</button>
       </div>
       <form class="modal-body" [formGroup]="editForm" (ngSubmit)="saveEdit()">
@@ -179,22 +179,22 @@
             Nazwa profilu *
             <input class="form-control" formControlName="name" />
             <div class="error" *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched">
-              Podaj nazwe profilu.
+              Podaj nazw&#281; profilu.
             </div>
           </label>
 
           <label>
-            Protokol
+            Protok&#243;&#322;
             <select class="form-control" formControlName="protocol">
               <option *ngFor="let protocol of protocolOptions" [value]="protocol">{{ protocol }}</option>
             </select>
           </label>
 
           <label>
-            Nadawca (imie i nazwisko) *
+            Nadawca (imi&#281; i nazwisko) *
             <input class="form-control" formControlName="senderName" />
             <div class="error" *ngIf="editForm.get('senderName')?.invalid && editForm.get('senderName')?.touched">
-              Podaj imie i nazwisko nadawcy.
+              Podaj imi&#281; i nazwisko nadawcy.
             </div>
           </label>
 
@@ -219,20 +219,20 @@
             Port *
             <input class="form-control" type="number" min="1" max="65535" formControlName="port" />
             <div class="error" *ngIf="editForm.get('port')?.invalid && editForm.get('port')?.touched">
-              Port musi miescic sie w zakresie 1-65535.
+              Port musi mie&#347;ci&#263; si&#281; w zakresie 1-65535.
             </div>
           </label>
 
           <label>
-            Nazwa uzytkownika *
+            Nazwa u&#380;ytkownika *
             <input class="form-control" formControlName="username" />
             <div class="error" *ngIf="editForm.get('username')?.invalid && editForm.get('username')?.touched">
-              Podaj nazwe uzytkownika serwera pocztowego.
+              Podaj nazw&#281; u&#380;ytkownika serwera pocztowego.
             </div>
           </label>
 
           <label>
-            Haslo (opcjonalnie)
+            Has&#322;o (opcjonalnie)
             <input class="form-control" type="password" formControlName="password" autocomplete="off" />
           </label>
 
@@ -245,7 +245,7 @@
           </label>
 
           <label>
-            Testowy email odbiorcy (opcjonalnie)
+            Testowy e-mail odbiorcy (opcjonalnie)
             <input class="form-control" formControlName="testEmail" placeholder="odbiorca@twoja-domena.pl" />
             <div class="error" *ngIf="editForm.get('testEmail')?.invalid && editForm.get('testEmail')?.touched">
               Podaj poprawny adres e-mail.
@@ -254,7 +254,7 @@
 
           <label class="checkbox span-2">
             <input type="checkbox" formControlName="useSsl" />
-            <span>Wymagaj szyfrowania TLS/SSL dla polaczen</span>
+            <span>Wymagaj szyfrowania TLS/SSL dla po&#322;&#261;cze&#324;</span>
           </label>
         </div>
 
