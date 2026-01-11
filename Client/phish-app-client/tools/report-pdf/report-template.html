@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
@@ -34,6 +34,17 @@
       box-shadow: 0 16px 60px rgba(15, 23, 42, 0.12);
       padding: 28px 32px 36px;
       border: 1px solid #dbeafe;
+    }
+
+    .page + .page {
+      margin-top: 24px;
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .no-break {
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     header.hero {
@@ -365,7 +376,7 @@
       <div class="section-header">
         <div>
           <h3>Filtry raportu</h3>
-          <p>Zapisany zestaw parametrów użyty do eksportu.</p>
+          <p>Zapisany zestaw parametr&#243;w u&#380;yty do eksportu.</p>
         </div>
       </div>
       <div class="filters">
@@ -388,7 +399,7 @@
       <div class="section-header">
         <div>
           <h3>Podsumowanie</h3>
-          <p>Najważniejsze liczby kampanii.</p>
+          <p>Najwa&#380;niejsze liczby kampanii.</p>
         </div>
       </div>
       <div class="cards">
@@ -398,12 +409,14 @@
         {{METRIC_ITEMS}}
       </div>
     </section>
+  </div>
 
-    <section>
+  <div class="page">
+    <section class="no-break">
       <div class="section-header">
         <div>
-          <h3>Aktywność użytkowników</h3>
-          <p>Wysłane, otwarcia i kliknięcia (udział w najwyższej wartości oraz w wysłanych).</p>
+          <h3>Aktywno&#347;&#263; u&#380;ytkownik&#243;w</h3>
+          <p>Wys&#322;ane, otwarcia i klikni&#281;cia (udzia&#322; w najwy&#380;szej warto&#347;ci oraz w wys&#322;anych).</p>
         </div>
       </div>
       <div class="bars">
@@ -415,7 +428,7 @@
       <div class="section-header">
         <div>
           <h3>Tabela interakcji</h3>
-          <p>Szczegółowe zdarzenia odbiorców.</p>
+          <p>Szczeg&#243;&#322;owe zdarzenia odbiorc&#243;w.</p>
         </div>
       </div>
       <table>
@@ -423,9 +436,9 @@
           <tr>
             <th>Odbiorca</th>
             <th>Status</th>
-            <th>Wysłane</th>
+            <th>Wys&#322;ane</th>
             <th>Otwarcie</th>
-            <th>Kliknięcie</th>
+            <th>Klikni&#281;cie</th>
           </tr>
         </thead>
         <tbody>
